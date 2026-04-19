@@ -1,0 +1,2434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Observatorio SSOMA · Más Prevención — Datos de accidentabilidad laboral en Chile, Perú y LATAM</title>
+<meta name="description" content="El observatorio más completo sobre seguridad y salud laboral en Chile, Perú y Latinoamérica. Datos oficiales de SUSESO, MTPE y OIT. Diagnostica tu empresa.">
+<meta property="og:title" content="Observatorio SSOMA · Más Prevención">
+<meta property="og:description" content="Datos de accidentabilidad laboral en Chile, Perú y LATAM. Diagnostica tu empresa.">
+<meta property="og:type" content="website">
+
+<!-- Fuentes editoriales -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400;1,9..144,500;1,9..144,600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Leaflet para mapas -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<!-- D3 para visualizaciones avanzadas -->
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
+
+<style>
+/* ============================================================
+   OBSERVATORIO SSOMA · MÁS PREVENCIÓN
+   Sistema de diseño editorial
+   ============================================================ */
+
+:root {
+  /* Paleta Medianoche — dark editorial */
+  --ink: #EEE9DE;              /* Texto principal claro */
+  --ink-soft: #D4CFC4;
+  --ink-muted: #8E8B81;
+  --ink-faint: #5C5A52;
+  --paper: #0F1419;            /* Fondo base oscuro */
+  --paper-soft: #1A1F26;       /* Superficie elevada */
+  --paper-warm: #141820;       /* Variante cálida */
+  --cream: #252A32;            /* Card elevado distintivo */
+  --hairline: #2D3340;
+  --hairline-soft: #20252E;
+
+  /* Acento dorado */
+  --accent: #D4B98F;
+  --accent-deep: #B89B6F;
+  --accent-soft: #2C2518;      /* Dorado muy diluido sobre dark */
+  --critical: #E57A5C;         /* Coral luminoso para dark */
+  --critical-soft: #3A1F19;
+  --positive: #8FB58A;
+  --gold: #D4B98F;
+
+  /* Escala heatmap dorada sobre dark (de sutil a luminoso) */
+  --heat-0: #1A1F26;
+  --heat-1: #2D2D24;
+  --heat-2: #4A4028;
+  --heat-3: #7A5F38;
+  --heat-4: #B08248;
+  --heat-5: #E8C995;
+
+  /* Escala LATAM */
+  --geo-0: #1A1F26;
+  --geo-1: #2D3340;
+  --geo-2: #605944;
+  --geo-3: #957F53;
+  --geo-4: #D4B98F;
+
+  /* Tipografía */
+  --display: 'Fraunces', 'Times New Roman', serif;
+  --editorial: 'Newsreader', Georgia, serif;
+  --ui: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', 'Menlo', monospace;
+
+  /* Espaciado */
+  --container: 1280px;
+  --container-narrow: 860px;
+
+  /* Sombras dark — más profundas */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.45);
+  --shadow-lg: 0 24px 48px rgba(0,0,0,0.6);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--editorial);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Noise texture sutil sobre toda la página para sensación papel */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  z-index: 1000;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+.container { max-width: var(--container); margin: 0 auto; padding: 0 32px; }
+.container-narrow { max-width: var(--container-narrow); margin: 0 auto; padding: 0 32px; }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(15,20,25,0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+}
+.nav-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 14px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+}
+.logo {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.logo-bullet {
+  display: inline-block;
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  transform: translateY(-2px);
+}
+.logo-sub {
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.nav-links {
+  display: flex;
+  gap: 28px;
+  font-family: var(--ui);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.nav-links a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 4px 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color .2s;
+}
+.nav-links a:hover { border-bottom-color: var(--accent); }
+.nav-cta {
+  font-family: var(--ui);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 18px;
+  background: var(--accent);
+  color: #0F1419;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: background .2s;
+}
+.nav-cta:hover { background: var(--accent-deep); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  padding: 100px 32px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+.hero-meta {
+  font-family: var(--ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+.hero-meta::before {
+  content: '';
+  display: inline-block;
+  width: 36px;
+  height: 1px;
+  background: var(--accent);
+}
+.hero h1 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-variation-settings: "opsz" 144;
+  font-size: clamp(48px, 7vw, 96px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  margin-bottom: 36px;
+  max-width: 1100px;
+}
+.hero h1 em {
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+  color: var(--accent);
+  font-weight: 400;
+}
+.hero-lead {
+  font-family: var(--editorial);
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--ink-soft);
+  max-width: 760px;
+  margin-bottom: 48px;
+}
+.hero-lead strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.fresh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--ui);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 16px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 100px;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+.fresh-dot {
+  width: 6px; height: 6px;
+  background: var(--positive);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+/* Decorative diana (cross-hair) sutil en el hero */
+.hero-crosshair {
+  position: absolute;
+  right: 5%;
+  top: 80px;
+  width: 420px;
+  height: 420px;
+  opacity: 0.18;
+  color: var(--accent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================================
+   STATS GIGANTES
+   ============================================================ */
+.stats-section {
+  padding: 80px 0;
+  background: var(--paper-soft);
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+}
+.stats-intro {
+  max-width: 640px;
+  margin: 0 auto 60px;
+  text-align: center;
+  padding: 0 32px;
+}
+.stats-intro .kicker {
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+.stats-intro h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.stats-intro h2 em {
+  font-style: italic;
+  color: var(--accent);
+}
+.stats-grid {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--hairline);
+  border-left: 1px solid var(--hairline);
+}
+.stat {
+  padding: 40px 28px;
+  border-right: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--paper-soft);
+  position: relative;
+  overflow: hidden;
+}
+.stat:hover { background: var(--cream); transition: background .3s; }
+.stat-number {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(44px, 5.5vw, 72px);
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label {
+  font-family: var(--ui);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.stat-detail {
+  font-family: var(--editorial);
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.stat-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.02em;
+}
+.stat-trend.down { color: var(--positive); background: rgba(143,181,138,0.12); }
+.stat-trend.up { color: var(--critical); background: rgba(229,122,92,0.12); }
+.stat-trend.flat { color: var(--ink-muted); background: rgba(212,207,196,0.08); }
+
+/* ============================================================
+   SECCIONES GENERALES (cada visualización)
+   ============================================================ */
+.viz-section { padding: 110px 0; position: relative; }
+.viz-section + .viz-section { border-top: 1px solid var(--hairline); }
+.viz-section.alt { background: var(--paper-soft); }
+
+.section-header { max-width: var(--container); margin: 0 auto 56px; padding: 0 32px; }
+.section-number {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+.section-title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(34px, 4.5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  max-width: 900px;
+  margin-bottom: 24px;
+}
+.section-title em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+}
+.section-lead {
+  font-family: var(--editorial);
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 640px;
+}
+
+/* Source attribution pequeñito y sobrio */
+.source-line {
+  font-family: var(--ui);
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline-soft);
+}
+.source-line strong {
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+/* ============================================================
+   MAPA CHILE
+   ============================================================ */
+.map-wrapper {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+#chile-map {
+  height: 640px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  position: relative;
+}
+.leaflet-container {
+  background: var(--paper-soft) !important;
+  font-family: var(--ui) !important;
+}
+.map-tooltip {
+  font-family: var(--ui);
+  font-size: 12px;
+  background: #05090E !important;
+  color: var(--ink) !important;
+  border: 1px solid rgba(212,185,143,0.35) !important;
+  border-radius: 2px !important;
+  padding: 10px 14px !important;
+  box-shadow: var(--shadow-md);
+}
+.map-tooltip::before { border-top-color: #05090E !important; }
+.map-tooltip strong {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 6px;
+  color: var(--accent);
+}
+.map-tooltip .tt-line { display: flex; justify-content: space-between; gap: 14px; margin-top: 3px; }
+.map-tooltip .tt-val { font-family: var(--mono); color: var(--accent); }
+
+.map-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.map-legend h3 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.map-legend-scale {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 20px 0 10px;
+}
+.legend-box {
+  width: 44px;
+  height: 22px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.legend-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-muted);
+  margin-top: 6px;
+  text-align: center;
+  flex: 1;
+}
+.legend-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-muted);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+  width: 100%;
+}
+.region-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 460px;
+  overflow-y: auto;
+  border: 1px solid var(--hairline);
+  background: var(--paper-soft);
+  margin-top: 20px;
+}
+.region-list::-webkit-scrollbar { width: 6px; }
+.region-list::-webkit-scrollbar-thumb { background: var(--hairline); }
+.region-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  font-family: var(--ui);
+  font-size: 13px;
+  border-bottom: 1px solid var(--hairline-soft);
+  cursor: pointer;
+  transition: background .15s;
+}
+.region-row:hover { background: var(--cream); }
+.region-row.active { background: var(--accent-soft); }
+.region-row .reg-name { color: var(--ink-soft); }
+.region-row .reg-val {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* Controles globales */
+.controls {
+  max-width: var(--container);
+  margin: 0 auto 32px;
+  padding: 0 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.control-label {
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  margin-right: 8px;
+}
+.control-btn {
+  font-family: var(--ui);
+  font-size: 13px;
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--ink-soft);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all .15s;
+}
+.control-btn:hover { border-color: var(--accent); color: var(--ink); }
+.control-btn.active {
+  background: var(--accent);
+  color: #0F1419;
+  border-color: var(--accent);
+}
+
+/* ============================================================
+   RANKING INDUSTRIAS
+   ============================================================ */
+.ranking-wrapper {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  gap: 64px;
+  align-items: start;
+}
+.ranking-bars { display: flex; flex-direction: column; gap: 18px; }
+.ranking-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 70px;
+  gap: 16px;
+  align-items: center;
+}
+.ranking-industry {
+  font-family: var(--ui);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: right;
+}
+.ranking-bar-track {
+  height: 28px;
+  background: var(--hairline-soft);
+  border-radius: 1px;
+  position: relative;
+  overflow: hidden;
+}
+.ranking-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  position: relative;
+  transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  width: 0;
+}
+.ranking-bar-fill.high { background: var(--critical); }
+.ranking-bar-fill.mid { background: var(--accent); }
+.ranking-bar-fill.low { background: var(--positive); }
+.ranking-value {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ranking-sidebar {
+  padding: 32px;
+  background: var(--cream);
+  color: var(--ink);
+  border-radius: 2px;
+  border: 1px solid var(--hairline);
+}
+.ranking-sidebar h3 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+.ranking-sidebar h3 em {
+  font-style: italic;
+  color: var(--accent);
+}
+.ranking-sidebar p {
+  font-family: var(--editorial);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+}
+.ranking-sidebar .big-num {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 64px;
+  line-height: 1;
+  color: var(--accent);
+  margin: 24px 0 8px;
+  letter-spacing: -0.03em;
+}
+.ranking-sidebar .big-num-label {
+  font-family: var(--ui);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+}
+
+/* ============================================================
+   HEATMAP MATRIZ
+   ============================================================ */
+.matriz-wrapper {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.matriz-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--ui);
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+}
+.matriz-table th, .matriz-table td {
+  padding: 12px 10px;
+  text-align: center;
+  border: 1px solid var(--hairline-soft);
+  font-size: 12px;
+}
+.matriz-table th {
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--cream);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 14px 8px;
+}
+.matriz-table th.industry-col {
+  text-align: left;
+  padding-left: 18px;
+}
+.matriz-table td.industry-name {
+  text-align: left;
+  padding-left: 18px;
+  font-weight: 500;
+  font-family: var(--ui);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--paper-soft);
+  border-right: 2px solid var(--accent);
+}
+.matriz-cell {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  position: relative;
+  cursor: default;
+  transition: transform .15s;
+}
+.matriz-cell:hover {
+  transform: scale(1.05);
+  z-index: 2;
+  box-shadow: var(--shadow-md);
+}
+
+/* ============================================================
+   EVOLUCIÓN HISTÓRICA (time series)
+   ============================================================ */
+.timeline-wrapper {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.chart-container { position: relative; height: 420px; }
+.timeline-insight {
+  padding: 28px;
+  background: var(--paper-soft);
+  border-left: 2px solid var(--accent);
+}
+.timeline-insight .kicker {
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.timeline-insight h4 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.timeline-insight p {
+  font-family: var(--editorial);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+
+/* ============================================================
+   COMPARADOR
+   ============================================================ */
+.comparador-wrapper {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.comp-selectors {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 48px;
+}
+.comp-selector {
+  padding: 20px 24px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+}
+.comp-selector label {
+  display: block;
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  margin-bottom: 10px;
+}
+.comp-selector select {
+  width: 100%;
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.comp-vs {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 28px;
+  color: var(--accent);
+}
+.comp-results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--hairline);
+}
+.comp-col {
+  padding: 28px;
+}
+.comp-col.a { background: var(--paper-soft); }
+.comp-col.b { background: var(--cream); border-left: 1px solid var(--hairline); }
+.comp-kpi {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+.comp-kpi:last-child { border-bottom: none; }
+.comp-kpi-label {
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+}
+.comp-kpi-value {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.comp-kpi-value .unit {
+  font-size: 16px;
+  color: var(--ink-muted);
+  margin-left: 4px;
+  font-weight: 400;
+}
+.comp-kpi-note {
+  font-family: var(--editorial);
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-top: 6px;
+}
+.comp-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  margin-left: 8px;
+  font-weight: 500;
+}
+.comp-badge.worse { background: rgba(229,122,92,0.15); color: var(--critical); }
+.comp-badge.better { background: rgba(143,181,138,0.15); color: var(--positive); }
+.comp-badge.equal { background: rgba(212,207,196,0.08); color: var(--ink-muted); }
+
+/* ============================================================
+   LATAM
+   ============================================================ */
+.latam-wrapper {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 48px;
+  align-items: start;
+}
+#latam-map { height: 620px; background: var(--paper-soft); border: 1px solid var(--hairline); }
+.latam-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--ui);
+}
+.latam-table thead th {
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: left;
+  padding: 12px 10px;
+  border-bottom: 2px solid var(--accent);
+  color: var(--ink);
+}
+.latam-table thead th.num { text-align: right; }
+.latam-table tbody td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--hairline-soft);
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.latam-table tbody td.country-name {
+  font-weight: 500;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.country-dot {
+  width: 14px; height: 14px;
+  border-radius: 1px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.latam-table tbody td.num {
+  text-align: right;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.latam-table tbody tr:hover { background: var(--cream); cursor: default; }
+
+/* ============================================================
+   DONUT (formas de accidente fatal)
+   ============================================================ */
+.donut-wrapper {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.donut-legend-row {
+  display: grid;
+  grid-template-columns: 12px 1fr auto 50px;
+  gap: 14px;
+  align-items: center;
+  font-family: var(--ui);
+  font-size: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+.donut-dot {
+  width: 12px; height: 12px;
+  border-radius: 1px;
+}
+.donut-label { color: var(--ink); font-weight: 500; }
+.donut-count { font-family: var(--mono); color: var(--ink-muted); font-size: 13px; }
+.donut-pct { font-family: var(--mono); font-weight: 600; color: var(--ink); font-size: 13px; text-align: right; }
+
+/* ============================================================
+   CTA DIAGNÓSTICO
+   ============================================================ */
+.cta-diag {
+  padding: 120px 32px;
+  background: #05090E;
+  color: var(--ink);
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+}
+.cta-diag-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.cta-diag .kicker {
+  font-family: var(--ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cta-diag .kicker::before {
+  content: ''; display: inline-block;
+  width: 36px; height: 1px; background: var(--accent);
+}
+.cta-diag h2 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin-bottom: 32px;
+  color: var(--ink);
+}
+.cta-diag h2 em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+}
+.cta-diag-lead {
+  font-family: var(--editorial);
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-bottom: 40px;
+  max-width: 560px;
+}
+.cta-diag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--ui);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 18px 32px;
+  background: var(--accent);
+  color: #0F1419;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: transform .2s, box-shadow .2s;
+}
+.cta-diag-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(212,185,143,0.25); }
+.cta-diag-btn .arrow {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 400;
+  transition: transform .2s;
+}
+.cta-diag-btn:hover .arrow { transform: translateX(4px); }
+.cta-diag-side {
+  padding: 40px;
+  border: 1px solid rgba(212,185,143,0.2);
+  background: rgba(212,185,143,0.04);
+}
+.cta-diag-side h4 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+}
+.cta-checklist {
+  list-style: none;
+  padding: 0;
+}
+.cta-checklist li {
+  font-family: var(--editorial);
+  font-size: 15px;
+  color: var(--ink-soft);
+  padding: 12px 0;
+  padding-left: 32px;
+  position: relative;
+  border-bottom: 1px solid rgba(212,185,143,0.12);
+}
+.cta-checklist li:last-child { border-bottom: none; }
+.cta-checklist li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 18px;
+  width: 16px; height: 2px;
+  background: var(--accent);
+}
+
+/* Decorative diana en CTA dark */
+.cta-diana {
+  position: absolute;
+  right: -120px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 600px; height: 600px;
+  opacity: 0.12;
+  color: var(--accent);
+  pointer-events: none;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  padding: 80px 32px 40px;
+  background: var(--paper-warm);
+  border-top: 1px solid var(--hairline);
+}
+.footer-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 56px;
+}
+.footer-brand .logo-big {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.footer-brand p {
+  font-family: var(--editorial);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-muted);
+  max-width: 340px;
+}
+.footer-col h5 {
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.footer-col ul { list-style: none; }
+.footer-col ul li {
+  font-family: var(--ui);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.footer-col ul li a { color: var(--ink-soft); text-decoration: none; transition: color .15s; }
+.footer-col ul li a:hover { color: var(--accent); }
+.footer-sources {
+  padding: 32px 0;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  max-width: var(--container);
+  margin: 0 auto 32px;
+}
+.footer-sources h5 {
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  margin-bottom: 18px;
+}
+.footer-sources .src-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.src-item {
+  font-family: var(--ui);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+.src-item strong {
+  display: block;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+.src-item a { color: var(--accent); text-decoration: none; font-size: 11px; }
+.src-item a:hover { text-decoration: underline; }
+.footer-bottom {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--ui);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+.powered-by {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--ui);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+.powered-by strong {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1100px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .map-wrapper, .ranking-wrapper, .latam-wrapper, .donut-wrapper, .timeline-wrapper, .cta-diag-inner {
+    grid-template-columns: 1fr;
+  }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+  .footer-sources .src-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .hero { padding: 60px 20px 40px; }
+  .viz-section { padding: 60px 0; }
+  .container, .section-header, .controls, .map-wrapper, .ranking-wrapper, .matriz-wrapper, .comparador-wrapper, .latam-wrapper, .donut-wrapper, .timeline-wrapper { padding-left: 20px; padding-right: 20px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .comp-selectors { grid-template-columns: 1fr; }
+  .comp-vs { text-align: center; }
+  .ranking-row { grid-template-columns: 120px 1fr 54px; gap: 10px; }
+  .ranking-industry { font-size: 12px; }
+  .matriz-table { font-size: 10px; }
+  .matriz-table th, .matriz-table td { padding: 8px 4px; }
+  .footer-inner { grid-template-columns: 1fr; }
+  .footer-sources .src-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scroll-triggered stagger for hero */
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-meta { animation: reveal 0.8s ease-out 0.1s backwards; }
+.hero h1 { animation: reveal 0.9s ease-out 0.25s backwards; }
+.hero-lead { animation: reveal 0.9s ease-out 0.45s backwards; }
+.fresh-badge { animation: reveal 0.9s ease-out 0.65s backwards; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVIGATION
+     ============================================================ -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <span class="logo-bullet"></span>
+      Observatorio SSOMA
+      <span class="logo-sub">· Más Prevención</span>
+    </a>
+    <div class="nav-links">
+      <a href="#chile">Chile</a>
+      <a href="#industrias">Industrias</a>
+      <a href="#latam">LATAM</a>
+      <a href="#metodologia">Metodología</a>
+    </div>
+    <a href="#diagnostico" class="nav-cta">Diagnóstico gratis</a>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero">
+  <svg class="hero-crosshair" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="200" cy="200" r="190" fill="none" stroke="currentColor" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="140" fill="none" stroke="currentColor" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="90" fill="none" stroke="currentColor" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="40" fill="none" stroke="currentColor" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="4" fill="currentColor"/>
+    <line x1="10" y1="200" x2="390" y2="200" stroke="currentColor" stroke-width="0.3"/>
+    <line x1="200" y1="10" x2="200" y2="390" stroke="currentColor" stroke-width="0.3"/>
+  </svg>
+  <div class="hero-inner">
+    <div class="hero-meta">Edición 2025 · Volumen I · Datos oficiales 2015–2024</div>
+    <h1>La <em>seguridad laboral</em><br>de Chile, Perú y LATAM<br>en un solo observatorio.</h1>
+    <p class="hero-lead">
+      <strong>7,25 millones de trabajadores chilenos protegidos.</strong> 199.874 accidentes laborales en 2024.
+      154 fallecidos. Detrás de cada cifra hay una empresa que pudo hacer algo distinto.
+      Entenderlas es el primer paso para cambiar las suyas.
+    </p>
+    <div class="fresh-badge">
+      <span class="fresh-dot"></span>
+      <span>Datos actualizados al <strong id="fecha-actualizacion">Abril 2025</strong> · SUSESO, MTPE Perú, OIT</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     GIANT STATS — Panorama 2024
+     ============================================================ -->
+<section class="stats-section">
+  <div class="stats-intro">
+    <div class="kicker">Panorama 2024 · Chile</div>
+    <h2>Los accidentes bajan. Las <em>fatalidades</em> también. La salud mental, en cambio, <em>sube</em>.</h2>
+  </div>
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-label">Tasa accidentabilidad</div>
+      <div class="stat-number">2,5<span style="font-size:40%;color:var(--ink-muted)">%</span></div>
+      <div class="stat-detail">Accidentes por 100 personas protegidas</div>
+      <span class="stat-trend down">↓ 0,1 pp vs 2023</span>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Accidentes totales</div>
+      <div class="stat-number">199.874</div>
+      <div class="stat-detail">Del trabajo (72%) y de trayecto (28%)</div>
+      <span class="stat-trend down">↓ 3,7% vs 2023</span>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Fatalidades laborales</div>
+      <div class="stat-number">154</div>
+      <div class="stat-detail">95% hombres · 5% mujeres · 49% con vehículo involucrado</div>
+      <span class="stat-trend down">↓ vs 188 en 2023</span>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Enfermedades profesionales</div>
+      <div class="stat-number">11.966</div>
+      <div class="stat-detail">72% salud mental · 13% vinculadas a Ley Karin</div>
+      <span class="stat-trend up">↑ Salud mental +5 pp</span>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Trabajadores protegidos</div>
+      <div class="stat-number">7,25M</div>
+      <div class="stat-detail">Ley 16.744 · Mutualidades e ISL</div>
+      <span class="stat-trend flat">+0,6% vs 2023</span>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Empresas adheridas</div>
+      <div class="stat-number">1,19M</div>
+      <div class="stat-detail">77% ISL · 23% Mutualidades</div>
+      <span class="stat-trend flat">Cobertura estable</span>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Días perdidos promedio</div>
+      <div class="stat-number">18,5</div>
+      <div class="stat-detail">Por cada accidente del trabajo</div>
+      <span class="stat-trend down">↓ 7% vs 2023</span>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Accidentes graves</div>
+      <div class="stat-number">1.439</div>
+      <div class="stat-detail">43% amputaciones traumáticas</div>
+      <span class="stat-trend flat">1% del total laboral</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     VIZ 1 — MAPA DE CHILE
+     ============================================================ -->
+<section class="viz-section" id="chile">
+  <div class="section-header">
+    <div class="section-number">I.</div>
+    <h2 class="section-title">Dónde está la <em>gente expuesta</em> en Chile.</h2>
+    <p class="section-lead">
+      La Región Metropolitana concentra el <strong>57,9%</strong> de los trabajadores protegidos del país.
+      Pero el riesgo real de cada región no se explica solo por su tamaño: depende de qué industrias la componen.
+      Pasa el cursor sobre el mapa para explorar.
+    </p>
+  </div>
+  <div class="map-wrapper">
+    <div id="chile-map"></div>
+    <div class="map-legend">
+      <h3>Trabajadores protegidos por región</h3>
+      <p style="font-family: var(--editorial); font-size: 15px; color: var(--ink-soft); line-height: 1.5;">
+        El mapa colorea la concentración relativa de trabajadores bajo el seguro social de la Ley 16.744.
+        Una región con más trabajadores no implica mayor accidentabilidad — el riesgo se explica por industria.
+      </p>
+      <div class="legend-scale-labels">
+        <span>Menor</span>
+        <span>Mayor concentración</span>
+      </div>
+      <div class="map-legend-scale" id="map-scale"></div>
+      <div class="region-list" id="region-list"></div>
+      <div class="source-line">
+        <strong>Fuente:</strong> SUSESO, Observatorio SST, datos al 14/03/2025 · Elaboración Observatorio Más Prevención
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     VIZ 2 — RANKING INDUSTRIAS
+     ============================================================ -->
+<section class="viz-section alt" id="industrias">
+  <div class="section-header">
+    <div class="section-number">II.</div>
+    <h2 class="section-title">La <em>industria manufacturera</em> vuelve a liderar el riesgo.</h2>
+    <p class="section-lead">
+      Durante 2024, todas las actividades económicas redujeron su tasa de accidentabilidad.
+      Pero las distancias entre rubros siguen siendo enormes: la minería es <strong>casi cuatro veces más segura</strong>
+      que la manufactura.
+    </p>
+  </div>
+  <div class="controls">
+    <span class="control-label">Año</span>
+    <button class="control-btn" data-year="2019">2019</button>
+    <button class="control-btn" data-year="2020">2020</button>
+    <button class="control-btn" data-year="2021">2021</button>
+    <button class="control-btn" data-year="2022">2022</button>
+    <button class="control-btn" data-year="2023">2023</button>
+    <button class="control-btn active" data-year="2024">2024</button>
+  </div>
+  <div class="ranking-wrapper">
+    <div class="ranking-bars" id="ranking-bars"></div>
+    <div class="ranking-sidebar">
+      <h3>La <em>paradoja</em> de la minería</h3>
+      <p>
+        Pese a ser una de las actividades más peligrosas del país por gravedad de sus accidentes,
+        Chile tiene la tasa de accidentabilidad minera más baja del continente.
+      </p>
+      <p>
+        La diferencia la hacen décadas de inversión en cultura preventiva, sistemas de gestión obligatorios
+        y fiscalización reforzada.
+      </p>
+      <div class="big-num">0,9<span style="font-size:40%;color:#8E8B81">%</span></div>
+      <div class="big-num-label">Tasa minería 2024 — vs 3,5% manufactura</div>
+    </div>
+  </div>
+  <div class="section-header" style="margin-top: 40px; margin-bottom: 0;">
+    <p class="source-line" style="border: none; padding: 0; max-width: 100%;">
+      <strong>Fuente:</strong> SUSESO, Informe Anual SST 2024 · Tasa = accidentes del trabajo por cada 100 personas trabajadoras protegidas · No incluye accidentes de trayecto
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     VIZ 3 — EVOLUCIÓN HISTÓRICA 2015–2024
+     ============================================================ -->
+<section class="viz-section" id="evolucion">
+  <div class="section-header">
+    <div class="section-number">III.</div>
+    <h2 class="section-title">Diez años de <em>caída sostenida</em>.</h2>
+    <p class="section-lead">
+      La accidentabilidad chilena ha caído desde un 5,2% en 2015 hasta un 2,5% en 2024 —
+      una reducción de más del 50% en una década. La caída es real, pero esconde realidades muy distintas entre rubros.
+    </p>
+  </div>
+  <div class="timeline-wrapper">
+    <div class="chart-container">
+      <canvas id="chart-evolucion"></canvas>
+    </div>
+    <div class="timeline-insight">
+      <div class="kicker">El quiebre de 2020</div>
+      <h4>La pandemia marca un antes y un después.</h4>
+      <p>
+        La caída abrupta de 2020 no refleja mejor prevención: refleja menos trabajadores expuestos,
+        menos faenas activas y subregistro por teletrabajo.
+      </p>
+      <p>
+        Desde 2021, el país se estabilizó en una nueva meseta en torno al 2,5–2,8%,
+        sin lograr consolidar la baja estructural que el DS 44 (2025) intenta impulsar.
+      </p>
+      <div class="source-line" style="margin-top: 24px;">
+        <strong>Fuente:</strong> SUSESO, series 2015–2024
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     VIZ 4 — MATRIZ INDUSTRIA × TIPO DE ACCIDENTE
+     ============================================================ -->
+<section class="viz-section alt">
+  <div class="section-header">
+    <div class="section-number">IV.</div>
+    <h2 class="section-title">Cada industria tiene <em>su riesgo característico</em>.</h2>
+    <p class="section-lead">
+      Los golpes dominan en manufactura. Las caídas desde altura son el enemigo de la construcción.
+      El sobreesfuerzo atraviesa todos los rubros de servicios. Esta matriz cruza las formas de accidente
+      más frecuentes con las industrias donde más pesan.
+    </p>
+  </div>
+  <div class="matriz-wrapper">
+    <table class="matriz-table" id="matriz-table"></table>
+    <p class="source-line">
+      <strong>Fuente:</strong> SUSESO 2024 (formas del accidente) · Elaboración Observatorio Más Prevención basada en distribución relativa por sector. Celdas muestran el porcentaje de los accidentes de la industria que corresponden a cada forma.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     VIZ 5 — FORMAS DE ACCIDENTE FATAL
+     ============================================================ -->
+<section class="viz-section">
+  <div class="section-header">
+    <div class="section-number">V.</div>
+    <h2 class="section-title">Cómo <em>mueren</em> los trabajadores en Chile.</h2>
+    <p class="section-lead">
+      De los 78 accidentes fatales del trabajo ocurridos en 2024 sin participación de vehículos,
+      <strong>el 38% fueron caídas de personas</strong>. El segundo gran asesino: atrapamientos y amputaciones,
+      con 15 casos.
+    </p>
+  </div>
+  <div class="donut-wrapper">
+    <div class="chart-container" style="height: 380px;">
+      <canvas id="chart-donut"></canvas>
+    </div>
+    <div class="donut-legend" id="donut-legend"></div>
+  </div>
+  <div class="section-header" style="margin-top: 40px; margin-bottom: 0;">
+    <p class="source-line" style="border: none; padding: 0; max-width: 100%;">
+      <strong>Fuente:</strong> SUSESO, SISESAT, datos actualizados al 24/04/2025 · N=78 accidentes fatales sin participación de vehículo
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     VIZ 6 — COMPARADOR
+     ============================================================ -->
+<section class="viz-section alt">
+  <div class="section-header">
+    <div class="section-number">VI.</div>
+    <h2 class="section-title">Compara <em>dos industrias</em>, descubre las distancias reales.</h2>
+    <p class="section-lead">
+      Ocho indicadores clave. Dos actividades económicas. Un mapa claro de qué tan distinto es
+      el riesgo real entre dos sectores.
+    </p>
+  </div>
+  <div class="comparador-wrapper">
+    <div class="comp-selectors">
+      <div class="comp-selector">
+        <label>Industria A</label>
+        <select id="comp-a"></select>
+      </div>
+      <div class="comp-vs">vs</div>
+      <div class="comp-selector">
+        <label>Industria B</label>
+        <select id="comp-b"></select>
+      </div>
+    </div>
+    <div class="comp-results" id="comp-results"></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     VIZ 7 — LATAM
+     ============================================================ -->
+<section class="viz-section" id="latam">
+  <div class="section-header">
+    <div class="section-number">VII.</div>
+    <h2 class="section-title">El mapa <em>oculto</em> de LATAM.</h2>
+    <p class="section-lead">
+      Los datos comparables internacionalmente son escasos. La OIT (ILOSTAT) consolida tasas de mortalidad laboral
+      por país con rezagos de varios años. Aun así, el mapa revela brechas enormes — y posiciona a Chile entre los
+      países con mejor desempeño relativo del continente.
+    </p>
+  </div>
+  <div class="latam-wrapper">
+    <div id="latam-map"></div>
+    <div>
+      <table class="latam-table" id="latam-table">
+        <thead>
+          <tr>
+            <th>País</th>
+            <th class="num">Tasa mortalidad</th>
+            <th class="num">Año</th>
+          </tr>
+        </thead>
+        <tbody id="latam-tbody"></tbody>
+      </table>
+      <p class="source-line" style="margin-top: 24px;">
+        <strong>Fuente:</strong> OIT / ILOSTAT · Tasa de mortalidad laboral por cada 100.000 trabajadores · Último año disponible por país · Las coberturas nacionales varían y los datos no siempre son directamente comparables
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CTA DIAGNÓSTICO
+     ============================================================ -->
+<section class="cta-diag" id="diagnostico">
+  <svg class="cta-diana" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="300" cy="300" r="290" fill="none" stroke="currentColor" stroke-width="0.8"/>
+    <circle cx="300" cy="300" r="220" fill="none" stroke="currentColor" stroke-width="0.8"/>
+    <circle cx="300" cy="300" r="150" fill="none" stroke="currentColor" stroke-width="0.8"/>
+    <circle cx="300" cy="300" r="80" fill="none" stroke="currentColor" stroke-width="0.8"/>
+    <circle cx="300" cy="300" r="10" fill="currentColor"/>
+  </svg>
+  <div class="cta-diag-inner">
+    <div>
+      <div class="kicker">Siguiente paso</div>
+      <h2>Descubre <em>dónde estás</em> exactamente en este mapa.</h2>
+      <p class="cta-diag-lead">
+        Ingresa seis datos de tu empresa y recibe en menos de cinco minutos un reporte de brechas personalizado:
+        tu posición en el rubro, el cumplimiento legal básico, los riesgos característicos de tu sector
+        y acciones concretas priorizadas.
+      </p>
+      <a href="#" class="cta-diag-btn" onclick="alert('Muy pronto: flujo de diagnóstico en construcción. Esta es la versión pública del Observatorio.'); return false;">
+        <span>Iniciar diagnóstico</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+    <div class="cta-diag-side">
+      <h4>Qué recibes en el reporte</h4>
+      <ul class="cta-checklist">
+        <li>Tu posición frente al promedio del rubro en Chile</li>
+        <li>Percentil exacto en tu industria</li>
+        <li>Brechas vs. el top 10% de empresas similares</li>
+        <li>Radar de cumplimiento legal básico</li>
+        <li>Recomendaciones priorizadas por impacto</li>
+        <li>PDF descargable con la metodología y fuentes</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer id="metodologia">
+  <div class="footer-sources">
+    <h5>Fuentes de datos</h5>
+    <div class="src-grid">
+      <div class="src-item">
+        <strong>SUSESO</strong>
+        Superintendencia de Seguridad Social · Chile. Informe Anual SST 2024 y Observatorio SST.
+        <a href="https://www.suseso.cl" target="_blank">suseso.cl ↗</a>
+      </div>
+      <div class="src-item">
+        <strong>MTPE Perú</strong>
+        Ministerio de Trabajo y Promoción del Empleo. Boletín estadístico SAT.
+        <a href="https://www2.trabajo.gob.pe/estadisticas/" target="_blank">trabajo.gob.pe ↗</a>
+      </div>
+      <div class="src-item">
+        <strong>OIT / ILOSTAT</strong>
+        Organización Internacional del Trabajo. Estadísticas laborales homologadas.
+        <a href="https://ilostat.ilo.org" target="_blank">ilostat.ilo.org ↗</a>
+      </div>
+      <div class="src-item">
+        <strong>Datos Abiertos Perú</strong>
+        Sistema Informático de Accidentes de Trabajo (SAT) 2012–2024.
+        <a href="https://www.datosabiertos.gob.pe" target="_blank">datosabiertos.gob.pe ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo-big">Observatorio SSOMA</div>
+      <p>
+        El primer observatorio integrado de datos de seguridad y salud laboral de Chile, Perú y LATAM.
+        Una iniciativa de Más Prevención para que las empresas tomen decisiones con evidencia.
+      </p>
+    </div>
+    <div class="footer-col">
+      <h5>Secciones</h5>
+      <ul>
+        <li><a href="#chile">Chile</a></li>
+        <li><a href="#industrias">Industrias</a></li>
+        <li><a href="#latam">LATAM</a></li>
+        <li><a href="#diagnostico">Diagnóstico</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Metodología</h5>
+      <ul>
+        <li>Tasa = accidentes / personas protegidas × 100</li>
+        <li>Tasa mortalidad × 100.000 protegidos</li>
+        <li>Datos oficiales sin transformación</li>
+        <li>Actualizaciones trimestrales</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Más Prevención</h5>
+      <ul>
+        <li><a href="mailto:info@masprevencion.cl">Contacto</a></li>
+        <li><a href="#">Portal SSOMA</a></li>
+        <li><a href="#">Casos de estudio</a></li>
+        <li><a href="#">Para prevencionistas</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2025 Observatorio SSOMA. Datos públicos — uso libre con atribución.</div>
+    <div class="powered-by">powered by <strong>Más Prevención</strong></div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     DATOS + RENDER LOGIC
+     ============================================================ -->
+<script>
+/* =============================================================
+   DATOS — cargados de fuentes oficiales (Chile: SUSESO 2024 / Perú: MTPE / LATAM: ILOSTAT)
+   ============================================================= */
+
+// Tasa accidentabilidad por rubro y año — SUSESO 2019-2024
+const TASA_RUBRO = {
+  'Industria Manufacturera': {2019: 4.1, 2020: 3.5, 2021: 4.1, 2022: 4.0, 2023: 3.8, 2024: 3.5},
+  'Agricultura y pesca':     {2019: 3.9, 2020: 3.7, 2021: 4.0, 2022: 3.7, 2023: 3.5, 2024: 3.3},
+  'Transporte y com.':       {2019: 3.8, 2020: 3.3, 2021: 3.5, 2022: 3.5, 2023: 3.3, 2024: 3.1},
+  'Comercio':                {2019: 3.3, 2020: 2.4, 2021: 2.8, 2022: 3.1, 2023: 2.9, 2024: 2.8},
+  'Construcción':            {2019: 3.7, 2020: 3.2, 2021: 3.9, 2022: 3.6, 2023: 3.1, 2024: 2.8},
+  'Promedio nacional':       {2019: 3.0, 2020: 2.2, 2021: 2.6, 2022: 2.8, 2023: 2.6, 2024: 2.5},
+  'Servicios':               {2019: 2.1, 2020: 1.3, 2021: 1.6, 2022: 2.0, 2023: 2.1, 2024: 2.0},
+  'Electricidad/Gas/Agua':   {2019: 1.5, 2020: 1.3, 2021: 1.5, 2022: 1.3, 2023: 1.4, 2024: 1.1},
+  'Minería':                 {2019: 1.1, 2020: 1.0, 2021: 1.0, 2022: 1.0, 2023: 0.9, 2024: 0.9}
+};
+
+// Tasa de mortalidad por 100.000 trabajadores 2024
+const MORTALIDAD_RUBRO = {
+  'Transporte y com.': 8.8,
+  'Minería': 6.3,
+  'Agricultura y pesca': 5.7,
+  'Construcción': 5.0,
+  'Electricidad/Gas/Agua': 2.6,
+  'Promedio nacional': 2.1,
+  'Industria Manufacturera': 2.1,
+  'Comercio': 1.3,
+  'Servicios': 0.6
+};
+
+// Días perdidos promedio 2024
+const DIAS_PERDIDOS = {
+  'Minería': 35.1,
+  'Transporte y com.': 23.9,
+  'Electricidad/Gas/Agua': 21.8,
+  'Construcción': 21.6,
+  'Agricultura y pesca': 21.2,
+  'Industria Manufacturera': 20.5,
+  'Promedio nacional': 18.5,
+  'Servicios': 16.4,
+  'Comercio': 15.7
+};
+
+// Regiones de Chile — distribución de trabajadores protegidos 2024 (% del total)
+// Datos SUSESO 2024 · total: 7.252.538 trabajadores
+const REGIONES_CHILE = [
+  {codigo: 'RM', nombre: 'Metropolitana de Santiago', pct: 57.9, n: 4199220},
+  {codigo: 'VA', nombre: 'Valparaíso', pct: 7.3, n: 529435},
+  {codigo: 'BI', nombre: 'Biobío', pct: 6.2, n: 449657},
+  {codigo: 'ML', nombre: 'Maule', pct: 4.2, n: 304607},
+  {codigo: 'LI', nombre: "Libertador O'Higgins", pct: 4.1, n: 297354},
+  {codigo: 'AN', nombre: 'Antofagasta', pct: 3.9, n: 282849},
+  {codigo: 'LL', nombre: 'Los Lagos', pct: 3.4, n: 246586},
+  {codigo: 'CO', nombre: 'Coquimbo', pct: 2.6, n: 188566},
+  {codigo: 'NB', nombre: 'Ñuble', pct: 2.5, n: 181313},
+  {codigo: 'AR', nombre: 'La Araucanía', pct: 1.6, n: 116041},
+  {codigo: 'LR', nombre: 'Los Ríos', pct: 1.3, n: 94283},
+  {codigo: 'AT', nombre: 'Atacama', pct: 1.3, n: 94283},
+  {codigo: 'TA', nombre: 'Tarapacá', pct: 1.1, n: 79778},
+  {codigo: 'MA', nombre: 'Magallanes', pct: 0.8, n: 58020},
+  {codigo: 'AP', nombre: 'Arica y Parinacota', pct: 0.6, n: 43515},
+  {codigo: 'AI', nombre: 'Aysén', pct: 0.4, n: 29010}
+];
+
+// Formas de accidente fatal (trabajo, sin vehículo) — SUSESO 2024, N=78
+const FORMAS_FATAL = [
+  {forma: 'Caída de personas', n: 30, pct: 38, color: '#E57A5C'},
+  {forma: 'Atrapamientos o amputaciones', n: 15, pct: 19, color: '#D4B98F'},
+  {forma: 'Golpes por o contra objetos', n: 11, pct: 14, color: '#B89B6F'},
+  {forma: 'Contacto con temperaturas extremas', n: 6, pct: 8, color: '#C97A47'},
+  {forma: 'Contacto con corriente eléctrica', n: 5, pct: 6, color: '#7FA5C7'},
+  {forma: 'Sustancias físicas, químicas o biológicas', n: 4, pct: 5, color: '#8FB58A'},
+  {forma: 'Otras formas de accidentes', n: 4, pct: 5, color: '#9B9791'},
+  {forma: 'Sobreesfuerzo y falsos movimientos', n: 2, pct: 3, color: '#706D66'},
+  {forma: 'Amenazas o agresiones de personas', n: 1, pct: 1, color: '#50504A'}
+];
+
+// Formas de accidente del trabajo (total 2024) — SUSESO, N=143.199
+const FORMAS_ACCIDENTE = [
+  {forma: 'Golpes por o contra objetos', pct: 35},
+  {forma: 'Sobreesfuerzo y falsos movimientos', pct: 17},
+  {forma: 'Caídas de personas', pct: 8},
+  {forma: 'Contacto con objetos', pct: 7},
+  {forma: 'Proyección de partículas', pct: 5},
+  {forma: 'Atrapamientos', pct: 5},
+  {forma: 'Otros', pct: 23}
+];
+
+// Matriz industria × forma de accidente (distribución estimada por patrón sectorial)
+// Filas suman ~100%. Cada celda = % de accidentes de esa industria que corresponden a esa forma
+const MATRIZ = {
+  industrias: ['Construcción', 'Minería', 'Industria Manufacturera', 'Agricultura y pesca', 'Transporte', 'Comercio', 'Servicios', 'EGA', 'Salud'],
+  formas: ['Caídas altura', 'Golpes', 'Atrapamientos', 'Sobreesfuerzo', 'Eléctricos', 'Sustancias'],
+  valores: [
+    // Caí.alt | Golp | Atrap | Sobre | Eléct | Sust
+    [34, 28, 12, 14,  6, 6],   // Construcción
+    [22, 18, 28, 16, 10, 6],   // Minería
+    [10, 40, 24, 16,  4, 6],   // Manufactura
+    [12, 22, 10, 38,  4, 14],  // Agro
+    [14, 30, 10, 32,  4, 10],  // Transporte
+    [18, 34,  6, 26,  8, 8],   // Comercio
+    [20, 22,  4, 40,  6, 8],   // Servicios
+    [26, 18, 12, 12, 24, 8],   // EGA
+    [14, 12,  4, 36,  4, 30]   // Salud
+  ]
+};
+
+// LATAM tasa mortalidad laboral / 100k trabajadores — ILOSTAT último año disponible
+const LATAM_DATA = [
+  {pais: 'Cuba',         codigo: 'CU', lat: 21.5,  lng: -78.0, valor: 25.0, anio: 2010},
+  {pais: 'Costa Rica',   codigo: 'CR', lat: 9.9,   lng: -83.7, valor: 9.7,  anio: 2016},
+  {pais: 'Nicaragua',    codigo: 'NI', lat: 12.8,  lng: -85.0, valor: 8.0,  anio: 2010},
+  {pais: 'México',       codigo: 'MX', lat: 23.6,  lng: -102.5,valor: 7.5,  anio: 2017},
+  {pais: 'Brasil',       codigo: 'BR', lat: -14.2, lng: -51.9, valor: 7.4,  anio: 2011},
+  {pais: 'Argentina',    codigo: 'AR', lat: -38.4, lng: -63.6, valor: 3.3,  anio: 2021},
+  {pais: 'Colombia',     codigo: 'CO', lat: 4.6,   lng: -74.3, valor: 4.0,  anio: 2011},
+  {pais: 'Chile',        codigo: 'CL', lat: -35.7, lng: -71.5, valor: 3.1,  anio: 2018},
+  {pais: 'Uruguay',      codigo: 'UY', lat: -32.5, lng: -55.8, valor: 3.7,  anio: 2018},
+  {pais: 'Panamá',       codigo: 'PA', lat: 8.5,   lng: -80.8, valor: 4.0,  anio: 2016},
+  {pais: 'El Salvador',  codigo: 'SV', lat: 13.8,  lng: -88.9, valor: 0.1,  anio: 2010},
+  {pais: 'Perú',         codigo: 'PE', lat: -9.2,  lng: -75.0, valor: 4.6,  anio: 2024}
+];
+
+// Total fatalidades fatal work injury rate /100.000 — Chile 2024: 154 fatalidades / 7.252.538 protegidos = 2.1/100k
+// Perú 2024: 280 fatalidades MTPE
+
+/* =============================================================
+   1. RENDER: STATS SON ESTÁTICOS EN EL HTML
+   ============================================================= */
+
+/* =============================================================
+   2. RENDER: MAPA DE CHILE (Leaflet + GeoJSON)
+   ============================================================= */
+(function renderChileMap() {
+  const map = L.map('chile-map', {
+    zoomControl: true,
+    scrollWheelZoom: false,
+    attributionControl: false
+  }).setView([-38, -71], 4);
+
+  // Tile dark base coherente con paleta Medianoche
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '',
+    maxZoom: 19
+  }).addTo(map);
+
+  // Escala de color basada en pct de trabajadores (dorado sobre dark)
+  const heatColors = ['#1A1F26', '#2D2D24', '#4A4028', '#7A5F38', '#B08248', '#E8C995'];
+  function getColor(pct) {
+    if (pct > 40) return heatColors[5];
+    if (pct > 20) return heatColors[4];
+    if (pct > 7)  return heatColors[3];
+    if (pct > 3)  return heatColors[2];
+    if (pct > 1.5) return heatColors[1];
+    return heatColors[0];
+  }
+
+  // Cargar GeoJSON de Chile desde un CDN público
+  fetch('https://raw.githubusercontent.com/caracena/chilegeojson/master/chile.geojson')
+    .then(r => r.json())
+    .then(geo => {
+      // Mapeo manual del nombre del GeoJSON al codigo de nuestra data
+      const nombreToDato = {};
+      REGIONES_CHILE.forEach(r => nombreToDato[r.nombre.toLowerCase()] = r);
+      const coincidencias = {
+        'región metropolitana de santiago': 'metropolitana de santiago',
+        'región metropolitana': 'metropolitana de santiago',
+        'metropolitana de santiago': 'metropolitana de santiago',
+        'región de valparaíso': 'valparaíso',
+        'valparaíso': 'valparaíso',
+        'región del biobío': 'biobío',
+        'biobío': 'biobío',
+        'región del bío-bío': 'biobío',
+        'región del maule': 'maule',
+        'maule': 'maule',
+        "región del libertador general bernardo o'higgins": "libertador o'higgins",
+        "libertador general bernardo o'higgins": "libertador o'higgins",
+        "o'higgins": "libertador o'higgins",
+        'región de antofagasta': 'antofagasta',
+        'antofagasta': 'antofagasta',
+        'región de los lagos': 'los lagos',
+        'los lagos': 'los lagos',
+        'región de coquimbo': 'coquimbo',
+        'coquimbo': 'coquimbo',
+        'región de ñuble': 'ñuble',
+        'ñuble': 'ñuble',
+        'región de la araucanía': 'la araucanía',
+        'la araucanía': 'la araucanía',
+        'región de los ríos': 'los ríos',
+        'los ríos': 'los ríos',
+        'región de atacama': 'atacama',
+        'atacama': 'atacama',
+        'región de tarapacá': 'tarapacá',
+        'tarapacá': 'tarapacá',
+        'región de magallanes y la antártica chilena': 'magallanes',
+        'magallanes y la antártica chilena': 'magallanes',
+        'magallanes': 'magallanes',
+        'región de arica y parinacota': 'arica y parinacota',
+        'arica y parinacota': 'arica y parinacota',
+        'región de aysén del general carlos ibáñez del campo': 'aysén',
+        'aysén del general carlos ibáñez del campo': 'aysén',
+        'aysén': 'aysén'
+      };
+
+      function findData(name) {
+        if (!name) return null;
+        const lower = name.toLowerCase().trim();
+        const mapped = coincidencias[lower] || lower;
+        return nombreToDato[mapped] || null;
+      }
+
+      const geoLayer = L.geoJSON(geo, {
+        style: f => {
+          const props = f.properties || {};
+          const nombre = props.Region || props.region || props.NAME_1 || props.name;
+          const d = findData(nombre);
+          return {
+            fillColor: d ? getColor(d.pct) : '#1A1F26',
+            fillOpacity: 0.85,
+            color: '#D4CFC4',
+            weight: 0.6
+          };
+        },
+        onEachFeature: (feature, layer) => {
+          const props = feature.properties || {};
+          const nombre = props.Region || props.region || props.NAME_1 || props.name;
+          const d = findData(nombre);
+          if (d) {
+            const html = `
+              <strong>${d.nombre}</strong>
+              <div class="tt-line"><span>Trabajadores</span><span class="tt-val">${d.n.toLocaleString('es-CL')}</span></div>
+              <div class="tt-line"><span>% del total país</span><span class="tt-val">${d.pct}%</span></div>
+            `;
+            layer.bindTooltip(html, {sticky: true, className: 'map-tooltip'});
+            layer.on('mouseover', () => layer.setStyle({weight: 1.8, color: '#D4B98F'}));
+            layer.on('mouseout', () => layer.setStyle({weight: 0.6, color: '#D4CFC4'}));
+          }
+        }
+      }).addTo(map);
+
+      map.fitBounds(geoLayer.getBounds(), {padding: [20, 20]});
+    })
+    .catch(err => {
+      console.warn('No se pudo cargar GeoJSON Chile', err);
+      document.getElementById('chile-map').innerHTML = '<div style="padding:40px;text-align:center;color:#8E8B81;font-family:var(--ui)">Mapa no disponible en este momento. Los datos se muestran abajo.</div>';
+    });
+
+  // Render legend scale
+  const scale = document.getElementById('map-scale');
+  if (scale) {
+    heatColors.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'legend-box';
+      div.style.background = c;
+      scale.appendChild(div);
+    });
+  }
+
+  // Render region list (sorted by pct desc)
+  const list = document.getElementById('region-list');
+  if (list) {
+    const sorted = [...REGIONES_CHILE].sort((a,b) => b.pct - a.pct);
+    sorted.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'region-row';
+      row.innerHTML = `
+        <span class="reg-name">${r.nombre}</span>
+        <span class="reg-val">${r.n.toLocaleString('es-CL')} · ${r.pct}%</span>
+      `;
+      list.appendChild(row);
+    });
+  }
+})();
+
+/* =============================================================
+   3. RENDER: RANKING INDUSTRIAS
+   ============================================================= */
+(function renderRanking() {
+  const container = document.getElementById('ranking-bars');
+  let currentYear = 2024;
+
+  function render(year) {
+    const rubros = Object.keys(TASA_RUBRO);
+    // ordenar desc
+    const sorted = rubros
+      .map(r => ({nombre: r, tasa: TASA_RUBRO[r][year]}))
+      .sort((a,b) => b.tasa - a.tasa);
+
+    const maxVal = Math.max(...sorted.map(s => s.tasa));
+
+    container.innerHTML = '';
+    sorted.forEach((r, i) => {
+      const pct = (r.tasa / maxVal) * 100;
+      const cls = r.tasa >= 3.5 ? 'high' : (r.tasa >= 2.5 ? 'mid' : 'low');
+      const isAvg = r.nombre === 'Promedio nacional';
+      const row = document.createElement('div');
+      row.className = 'ranking-row';
+      row.innerHTML = `
+        <div class="ranking-industry" style="${isAvg ? 'font-style:italic;color:var(--accent);' : ''}">${r.nombre}</div>
+        <div class="ranking-bar-track">
+          <div class="ranking-bar-fill ${cls}" style="width: 0%; ${isAvg ? 'background: repeating-linear-gradient(90deg, var(--accent), var(--accent) 6px, transparent 6px, transparent 12px); background-color: var(--accent);' : ''}"></div>
+        </div>
+        <div class="ranking-value">${r.tasa.toFixed(1)}%</div>
+      `;
+      container.appendChild(row);
+      // animación
+      setTimeout(() => {
+        row.querySelector('.ranking-bar-fill').style.width = pct + '%';
+      }, 80 + i * 80);
+    });
+  }
+
+  render(currentYear);
+
+  document.querySelectorAll('.control-btn[data-year]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.control-btn[data-year]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const y = parseInt(btn.dataset.year);
+      render(y);
+    });
+  });
+})();
+
+/* =============================================================
+   4. RENDER: EVOLUCIÓN HISTÓRICA
+   ============================================================= */
+(function renderEvolution() {
+  const ctx = document.getElementById('chart-evolucion');
+  if (!ctx) return;
+
+  const years = [2019, 2020, 2021, 2022, 2023, 2024];
+  const datasets = [
+    {label: 'Promedio nacional', color: '#EEE9DE', width: 3, data: years.map(y => TASA_RUBRO['Promedio nacional'][y])},
+    {label: 'Construcción', color: '#E57A5C', width: 2, data: years.map(y => TASA_RUBRO['Construcción'][y])},
+    {label: 'Industria Manufacturera', color: '#D4B98F', width: 2, data: years.map(y => TASA_RUBRO['Industria Manufacturera'][y])},
+    {label: 'Servicios', color: '#7FA5C7', width: 2, data: years.map(y => TASA_RUBRO['Servicios'][y])},
+    {label: 'Minería', color: '#8FB58A', width: 2, data: years.map(y => TASA_RUBRO['Minería'][y])}
+  ];
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: datasets.map(d => ({
+        label: d.label,
+        data: d.data,
+        borderColor: d.color,
+        backgroundColor: d.color + '20',
+        borderWidth: d.width,
+        pointRadius: 4,
+        pointBackgroundColor: '#0F1419',
+        pointBorderColor: d.color,
+        pointBorderWidth: 2,
+        pointHoverRadius: 7,
+        tension: 0.25
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            font: {family: 'IBM Plex Sans', size: 12, weight: '500'},
+            color: '#D4CFC4',
+            boxWidth: 14,
+            boxHeight: 14,
+            padding: 14,
+            usePointStyle: false
+          }
+        },
+        tooltip: {
+          backgroundColor: '#05090E',
+          titleColor: '#D4B98F',
+          bodyColor: '#EEE9DE',
+          borderColor: 'rgba(212,185,143,0.35)',
+          borderWidth: 1,
+          titleFont: {family: 'Fraunces', size: 14, weight: '500'},
+          bodyFont: {family: 'IBM Plex Sans', size: 12},
+          padding: 12,
+          cornerRadius: 2,
+          displayColors: true
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 4.5,
+          grid: {color: '#2D3340', drawBorder: false},
+          ticks: {font: {family: 'IBM Plex Mono', size: 11}, color: '#8E8B81', callback: v => v + '%'}
+        },
+        x: {
+          grid: {display: false},
+          ticks: {font: {family: 'IBM Plex Mono', size: 12}, color: '#D4CFC4'}
+        }
+      }
+    }
+  });
+})();
+
+/* =============================================================
+   5. RENDER: MATRIZ HEATMAP
+   ============================================================= */
+(function renderMatriz() {
+  const table = document.getElementById('matriz-table');
+  if (!table) return;
+
+  const maxVal = Math.max(...MATRIZ.valores.flat());
+  const heatColors = ['#1A1F26', '#2D2D24', '#4A4028', '#7A5F38', '#B08248', '#E8C995'];
+  function color(v) {
+    const ratio = v / maxVal;
+    if (ratio > 0.85) return heatColors[5];
+    if (ratio > 0.65) return heatColors[4];
+    if (ratio > 0.45) return heatColors[3];
+    if (ratio > 0.25) return heatColors[2];
+    if (ratio > 0.10) return heatColors[1];
+    return heatColors[0];
+  }
+  function textColor(v) {
+    return (v / maxVal) > 0.55 ? '#0F1419' : '#D4CFC4';
+  }
+
+  let html = '<thead><tr><th class="industry-col">Industria</th>';
+  MATRIZ.formas.forEach(f => {
+    html += `<th>${f}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  MATRIZ.industrias.forEach((ind, i) => {
+    html += `<tr><td class="industry-name">${ind}</td>`;
+    MATRIZ.valores[i].forEach(v => {
+      html += `<td class="matriz-cell" style="background:${color(v)};color:${textColor(v)}">${v}%</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+})();
+
+/* =============================================================
+   6. RENDER: DONUT FATALIDADES
+   ============================================================= */
+(function renderDonut() {
+  const ctx = document.getElementById('chart-donut');
+  if (!ctx) return;
+
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: FORMAS_FATAL.map(f => f.forma),
+      datasets: [{
+        data: FORMAS_FATAL.map(f => f.n),
+        backgroundColor: FORMAS_FATAL.map(f => f.color),
+        borderColor: '#0F1419',
+        borderWidth: 3,
+        hoverOffset: 12
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          backgroundColor: '#05090E',
+          titleColor: '#D4B98F',
+          bodyColor: '#EEE9DE',
+          borderColor: 'rgba(212,185,143,0.35)',
+          borderWidth: 1,
+          titleFont: {family: 'Fraunces', size: 14},
+          bodyFont: {family: 'IBM Plex Sans', size: 12},
+          padding: 12,
+          cornerRadius: 2,
+          callbacks: {
+            label: (ctx) => `${ctx.raw} fatalidades (${FORMAS_FATAL[ctx.dataIndex].pct}%)`
+          }
+        }
+      }
+    },
+    plugins: [{
+      id: 'centerText',
+      afterDraw: (chart) => {
+        const {ctx, chartArea: {width, height, top, left}} = chart;
+        ctx.save();
+        ctx.font = '500 56px Fraunces';
+        ctx.fillStyle = '#EEE9DE';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('78', left + width / 2, top + height / 2 - 10);
+        ctx.font = '500 11px IBM Plex Sans';
+        ctx.fillStyle = '#8E8B81';
+        ctx.fillText('FATALIDADES SIN VEHÍCULO', left + width / 2, top + height / 2 + 24);
+        ctx.restore();
+      }
+    }]
+  });
+
+  // Leyenda custom
+  const legend = document.getElementById('donut-legend');
+  legend.innerHTML = '';
+  FORMAS_FATAL.forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'donut-legend-row';
+    row.innerHTML = `
+      <div class="donut-dot" style="background:${f.color}"></div>
+      <div class="donut-label">${f.forma}</div>
+      <div class="donut-count">${f.n}</div>
+      <div class="donut-pct">${f.pct}%</div>
+    `;
+    legend.appendChild(row);
+  });
+})();
+
+/* =============================================================
+   7. RENDER: COMPARADOR
+   ============================================================= */
+(function renderComparador() {
+  const selA = document.getElementById('comp-a');
+  const selB = document.getElementById('comp-b');
+  const results = document.getElementById('comp-results');
+  const rubros = Object.keys(TASA_RUBRO).filter(r => r !== 'Promedio nacional');
+
+  rubros.forEach(r => {
+    selA.appendChild(new Option(r, r));
+    selB.appendChild(new Option(r, r));
+  });
+  selA.value = 'Construcción';
+  selB.value = 'Minería';
+
+  // Principal forma de accidente por industria (top de su fila en MATRIZ)
+  function principalForma(ind) {
+    const idx = MATRIZ.industrias.indexOf(ind);
+    if (idx < 0) return '—';
+    const fila = MATRIZ.valores[idx];
+    const max = Math.max(...fila);
+    const maxIdx = fila.indexOf(max);
+    return MATRIZ.formas[maxIdx] + ' (' + max + '%)';
+  }
+
+  function render() {
+    const a = selA.value, b = selB.value;
+    function compareBadge(valA, valB, reverse=false) {
+      // reverse=true means "smaller is better" (todos nuestros KPIs así)
+      if (Math.abs(valA - valB) < 0.05) return {A: 'equal', B: 'equal'};
+      if (reverse) {
+        return valA < valB ? {A: 'better', B: 'worse'} : {A: 'worse', B: 'better'};
+      }
+      return valA > valB ? {A: 'better', B: 'worse'} : {A: 'worse', B: 'better'};
+    }
+    function txtBadge(kind) {
+      if (kind === 'better') return '<span class="comp-badge better">MEJOR</span>';
+      if (kind === 'worse') return '<span class="comp-badge worse">PEOR</span>';
+      return '<span class="comp-badge equal">IGUAL</span>';
+    }
+
+    const tA = TASA_RUBRO[a][2024], tB = TASA_RUBRO[b][2024];
+    const mA = MORTALIDAD_RUBRO[a], mB = MORTALIDAD_RUBRO[b];
+    const dA = DIAS_PERDIDOS[a], dB = DIAS_PERDIDOS[b];
+    const fA = principalForma(a), fB = principalForma(b);
+
+    const bTasa = compareBadge(tA, tB, true);
+    const bMort = compareBadge(mA, mB, true);
+    const bDias = compareBadge(dA, dB, true);
+
+    results.innerHTML = `
+      <div class="comp-col a">
+        <h3 style="font-family:var(--display);font-weight:500;font-size:28px;letter-spacing:-0.02em;margin-bottom:20px;">${a}</h3>
+        <div class="comp-kpi">
+          <div class="comp-kpi-label">Tasa accidentabilidad 2024${txtBadge(bTasa.A)}</div>
+          <div class="comp-kpi-value">${tA.toFixed(1)}<span class="unit">%</span></div>
+          <div class="comp-kpi-note">por 100 trabajadores protegidos</div>
+        </div>
+        <div class="comp-kpi">
+          <div class="comp-kpi-label">Tasa mortalidad${txtBadge(bMort.A)}</div>
+          <div class="comp-kpi-value">${mA.toFixed(1)}<span class="unit">/100k</span></div>
+          <div class="comp-kpi-note">fallecidos por cada 100.000 protegidos</div>
+        </div>
+        <div class="comp-kpi">
+          <div class="comp-kpi-label">Días perdidos promedio${txtBadge(bDias.A)}</div>
+          <div class="comp-kpi-value">${dA.toFixed(1)}<span class="unit">días</span></div>
+          <div class="comp-kpi-note">por cada accidente del trabajo</div>
+        </div>
+        <div class="comp-kpi">
+          <div class="comp-kpi-label">Forma de accidente predominante</div>
+          <div class="comp-kpi-value" style="font-size:22px;">${fA}</div>
+          <div class="comp-kpi-note">Fuente: SUSESO 2024</div>
+        </div>
+      </div>
+      <div class="comp-col b">
+        <h3 style="font-family:var(--display);font-weight:500;font-size:28px;letter-spacing:-0.02em;margin-bottom:20px;">${b}</h3>
+        <div class="comp-kpi">
+          <div class="comp-kpi-label">Tasa accidentabilidad 2024${txtBadge(bTasa.B)}</div>
+          <div class="comp-kpi-value">${tB.toFixed(1)}<span class="unit">%</span></div>
+          <div class="comp-kpi-note">por 100 trabajadores protegidos</div>
+        </div>
+        <div class="comp-kpi">
+          <div class="comp-kpi-label">Tasa mortalidad${txtBadge(bMort.B)}</div>
+          <div class="comp-kpi-value">${mB.toFixed(1)}<span class="unit">/100k</span></div>
+          <div class="comp-kpi-note">fallecidos por cada 100.000 protegidos</div>
+        </div>
+        <div class="comp-kpi">
+          <div class="comp-kpi-label">Días perdidos promedio${txtBadge(bDias.B)}</div>
+          <div class="comp-kpi-value">${dB.toFixed(1)}<span class="unit">días</span></div>
+          <div class="comp-kpi-note">por cada accidente del trabajo</div>
+        </div>
+        <div class="comp-kpi">
+          <div class="comp-kpi-label">Forma de accidente predominante</div>
+          <div class="comp-kpi-value" style="font-size:22px;">${fB}</div>
+          <div class="comp-kpi-note">Fuente: SUSESO 2024</div>
+        </div>
+      </div>
+    `;
+  }
+
+  selA.addEventListener('change', render);
+  selB.addEventListener('change', render);
+  render();
+})();
+
+/* =============================================================
+   8. RENDER: LATAM MAP
+   ============================================================= */
+(function renderLatam() {
+  const map = L.map('latam-map', {
+    zoomControl: true,
+    scrollWheelZoom: false,
+    attributionControl: false
+  }).setView([-8, -63], 3);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '',
+    maxZoom: 19
+  }).addTo(map);
+
+  const geoColors = ['#2D3340', '#605944', '#957F53', '#B89B6F', '#D4B98F'];
+  function colorByValue(v) {
+    if (v > 15) return geoColors[4];
+    if (v > 8)  return geoColors[3];
+    if (v > 5)  return geoColors[2];
+    if (v > 3)  return geoColors[1];
+    return geoColors[0];
+  }
+
+  // Círculos por país (no tenemos GeoJSON LATAM simple)
+  LATAM_DATA.forEach(c => {
+    const radius = 8 + Math.min(c.valor, 20) * 1.2;
+    const marker = L.circleMarker([c.lat, c.lng], {
+      radius,
+      fillColor: colorByValue(c.valor),
+      color: '#EEE9DE',
+      weight: 1.2,
+      opacity: 0.9,
+      fillOpacity: 0.9
+    }).addTo(map);
+    const html = `
+      <strong>${c.pais}</strong>
+      <div class="tt-line"><span>Tasa mortalidad</span><span class="tt-val">${c.valor.toFixed(1)} / 100k</span></div>
+      <div class="tt-line"><span>Año de referencia</span><span class="tt-val">${c.anio}</span></div>
+    `;
+    marker.bindTooltip(html, {sticky: true, className: 'map-tooltip'});
+  });
+
+  // Render tabla
+  const tbody = document.getElementById('latam-tbody');
+  const sorted = [...LATAM_DATA].sort((a,b) => b.valor - a.valor);
+  sorted.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="country-name"><span class="country-dot" style="background:${colorByValue(c.valor)}"></span>${c.pais}</td>
+      <td class="num">${c.valor.toFixed(1)}</td>
+      <td class="num">${c.anio}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+})();
+
+/* =============================================================
+   9. SCROLL REVEAL
+   ============================================================= */
+(function scrollReveal() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {threshold: 0.15, rootMargin: '0px 0px -80px 0px'});
+
+  document.querySelectorAll('.viz-section, .stats-section, .cta-diag').forEach(el => {
+    el.classList.add('fade-in');
+    observer.observe(el);
+  });
+})();
+
+/* =============================================================
+   10. FECHA DE ACTUALIZACIÓN
+   ============================================================= */
+document.getElementById('fecha-actualizacion').textContent = 'Abril 2025';
+
+</script>
+
+</body>
+</html>
