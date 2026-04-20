@@ -1408,6 +1408,66 @@ footer {
 }
 
 /* ============================================================
+   ABOUT SECTION — ¿Qué es este observatorio?
+   ============================================================ */
+.about-section {
+  padding: 70px 0;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--paper-warm);
+}
+.about-inner {
+  max-width: var(--container); margin: 0 auto;
+  padding: 0 32px;
+  display: grid; grid-template-columns: 180px 1fr;
+  gap: 56px; align-items: start;
+}
+.about-col-label {
+  font-family: var(--ui); font-size: 11px; font-weight: 500;
+  color: var(--accent); text-transform: uppercase;
+  letter-spacing: 0.16em; padding-top: 6px;
+}
+.about-lead {
+  font-family: var(--editorial); font-size: 22px;
+  line-height: 1.5; color: var(--ink);
+  margin-bottom: 22px; letter-spacing: -0.005em;
+}
+.about-lead strong { color: var(--accent); font-weight: 500; }
+.about-body {
+  font-family: var(--editorial); font-size: 16px;
+  line-height: 1.65; color: var(--ink-soft);
+  margin-bottom: 36px;
+}
+.about-meta {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; padding-top: 28px;
+  border-top: 1px solid var(--hairline);
+}
+.about-meta-item {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.about-meta-label {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-muted); letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.about-meta-value {
+  font-family: var(--editorial); font-size: 14px;
+  color: var(--ink); line-height: 1.4;
+}
+
+/* Fecha dentro de los kickers de sección */
+.section-date {
+  color: var(--ink-muted); font-weight: 400;
+  font-size: inherit; letter-spacing: 0.1em;
+}
+
+@media (max-width: 900px) {
+  .about-inner { grid-template-columns: 1fr; gap: 24px; }
+  .about-meta { grid-template-columns: 1fr; gap: 16px; }
+}
+
+/* ============================================================
    CAPÍTULO IV · CADENA DE CONTRATISTAS
    ============================================================ */
 .contratistas-grid {
@@ -1527,9 +1587,101 @@ footer {
   .legal-card { padding: 32px 28px; }
 }
 
+/* Cierre de capítulo con CTA suave al diagnóstico */
+.chapter-close {
+  max-width: var(--container);
+  margin: 56px auto 0;
+  padding: 40px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  background: var(--paper-soft);
+  border-left: 3px solid var(--accent);
+}
+.chapter-close-text {
+  font-family: var(--editorial);
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  flex: 1;
+  margin: 0;
+}
+.chapter-close-text strong { color: var(--ink); font-weight: 600; }
+.chapter-close-link {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 24px;
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  color: var(--accent);
+  font-family: var(--ui);
+  font-size: 13px; font-weight: 500;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.chapter-close-link:hover {
+  background: var(--accent);
+  color: var(--paper);
+}
+.chapter-close-link .arrow {
+  transition: transform 0.2s;
+}
+.chapter-close-link:hover .arrow {
+  transform: translateX(4px);
+}
+@media (max-width: 800px) {
+  .chapter-close {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 32px 28px;
+    margin: 40px 20px 0;
+  }
+}
+
+/* Leyenda de color semáforo en rankings */
+.ranking-color-legend {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 16px 20px; margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+.ranking-legend-label {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-muted); letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ranking-legend-item {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--ui); font-size: 11px;
+  color: var(--ink-soft);
+}
+.ranking-legend-dot {
+  width: 10px; height: 10px; border-radius: 2px;
+  display: inline-block;
+}
+
 /* Section number variations for sub-items (I.1, I.2, II.1, etc.) */
 .section-number.sub {
   font-size: 18px;
+}
+/* Date pill next to section-number */
+.section-number-row {
+  display: flex; align-items: baseline; gap: 14px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.section-date-pill {
+  font-family: var(--mono); font-size: 10px;
+  padding: 3px 10px; border-radius: 100px;
+  background: rgba(212,185,143,0.1);
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* ============================================================
@@ -1817,11 +1969,48 @@ footer {
 </section>
 
 <!-- ============================================================
+     ABOUT — ¿Qué es este observatorio?
+     ============================================================ -->
+<section class="about-section">
+  <div class="about-inner">
+    <div class="about-col-label">Sobre este observatorio</div>
+    <div class="about-col-body">
+      <p class="about-lead">
+        Somos <strong>Más Prevención</strong>, empresa de SSOMA que opera en Chile y Perú.
+        Publicamos este observatorio con <strong>datos oficiales de SUSESO, MTPE y OIT</strong>
+        porque la información comparada sobre seguridad laboral en Latinoamérica
+        es escasa, cara o está fragmentada.
+      </p>
+      <p class="about-body">
+        Usamos estos datos internamente para nuestras operaciones y los publicamos
+        abiertamente para cualquier persona que los necesite: gerencias de SSOMA,
+        investigadores, periodistas, estudiantes, sindicatos. Nadie es cliente por leer.
+        Lo que ves acá es el mismo análisis con el que tomamos decisiones puertas adentro.
+      </p>
+      <div class="about-meta">
+        <div class="about-meta-item">
+          <span class="about-meta-label">Fuentes primarias</span>
+          <span class="about-meta-value">SUSESO · MTPE · OIT / ILOSTAT · SERNAGEOMIN</span>
+        </div>
+        <div class="about-meta-item">
+          <span class="about-meta-label">Cobertura</span>
+          <span class="about-meta-value">Chile, Perú y 5 países LATAM adicionales</span>
+        </div>
+        <div class="about-meta-item">
+          <span class="about-meta-label">Actualización</span>
+          <span class="about-meta-value">Anual, con edición intermedia si hay datos relevantes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
      GIANT STATS — Panorama 2024
      ============================================================ -->
-<section class="stats-section">
+<section class="stats-section" id="chile">
   <div class="stats-intro">
-    <div class="kicker">Panorama 2024 · Chile</div>
+    <div class="kicker">Panorama 2024 · Chile <span class="section-date">· Datos SUSESO 2024</span></div>
     <h2>Los accidentes bajan. Las <em>fatalidades</em> también. La salud mental, en cambio, <em>sube</em>.</h2>
   </div>
   <div class="stats-grid">
@@ -1973,7 +2162,15 @@ footer {
     <button class="control-btn active" data-year="2024">2024</button>
   </div>
   <div class="ranking-wrapper">
-    <div class="ranking-bars" id="ranking-bars"></div>
+    <div>
+      <div class="ranking-color-legend">
+        <span class="ranking-legend-label">Color indica nivel de riesgo:</span>
+        <span class="ranking-legend-item"><span class="ranking-legend-dot" style="background: var(--risk-6);"></span>Alto</span>
+        <span class="ranking-legend-item"><span class="ranking-legend-dot" style="background: var(--risk-4);"></span>Medio</span>
+        <span class="ranking-legend-item"><span class="ranking-legend-dot" style="background: var(--risk-1);"></span>Bajo</span>
+      </div>
+      <div class="ranking-bars" id="ranking-bars"></div>
+    </div>
     <div class="ranking-sidebar">
       <h3>La <em>paradoja</em> de la minería</h3>
       <p>
@@ -2158,7 +2355,16 @@ footer {
     </p>
   </div>
   <div class="peru-sectors-wrapper">
-    <div class="peru-sectors-bars" id="peru-sectors"></div>
+    <div class="peru-sectors-bars">
+      <div class="ranking-color-legend">
+        <span class="ranking-legend-label">Color indica posición en el ranking:</span>
+        <span class="ranking-legend-item"><span class="ranking-legend-dot" style="background: var(--risk-6);"></span>Crítico</span>
+        <span class="ranking-legend-item"><span class="ranking-legend-dot" style="background: var(--risk-4);"></span>Alto</span>
+        <span class="ranking-legend-item"><span class="ranking-legend-dot" style="background: var(--risk-2);"></span>Medio</span>
+        <span class="ranking-legend-item"><span class="ranking-legend-dot" style="background: var(--risk-1);"></span>Bajo</span>
+      </div>
+      <div id="peru-sectors"></div>
+    </div>
     <div class="ranking-sidebar">
       <h3>La <em>hipoacusia</em> silenciosa</h3>
       <p>
@@ -2500,6 +2706,18 @@ footer {
         </ul>
       </div>
     </div>
+  </div>
+
+  <div class="chapter-close">
+    <p class="chapter-close-text">
+      Si tu empresa gestiona contratistas, estas obligaciones no son opcionales.
+      El diagnóstico incluye <strong>preguntas específicas para mandantes</strong>
+      que te ayudan a identificar brechas en tu cadena antes de que las identifique un fiscalizador o un juez.
+    </p>
+    <a href="diagnostico.html" class="chapter-close-link">
+      <span>Hacer el diagnóstico</span>
+      <span class="arrow">→</span>
+    </a>
   </div>
 </section>
 
