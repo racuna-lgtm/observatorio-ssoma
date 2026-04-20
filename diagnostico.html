@@ -1620,13 +1620,14 @@ function computeMetrics() {
   const brechaAbsPp = tasa - promRubro;
   const brechaRelPct = (brechaAbsPp / promRubro) * 100;
 
-  // Checklist score — cuenta transversal + sectorial separados
-  const allItems = document.querySelectorAll('.check-item');
-  const transversalItems = document.querySelectorAll('.check-item[data-grupo="transversal"]');
-  const sectorialItems = document.querySelectorAll('.check-item[data-grupo="sectorial"]');
-  const checkedAll = document.querySelectorAll('.check-item.checked').length;
-  const checkedTrans = document.querySelectorAll('.check-item[data-grupo="transversal"].checked').length;
-  const checkedSect = document.querySelectorAll('.check-item[data-grupo="sectorial"].checked').length;
+ // Checklist score — SOLO cuentan los items que aplican según tamaño
+  const allItems = document.querySelectorAll('.check-item[data-applies="1"]');
+  const transversalItems = document.querySelectorAll('.check-item[data-grupo="transversal"][data-applies="1"]');
+  const sectorialItems = document.querySelectorAll('.check-item[data-grupo="sectorial"][data-applies="1"]');
+  const checkedAll = document.querySelectorAll('.check-item[data-applies="1"].checked').length;
+  const checkedTrans = document.querySelectorAll('.check-item[data-grupo="transversal"][data-applies="1"].checked').length;
+  const checkedSect = document.querySelectorAll('.check-item[data-grupo="sectorial"][data-applies="1"].checked').length;
+  const naTotal = document.querySelectorAll('.check-item[data-applies="0"]').length;
   const totalAll = allItems.length;
   const totalTrans = transversalItems.length;
   const totalSect = sectorialItems.length;
