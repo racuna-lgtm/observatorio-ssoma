@@ -47,10 +47,18 @@
   --accent: #D4B98F;
   --accent-deep: #B89B6F;
   --accent-soft: #2C2518;      /* Dorado muy diluido sobre dark */
-  --critical: #E57A5C;         /* Coral luminoso para dark */
+  --critical: #C06846;         /* Rojo apagado para dark */
   --critical-soft: #3A1F19;
-  --positive: #8FB58A;
+  --positive: #5F8060;         /* Verde apagado para dark */
   --gold: #D4B98F;
+
+  /* Escala semáforo de riesgo (verde→amarillo→rojo apagados para dark) */
+  --risk-1: #5F8060;   /* Bajo — verde oliva */
+  --risk-2: #8E9B5E;   /* Bajo-medio — oliva amarillo */
+  --risk-3: #C9B353;   /* Medio — amarillo tierra */
+  --risk-4: #D49447;   /* Medio-alto — naranja tierra */
+  --risk-5: #C06846;   /* Alto — rojo-naranja */
+  --risk-6: #9B3828;   /* Crítico — rojo sangre */
 
   /* Escala heatmap dorada sobre dark (de sutil a luminoso) */
   --heat-0: #1A1F26;
@@ -633,9 +641,9 @@ nav {
   transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
   width: 0;
 }
-.ranking-bar-fill.high { background: var(--critical); }
-.ranking-bar-fill.mid { background: var(--accent); }
-.ranking-bar-fill.low { background: var(--positive); }
+.ranking-bar-fill.high { background: var(--risk-6); }
+.ranking-bar-fill.mid { background: var(--risk-4); }
+.ranking-bar-fill.low { background: var(--risk-1); }
 .ranking-value {
   font-family: var(--mono);
   font-size: 14px;
@@ -1229,6 +1237,57 @@ footer {
   color: var(--ink);
   font-size: 14px;
 }
+
+/* ============================================================
+   TOOLTIP GLOBAL (reutilizable en múltiples elementos)
+   ============================================================ */
+.global-tooltip {
+  position: fixed;
+  background: #05090E;
+  color: var(--ink);
+  border: 1px solid rgba(212,185,143,0.4);
+  border-radius: 2px;
+  padding: 10px 14px;
+  font-family: var(--ui);
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.15s;
+  max-width: 260px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.global-tooltip.visible { opacity: 1; }
+.global-tooltip strong {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 4px;
+}
+.global-tooltip .tt-val {
+  font-family: var(--mono);
+  color: var(--accent);
+}
+
+/* Dropdown del select comparador - forzar contraste en dark mode */
+.comp-selector select {
+  color-scheme: dark;
+}
+.comp-selector select option {
+  background-color: #1A1F26 !important;
+  color: #EEE9DE !important;
+  padding: 10px !important;
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+/* Indicador visual de interactividad en elementos hoverable */
+.hoverable { cursor: help; transition: opacity 0.15s; }
+.hoverable:hover { opacity: 0.85; }
 
 /* ============================================================
    COUNTRY DIVIDERS — capítulos editoriales
@@ -2017,26 +2076,34 @@ footer {
         <path d="M 180 40 L 220 50 L 245 70 L 260 100 L 275 135 L 290 165 L 300 200 L 310 240 L 305 275 L 295 305 L 285 335 L 275 360 L 265 385 L 250 410 L 235 435 L 220 460 L 205 485 L 190 510 L 180 535 L 165 555 L 150 545 L 140 520 L 130 495 L 120 470 L 110 445 L 100 420 L 90 395 L 85 370 L 80 345 L 80 320 L 85 295 L 95 270 L 105 245 L 115 220 L 120 195 L 130 170 L 140 145 L 150 120 L 160 95 L 170 70 L 175 55 Z"
               fill="#2D3340" stroke="#D4B98F" stroke-width="1" opacity="0.7"/>
         <!-- Lima Metropolitana — grande -->
-        <circle cx="150" cy="330" r="60" fill="#D4B98F" opacity="0.85"/>
-        <circle cx="150" cy="330" r="60" fill="none" stroke="#EEE9DE" stroke-width="1.5"/>
-        <text x="150" y="325" text-anchor="middle" fill="#0F1419" font-family="IBM Plex Sans" font-size="13" font-weight="600">LIMA</text>
-        <text x="150" y="342" text-anchor="middle" fill="#0F1419" font-family="IBM Plex Mono" font-size="11">26.286</text>
+        <g class="peru-region hoverable" data-region="lima" data-tooltip='<strong>Lima Metropolitana</strong>26.286 notificaciones<br>69,3% del total nacional<br>Centro económico y administrativo del país'>
+          <circle cx="150" cy="330" r="60" fill="#9B3828" opacity="0.85"/>
+          <circle cx="150" cy="330" r="60" fill="none" stroke="#EEE9DE" stroke-width="1.5"/>
+          <text x="150" y="325" text-anchor="middle" fill="#EEE9DE" font-family="IBM Plex Sans" font-size="13" font-weight="600">LIMA</text>
+          <text x="150" y="342" text-anchor="middle" fill="#EEE9DE" font-family="IBM Plex Mono" font-size="11">26.286</text>
+        </g>
         <!-- Arequipa -->
-        <circle cx="200" cy="460" r="22" fill="#B08248" opacity="0.85"/>
-        <circle cx="200" cy="460" r="22" fill="none" stroke="#EEE9DE" stroke-width="1"/>
-        <text x="200" y="458" text-anchor="middle" fill="#0F1419" font-family="IBM Plex Sans" font-size="9" font-weight="600">AREQUIPA</text>
-        <text x="200" y="470" text-anchor="middle" fill="#0F1419" font-family="IBM Plex Mono" font-size="9">3.535</text>
+        <g class="peru-region hoverable" data-region="arequipa" data-tooltip='<strong>Arequipa</strong>3.535 notificaciones<br>9,3% del total nacional<br>Región del sur, fuerte presencia minera'>
+          <circle cx="200" cy="460" r="22" fill="#D49447" opacity="0.85"/>
+          <circle cx="200" cy="460" r="22" fill="none" stroke="#EEE9DE" stroke-width="1"/>
+          <text x="200" y="458" text-anchor="middle" fill="#0F1419" font-family="IBM Plex Sans" font-size="9" font-weight="600">AREQUIPA</text>
+          <text x="200" y="470" text-anchor="middle" fill="#0F1419" font-family="IBM Plex Mono" font-size="9">3.535</text>
+        </g>
         <!-- Callao -->
-        <circle cx="140" cy="310" r="15" fill="#7A5F38" opacity="0.85"/>
-        <circle cx="140" cy="310" r="15" fill="none" stroke="#EEE9DE" stroke-width="0.8"/>
-        <text x="140" y="308" text-anchor="middle" fill="#0F1419" font-family="IBM Plex Sans" font-size="7" font-weight="600">CALLAO</text>
-        <text x="140" y="318" text-anchor="middle" fill="#0F1419" font-family="IBM Plex Mono" font-size="7">2.557</text>
+        <g class="peru-region hoverable" data-region="callao" data-tooltip='<strong>Callao</strong>2.557 notificaciones<br>6,7% del total nacional<br>Puerto principal del Perú, alta actividad logística'>
+          <circle cx="140" cy="310" r="15" fill="#C9B353" opacity="0.85"/>
+          <circle cx="140" cy="310" r="15" fill="none" stroke="#EEE9DE" stroke-width="0.8"/>
+          <text x="140" y="308" text-anchor="middle" fill="#0F1419" font-family="IBM Plex Sans" font-size="7" font-weight="600">CALLAO</text>
+          <text x="140" y="318" text-anchor="middle" fill="#0F1419" font-family="IBM Plex Mono" font-size="7">2.557</text>
+        </g>
         <!-- Otras regiones pequeñas -->
-        <circle cx="230" cy="250" r="6" fill="#4A4028" opacity="0.7"/>
-        <circle cx="220" cy="180" r="5" fill="#4A4028" opacity="0.7"/>
-        <circle cx="180" cy="140" r="5" fill="#4A4028" opacity="0.7"/>
-        <circle cx="210" cy="380" r="6" fill="#4A4028" opacity="0.7"/>
-        <circle cx="180" cy="500" r="5" fill="#4A4028" opacity="0.7"/>
+        <g class="peru-region hoverable" data-tooltip='<strong>Resto del país</strong>5.550 notificaciones entre 21 departamentos<br>14,7% del total — fuerte indicador de subregistro regional'>
+          <circle cx="230" cy="250" r="6" fill="#8E9B5E" opacity="0.7"/>
+          <circle cx="220" cy="180" r="5" fill="#8E9B5E" opacity="0.7"/>
+          <circle cx="180" cy="140" r="5" fill="#8E9B5E" opacity="0.7"/>
+          <circle cx="210" cy="380" r="6" fill="#8E9B5E" opacity="0.7"/>
+          <circle cx="180" cy="500" r="5" fill="#8E9B5E" opacity="0.7"/>
+        </g>
         <text x="200" y="560" text-anchor="middle" fill="#8E8B81" font-family="IBM Plex Sans" font-size="10" letter-spacing="0.05em">PERÚ · Concentración de notificaciones 2024</text>
       </svg>
     </div>
@@ -2311,6 +2378,36 @@ footer {
      ============================================================ -->
 <script>
 /* =============================================================
+   TOOLTIP GLOBAL — reutilizable en múltiples elementos
+   ============================================================= */
+(function initTooltip() {
+  const tt = document.createElement('div');
+  tt.className = 'global-tooltip';
+  document.body.appendChild(tt);
+  window._tooltip = tt;
+})();
+
+function showTooltip(e, htmlContent) {
+  const tt = window._tooltip;
+  tt.innerHTML = htmlContent;
+  tt.classList.add('visible');
+  moveTooltip(e);
+}
+function hideTooltip() {
+  window._tooltip.classList.remove('visible');
+}
+function moveTooltip(e) {
+  const tt = window._tooltip;
+  const x = e.clientX + 14;
+  const y = e.clientY + 14;
+  const ttRect = tt.getBoundingClientRect();
+  const maxX = window.innerWidth - ttRect.width - 20;
+  const maxY = window.innerHeight - ttRect.height - 20;
+  tt.style.left = Math.min(x, maxX) + 'px';
+  tt.style.top = Math.min(y, maxY) + 'px';
+}
+
+/* =============================================================
    DATOS — cargados de fuentes oficiales (Chile: SUSESO 2024 / Perú: MTPE / LATAM: ILOSTAT)
    ============================================================= */
 
@@ -2375,16 +2472,17 @@ const REGIONES_CHILE = [
 ];
 
 // Formas de accidente fatal (trabajo, sin vehículo) — SUSESO 2024, N=78
+// Colores semáforo: más frecuente = más rojo, menos frecuente = más verde
 const FORMAS_FATAL = [
-  {forma: 'Caída de personas', n: 30, pct: 38, color: '#E57A5C'},
-  {forma: 'Atrapamientos o amputaciones', n: 15, pct: 19, color: '#D4B98F'},
-  {forma: 'Golpes por o contra objetos', n: 11, pct: 14, color: '#B89B6F'},
-  {forma: 'Contacto con temperaturas extremas', n: 6, pct: 8, color: '#C97A47'},
-  {forma: 'Contacto con corriente eléctrica', n: 5, pct: 6, color: '#7FA5C7'},
-  {forma: 'Sustancias físicas, químicas o biológicas', n: 4, pct: 5, color: '#8FB58A'},
-  {forma: 'Otras formas de accidentes', n: 4, pct: 5, color: '#9B9791'},
-  {forma: 'Sobreesfuerzo y falsos movimientos', n: 2, pct: 3, color: '#706D66'},
-  {forma: 'Amenazas o agresiones de personas', n: 1, pct: 1, color: '#50504A'}
+  {forma: 'Caída de personas', n: 30, pct: 38, color: '#9B3828'},
+  {forma: 'Atrapamientos o amputaciones', n: 15, pct: 19, color: '#C06846'},
+  {forma: 'Golpes por o contra objetos', n: 11, pct: 14, color: '#D49447'},
+  {forma: 'Contacto con temperaturas extremas', n: 6, pct: 8, color: '#C9B353'},
+  {forma: 'Contacto con corriente eléctrica', n: 5, pct: 6, color: '#B8A94D'},
+  {forma: 'Sustancias físicas, químicas o biológicas', n: 4, pct: 5, color: '#8E9B5E'},
+  {forma: 'Otras formas de accidentes', n: 4, pct: 5, color: '#6F8E5F'},
+  {forma: 'Sobreesfuerzo y falsos movimientos', n: 2, pct: 3, color: '#5F8060'},
+  {forma: 'Amenazas o agresiones de personas', n: 1, pct: 1, color: '#4A6B54'}
 ];
 
 // Formas de accidente del trabajo (total 2024) — SUSESO, N=143.199
@@ -2456,8 +2554,8 @@ const LATAM_DATA = [
     maxZoom: 19
   }).addTo(map);
 
-  // Escala de color basada en pct de trabajadores (dorado sobre dark)
-  const heatColors = ['#1A1F26', '#2D2D24', '#4A4028', '#7A5F38', '#B08248', '#E8C995'];
+  // Escala semáforo: mayor concentración de trabajadores = mayor exposición relativa
+  const heatColors = ['#5F8060', '#8E9B5E', '#C9B353', '#D49447', '#C06846', '#9B3828'];
   function getColor(pct) {
     if (pct > 40) return heatColors[5];
     if (pct > 20) return heatColors[4];
@@ -2467,8 +2565,8 @@ const LATAM_DATA = [
     return heatColors[0];
   }
 
-  // Cargar GeoJSON de Chile desde un CDN público
-  fetch('https://raw.githubusercontent.com/caracena/chilegeojson/master/chile.geojson')
+  // Cargar GeoJSON de Chile desde jsdelivr CDN (CORS-safe)
+  fetch('https://cdn.jsdelivr.net/gh/caracena/chile-geojson@master/regiones.json')
     .then(r => r.json())
     .then(geo => {
       // Mapeo manual del nombre del GeoJSON al codigo de nuestra data
@@ -2605,8 +2703,13 @@ const LATAM_DATA = [
       const pct = (r.tasa / maxVal) * 100;
       const cls = r.tasa >= 3.5 ? 'high' : (r.tasa >= 2.5 ? 'mid' : 'low');
       const isAvg = r.nombre === 'Promedio nacional';
+      const riskLabel = r.tasa >= 3.5 ? 'Alto riesgo' : (r.tasa >= 2.5 ? 'Riesgo medio' : 'Bajo riesgo');
+      const promVsThis = ((r.tasa - TASA_RUBRO['Promedio nacional'][year]) / TASA_RUBRO['Promedio nacional'][year] * 100).toFixed(0);
+      const vsProm = isAvg ? '' : (promVsThis > 0 ? `${promVsThis}% sobre el promedio nacional` : `${Math.abs(promVsThis)}% bajo el promedio nacional`);
+      const tooltipHtml = `<strong>${r.nombre}</strong>Tasa ${year}: <span class="tt-val">${r.tasa.toFixed(1)}%</span><br>${riskLabel}${vsProm ? '<br>' + vsProm : ''}`;
       const row = document.createElement('div');
-      row.className = 'ranking-row';
+      row.className = 'ranking-row hoverable';
+      row.dataset.tooltip = tooltipHtml;
       row.innerHTML = `
         <div class="ranking-industry" style="${isAvg ? 'font-style:italic;color:var(--accent);' : ''}">${r.nombre}</div>
         <div class="ranking-bar-track">
@@ -2614,6 +2717,9 @@ const LATAM_DATA = [
         </div>
         <div class="ranking-value">${r.tasa.toFixed(1)}%</div>
       `;
+      row.addEventListener('mouseenter', (e) => showTooltip(e, tooltipHtml));
+      row.addEventListener('mouseleave', hideTooltip);
+      row.addEventListener('mousemove', moveTooltip);
       container.appendChild(row);
       // animación
       setTimeout(() => {
@@ -2643,11 +2749,11 @@ const LATAM_DATA = [
 
   const years = [2019, 2020, 2021, 2022, 2023, 2024];
   const datasets = [
-    {label: 'Promedio nacional', color: '#EEE9DE', width: 3, data: years.map(y => TASA_RUBRO['Promedio nacional'][y])},
-    {label: 'Construcción', color: '#E57A5C', width: 2, data: years.map(y => TASA_RUBRO['Construcción'][y])},
-    {label: 'Industria Manufacturera', color: '#D4B98F', width: 2, data: years.map(y => TASA_RUBRO['Industria Manufacturera'][y])},
-    {label: 'Servicios', color: '#7FA5C7', width: 2, data: years.map(y => TASA_RUBRO['Servicios'][y])},
-    {label: 'Minería', color: '#8FB58A', width: 2, data: years.map(y => TASA_RUBRO['Minería'][y])}
+    {label: 'Promedio nacional',          color: '#EEE9DE', width: 3, data: years.map(y => TASA_RUBRO['Promedio nacional'][y])},
+    {label: 'Construcción',               color: '#C06846', width: 2, data: years.map(y => TASA_RUBRO['Construcción'][y])},
+    {label: 'Industria Manufacturera',    color: '#D49447', width: 2, data: years.map(y => TASA_RUBRO['Industria Manufacturera'][y])},
+    {label: 'Servicios',                  color: '#C9B353', width: 2, data: years.map(y => TASA_RUBRO['Servicios'][y])},
+    {label: 'Minería',                    color: '#8FB58A', width: 2, data: years.map(y => TASA_RUBRO['Minería'][y])}
   ];
 
   new Chart(ctx, {
@@ -2720,7 +2826,7 @@ const LATAM_DATA = [
   if (!table) return;
 
   const maxVal = Math.max(...MATRIZ.valores.flat());
-  const heatColors = ['#1A1F26', '#2D2D24', '#4A4028', '#7A5F38', '#B08248', '#E8C995'];
+  const heatColors = ['#5F8060', '#8E9B5E', '#C9B353', '#D49447', '#C06846', '#9B3828'];
   function color(v) {
     const ratio = v / maxVal;
     if (ratio > 0.85) return heatColors[5];
@@ -2731,7 +2837,7 @@ const LATAM_DATA = [
     return heatColors[0];
   }
   function textColor(v) {
-    return (v / maxVal) > 0.55 ? '#0F1419' : '#D4CFC4';
+    return (v / maxVal) > 0.55 ? '#0F1419' : '#EEE9DE';
   }
 
   let html = '<thead><tr><th class="industry-col">Industria</th>';
@@ -2742,13 +2848,22 @@ const LATAM_DATA = [
 
   MATRIZ.industrias.forEach((ind, i) => {
     html += `<tr><td class="industry-name">${ind}</td>`;
-    MATRIZ.valores[i].forEach(v => {
-      html += `<td class="matriz-cell" style="background:${color(v)};color:${textColor(v)}">${v}%</td>`;
+    MATRIZ.valores[i].forEach((v, j) => {
+      const tooltipText = `${MATRIZ.formas[j]} en ${ind}: ${v}% de los accidentes del sector`;
+      html += `<td class="matriz-cell" data-tooltip="${tooltipText}" style="background:${color(v)};color:${textColor(v)}">${v}%</td>`;
     });
     html += '</tr>';
   });
   html += '</tbody>';
   table.innerHTML = html;
+
+  // Agregar tooltips interactivos
+  const cells = table.querySelectorAll('.matriz-cell');
+  cells.forEach(cell => {
+    cell.addEventListener('mouseenter', (e) => showTooltip(e, cell.dataset.tooltip));
+    cell.addEventListener('mouseleave', hideTooltip);
+    cell.addEventListener('mousemove', moveTooltip);
+  });
 })();
 
 /* =============================================================
@@ -2972,9 +3087,13 @@ const PERU_REGIONES = [
   sorted.forEach((s, i) => {
     const pct = (s.n / maxVal) * 100;
     const row = document.createElement('div');
-    row.className = 'ps-row';
+    row.className = 'ps-row hoverable';
     const opacity = s.official ? '1' : '0.75';
     const marker = s.official ? '' : '<span style="font-family:var(--mono);font-size:9px;color:var(--ink-muted);margin-left:6px;">est.</span>';
+    const officialLabel = s.official ? 'Cifra oficial MTPE 2024' : 'Estimación basada en patrón histórico';
+    const pctNational = (s.n / 37928 * 100).toFixed(1);
+    const tooltipHtml = `<strong>${s.sector}</strong>${s.n.toLocaleString('es-PE')} notificaciones<br>${pctNational}% del total nacional<br><em style="color:var(--ink-muted);font-style:italic">${officialLabel}</em>`;
+    row.dataset.tooltip = tooltipHtml;
     row.innerHTML = `
       <div class="ps-name">${s.sector}${marker}</div>
       <div class="ps-track">
@@ -2982,6 +3101,9 @@ const PERU_REGIONES = [
       </div>
       <div class="ps-val">${s.n.toLocaleString('es-PE')}</div>
     `;
+    row.addEventListener('mouseenter', (e) => showTooltip(e, tooltipHtml));
+    row.addEventListener('mouseleave', hideTooltip);
+    row.addEventListener('mousemove', moveTooltip);
     container.appendChild(row);
     setTimeout(() => {
       row.querySelector('.ps-fill').style.width = pct + '%';
@@ -3001,17 +3123,85 @@ const PERU_REGIONES = [
   PERU_REGIONES.forEach((r, i) => {
     const pct = (r.n / maxVal) * 100;
     const row = document.createElement('div');
-    row.className = 'pc-bar-row';
+    row.className = 'pc-bar-row hoverable';
     const fillClass = i === 0 ? '' : 'secondary';
+    const tooltipHtml = `<strong>${r.region}</strong>${r.n.toLocaleString('es-PE')} notificaciones<br>${r.pct}% del total nacional`;
+    row.dataset.tooltip = tooltipHtml;
     row.innerHTML = `
       <div class="pc-bar-label">${r.region}</div>
       <div class="pc-bar-track"><div class="pc-bar-fill ${fillClass}" style="width: 0%;"></div></div>
       <div class="pc-bar-val">${r.pct}%</div>
     `;
+    row.addEventListener('mouseenter', (e) => showTooltip(e, tooltipHtml));
+    row.addEventListener('mouseleave', hideTooltip);
+    row.addEventListener('mousemove', moveTooltip);
     container.appendChild(row);
     setTimeout(() => {
       row.querySelector('.pc-bar-fill').style.width = pct + '%';
     }, 120 + i * 100);
+  });
+})();
+
+/* =============================================================
+   TOOLTIPS: MAPA SVG PERÚ + STATS CARDS + OTROS
+   ============================================================= */
+(function attachHoverTooltips() {
+  // Mapa SVG de Perú
+  document.querySelectorAll('.peru-region').forEach(el => {
+    const tt = el.dataset.tooltip;
+    if (!tt) return;
+    el.style.cursor = 'help';
+    el.addEventListener('mouseenter', (e) => showTooltip(e, tt));
+    el.addEventListener('mouseleave', hideTooltip);
+    el.addEventListener('mousemove', moveTooltip);
+  });
+
+  // Stats cards — agregar tooltips contextuales
+  const statTooltips = [
+    { selector: 0, tt: '<strong>Tasa de accidentabilidad</strong>Accidentes del trabajo por cada 100 personas trabajadoras protegidas. Fórmula: (accidentes / trabajadores) × 100' },
+    { selector: 1, tt: '<strong>Accidentes totales 2024</strong>Suma de accidentes del trabajo y de trayecto reportados a mutualidades e ISL. Baja 3,7% respecto a 2023.' },
+    { selector: 2, tt: '<strong>Fatalidades laborales</strong>95% hombres, 5% mujeres. 49% con vehículo involucrado. 51% sin vehículo (faena, altura, eléctricos).' },
+    { selector: 3, tt: '<strong>Enfermedades profesionales</strong>Salud mental representa el 72% — el diagnóstico más común, impulsado por Ley Karin y CEAL-SM.' },
+    { selector: 4, tt: '<strong>Trabajadores protegidos</strong>Bajo seguro social Ley 16.744. Incluye mutualidades e ISL.' },
+    { selector: 5, tt: '<strong>Empresas adheridas</strong>Un 58% son personas trabajadoras independientes que emiten boletas de honorarios.' },
+    { selector: 6, tt: '<strong>Días perdidos promedio</strong>Minería lidera con 35,1 días (accidentes más graves). Comercio el menor con 15,7.' },
+    { selector: 7, tt: '<strong>Accidentes graves</strong>43% corresponden a amputaciones traumáticas. Criterio de gravedad según SUSESO.' }
+  ];
+  const statEls = document.querySelectorAll('.stat');
+  statTooltips.forEach(({selector, tt}) => {
+    if (statEls[selector]) {
+      const el = statEls[selector];
+      el.style.cursor = 'help';
+      el.addEventListener('mouseenter', (e) => showTooltip(e, tt));
+      el.addEventListener('mouseleave', hideTooltip);
+      el.addEventListener('mousemove', moveTooltip);
+    }
+  });
+
+  // Region list (lista lateral del mapa Chile)
+  document.querySelectorAll('.region-row').forEach(row => {
+    const name = row.querySelector('.reg-name')?.textContent;
+    const val = row.querySelector('.reg-val')?.textContent;
+    if (!name) return;
+    const tt = `<strong>${name}</strong>${val}<br>de los 7,25M trabajadores protegidos por la Ley 16.744`;
+    row.style.cursor = 'help';
+    row.addEventListener('mouseenter', (e) => showTooltip(e, tt));
+    row.addEventListener('mouseleave', hideTooltip);
+    row.addEventListener('mousemove', moveTooltip);
+  });
+
+  // Comparativo Chile vs Perú — tooltips en cada KPI
+  document.querySelectorAll('.vscomp-row').forEach(row => {
+    const label = row.querySelector('.vscomp-row-label')?.textContent.trim();
+    const value = row.querySelector('.vscomp-row-value')?.textContent.trim();
+    const col = row.closest('.vscomp-col');
+    const country = col?.classList.contains('peru') ? 'Perú' : 'Chile';
+    if (!label) return;
+    const tt = `<strong>${country}</strong>${label}<br>Valor: <span class="tt-val">${value}</span>`;
+    row.style.cursor = 'help';
+    row.addEventListener('mouseenter', (e) => showTooltip(e, tt));
+    row.addEventListener('mouseleave', hideTooltip);
+    row.addEventListener('mousemove', moveTooltip);
   });
 })();
 
@@ -3030,7 +3220,7 @@ const PERU_REGIONES = [
     maxZoom: 19
   }).addTo(map);
 
-  const geoColors = ['#2D3340', '#605944', '#957F53', '#B89B6F', '#D4B98F'];
+  const geoColors = ['#5F8060', '#8E9B5E', '#C9B353', '#D49447', '#9B3828'];
   function colorByValue(v) {
     if (v > 15) return geoColors[4];
     if (v > 8)  return geoColors[3];
