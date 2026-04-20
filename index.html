@@ -1427,14 +1427,14 @@ footer {
 .peru-concentration {
   padding: 40px;
   background: var(--paper-soft);
-  border-left: 2px solid var(--accent);
+  border-left: 2px solid var(--risk-6);
 }
 .pc-headline {
   font-family: var(--display);
   font-weight: 500;
   font-size: 80px;
   line-height: 1;
-  color: var(--accent);
+  color: var(--risk-5);
   letter-spacing: -0.03em;
   margin-bottom: 8px;
 }
@@ -1469,6 +1469,10 @@ footer {
   transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
   width: 0;
 }
+.pc-bar-fill.risk-high { background: var(--risk-6); }
+.pc-bar-fill.risk-mid-high { background: var(--risk-4); }
+.pc-bar-fill.risk-mid { background: var(--risk-3); }
+.pc-bar-fill.risk-low { background: var(--risk-1); }
 .pc-bar-fill.secondary { background: #7A5F38; }
 .pc-bar-val {
   font-family: var(--mono);
@@ -1503,6 +1507,12 @@ footer {
 }
 .ps-track { height: 24px; background: var(--hairline-soft); position: relative; border-radius: 1px; overflow: hidden; }
 .ps-fill { height: 100%; background: var(--accent); transition: width 1s cubic-bezier(0.22,1,0.36,1); width: 0; }
+.ps-fill.risk-high { background: var(--risk-6); }
+.ps-fill.risk-mid-high { background: var(--risk-5); }
+.ps-fill.risk-mid { background: var(--risk-4); }
+.ps-fill.risk-mid-low { background: var(--risk-3); }
+.ps-fill.risk-low { background: var(--risk-2); }
+.ps-fill.risk-min { background: var(--risk-1); }
 .ps-val { font-family: var(--mono); font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
 
 /* Chile vs Peru comparison */
@@ -1653,7 +1663,7 @@ footer {
       <a href="#latam">LATAM</a>
       <a href="#diagnostico">Diagnóstico</a>
     </div>
-    <a href="#diagnostico" class="nav-cta">Diagnóstico gratis</a>
+    <a href="diagnostico.html" class="nav-cta">Diagnóstico gratis</a>
   </div>
 </nav>
 
@@ -2210,21 +2220,20 @@ footer {
       <div class="cd-kicker">Capítulo III · Región</div>
       <h2 class="cd-title"><em>LATAM</em></h2>
       <p class="cd-lead">
-        Los datos comparables internacionalmente son escasos y llegan con rezagos de años.
-        La OIT consolida tasas de mortalidad laboral por país — y el ejercicio revela a Chile entre los países
-        con mejor desempeño relativo del continente.
+        De los 20 países de América Latina, solo 7 publican tasas de mortalidad laboral comparables y con datos de los últimos 10 años.
+        El resto reporta con rezagos de una década o simplemente no reporta. La primera brecha SSOMA de la región es la brecha de datos.
       </p>
     </div>
     <div class="cd-right">
       <div class="cd-stat">
-        <span class="cd-stat-num">12</span>
-        <span class="cd-stat-label">Países en el observatorio</span>
-        <span class="cd-stat-detail">Fuente OIT / ILOSTAT con último dato disponible por país.</span>
+        <span class="cd-stat-num">7</span>
+        <span class="cd-stat-label">Países con data reciente</span>
+        <span class="cd-stat-detail">Argentina, Chile, Costa Rica, México, Panamá, Perú, Uruguay.</span>
       </div>
       <div class="cd-stat">
-        <span class="cd-stat-num">25<span class="small">x</span></span>
+        <span class="cd-stat-num">48<span class="small">x</span></span>
         <span class="cd-stat-label">Brecha entre extremos</span>
-        <span class="cd-stat-detail">Cuba con 25/100k vs El Salvador con 0,1/100k según registros OIT.</span>
+        <span class="cd-stat-detail">Panamá reporta 0,2/100k — Costa Rica 9,7/100k. Sin ajuste por subregistro.</span>
       </div>
     </div>
   </div>
@@ -2236,11 +2245,9 @@ footer {
 <section class="viz-section">
   <div class="section-header">
     <div class="section-number">III.1</div>
-    <h2 class="section-title">El mapa <em>oculto</em> de LATAM.</h2>
+    <h2 class="section-title">El mapa <em>posible</em> de LATAM.</h2>
     <p class="section-lead">
-      Los datos comparables internacionalmente son escasos. ILOSTAT consolida tasas de mortalidad laboral
-      con rezagos de varios años. Aun así, el mapa revela brechas enormes — y posiciona a Chile entre los
-      países con mejor desempeño relativo del continente.
+      Chile (2024) y Perú (2024) lideran la transparencia de datos con reportes recientes. Argentina, México, Panamá y Uruguay publican con 2-7 años de rezago. Costa Rica no actualiza desde 2016. Para los otros 13 países de la región, simplemente no existe data comparable pública.
     </p>
   </div>
   <div class="latam-wrapper">
@@ -2257,7 +2264,7 @@ footer {
         <tbody id="latam-tbody"></tbody>
       </table>
       <p class="source-line" style="margin-top: 24px;">
-        <strong>Fuente:</strong> OIT / ILOSTAT · Tasa de mortalidad laboral por cada 100.000 trabajadores · Último año disponible por país · Las coberturas nacionales varían y los datos no siempre son directamente comparables
+        <strong>Fuentes:</strong> SUSESO Chile (2024), MTPE Perú (2024), ILOSTAT/OIT para el resto · Tasa por cada 100.000 trabajadores · Año = última publicación oficial disponible · Las coberturas nacionales varían; los datos no siempre son directamente comparables debido a diferencias metodológicas y niveles de subregistro.
       </p>
     </div>
   </div>
@@ -2283,7 +2290,7 @@ footer {
         tu posición en el rubro, el cumplimiento legal básico, los riesgos característicos de tu sector
         y acciones concretas priorizadas.
       </p>
-      <a href="#" class="cta-diag-btn" onclick="alert('Muy pronto: flujo de diagnóstico en construcción. Esta es la versión pública del Observatorio.'); return false;">
+      <a href="diagnostico.html" class="cta-diag-btn">
         <span>Iniciar diagnóstico</span>
         <span class="arrow">→</span>
       </a>
@@ -2515,20 +2522,16 @@ const MATRIZ = {
   ]
 };
 
-// LATAM tasa mortalidad laboral / 100k trabajadores — ILOSTAT último año disponible
+// LATAM tasa mortalidad laboral / 100k trabajadores — último dato disponible por país
+// Se mantienen solo países con datos de los últimos 10 años. Los datos más viejos no permiten análisis significativo.
 const LATAM_DATA = [
-  {pais: 'Cuba',         codigo: 'CU', lat: 21.5,  lng: -78.0, valor: 25.0, anio: 2010},
-  {pais: 'Costa Rica',   codigo: 'CR', lat: 9.9,   lng: -83.7, valor: 9.7,  anio: 2016},
-  {pais: 'Nicaragua',    codigo: 'NI', lat: 12.8,  lng: -85.0, valor: 8.0,  anio: 2010},
-  {pais: 'México',       codigo: 'MX', lat: 23.6,  lng: -102.5,valor: 7.5,  anio: 2017},
-  {pais: 'Brasil',       codigo: 'BR', lat: -14.2, lng: -51.9, valor: 7.4,  anio: 2011},
-  {pais: 'Argentina',    codigo: 'AR', lat: -38.4, lng: -63.6, valor: 3.3,  anio: 2021},
-  {pais: 'Colombia',     codigo: 'CO', lat: 4.6,   lng: -74.3, valor: 4.0,  anio: 2011},
-  {pais: 'Chile',        codigo: 'CL', lat: -35.7, lng: -71.5, valor: 3.1,  anio: 2018},
-  {pais: 'Uruguay',      codigo: 'UY', lat: -32.5, lng: -55.8, valor: 3.7,  anio: 2018},
-  {pais: 'Panamá',       codigo: 'PA', lat: 8.5,   lng: -80.8, valor: 4.0,  anio: 2016},
-  {pais: 'El Salvador',  codigo: 'SV', lat: 13.8,  lng: -88.9, valor: 0.1,  anio: 2010},
-  {pais: 'Perú',         codigo: 'PE', lat: -9.2,  lng: -75.0, valor: 4.6,  anio: 2024}
+  {pais: 'Chile',        codigo: 'CL', lat: -35.7, lng: -71.5, valor: 2.1,  anio: 2024, fuente: 'SUSESO'},
+  {pais: 'Perú',         codigo: 'PE', lat: -9.2,  lng: -75.0, valor: 4.6,  anio: 2024, fuente: 'MTPE (est.)'},
+  {pais: 'Argentina',    codigo: 'AR', lat: -38.4, lng: -63.6, valor: 3.3,  anio: 2022, fuente: 'ILOSTAT'},
+  {pais: 'México',       codigo: 'MX', lat: 23.6,  lng: -102.5,valor: 7.7,  anio: 2021, fuente: 'ILOSTAT'},
+  {pais: 'Panamá',       codigo: 'PA', lat: 8.5,   lng: -80.8, valor: 0.2,  anio: 2022, fuente: 'ILOSTAT'},
+  {pais: 'Uruguay',      codigo: 'UY', lat: -32.5, lng: -55.8, valor: 3.7,  anio: 2018, fuente: 'ILOSTAT'},
+  {pais: 'Costa Rica',   codigo: 'CR', lat: 9.9,   lng: -83.7, valor: 9.7,  anio: 2016, fuente: 'ILOSTAT'}
 ];
 
 // Total fatalidades fatal work injury rate /100.000 — Chile 2024: 154 fatalidades / 7.252.538 protegidos = 2.1/100k
@@ -3092,12 +3095,15 @@ const PERU_REGIONES = [
     const marker = s.official ? '' : '<span style="font-family:var(--mono);font-size:9px;color:var(--ink-muted);margin-left:6px;">est.</span>';
     const officialLabel = s.official ? 'Cifra oficial MTPE 2024' : 'Estimación basada en patrón histórico';
     const pctNational = (s.n / 37928 * 100).toFixed(1);
+    // Asignar color semáforo según posición en el ranking (top = más riesgoso)
+    const riskClasses = ['risk-high','risk-mid-high','risk-mid','risk-mid','risk-mid-low','risk-mid-low','risk-low','risk-low','risk-low','risk-min','risk-min'];
+    const riskClass = riskClasses[i] || 'risk-min';
     const tooltipHtml = `<strong>${s.sector}</strong>${s.n.toLocaleString('es-PE')} notificaciones<br>${pctNational}% del total nacional<br><em style="color:var(--ink-muted);font-style:italic">${officialLabel}</em>`;
     row.dataset.tooltip = tooltipHtml;
     row.innerHTML = `
       <div class="ps-name">${s.sector}${marker}</div>
       <div class="ps-track">
-        <div class="ps-fill" style="width: 0%; opacity: ${opacity};"></div>
+        <div class="ps-fill ${riskClass}" style="width: 0%; opacity: ${opacity};"></div>
       </div>
       <div class="ps-val">${s.n.toLocaleString('es-PE')}</div>
     `;
@@ -3119,12 +3125,13 @@ const PERU_REGIONES = [
   if (!container) return;
 
   const maxVal = Math.max(...PERU_REGIONES.map(r => r.n));
+  const regionRiskClasses = ['risk-high','risk-mid-high','risk-mid','risk-low'];
   container.innerHTML = '';
   PERU_REGIONES.forEach((r, i) => {
     const pct = (r.n / maxVal) * 100;
     const row = document.createElement('div');
     row.className = 'pc-bar-row hoverable';
-    const fillClass = i === 0 ? '' : 'secondary';
+    const fillClass = regionRiskClasses[i] || 'risk-low';
     const tooltipHtml = `<strong>${r.region}</strong>${r.n.toLocaleString('es-PE')} notificaciones<br>${r.pct}% del total nacional`;
     row.dataset.tooltip = tooltipHtml;
     row.innerHTML = `
@@ -3244,6 +3251,7 @@ const PERU_REGIONES = [
       <strong>${c.pais}</strong>
       <div class="tt-line"><span>Tasa mortalidad</span><span class="tt-val">${c.valor.toFixed(1)} / 100k</span></div>
       <div class="tt-line"><span>Año de referencia</span><span class="tt-val">${c.anio}</span></div>
+      <div class="tt-line"><span>Fuente</span><span class="tt-val">${c.fuente || 'OIT'}</span></div>
     `;
     marker.bindTooltip(html, {sticky: true, className: 'map-tooltip'});
   });
@@ -3251,12 +3259,18 @@ const PERU_REGIONES = [
   // Render tabla
   const tbody = document.getElementById('latam-tbody');
   const sorted = [...LATAM_DATA].sort((a,b) => b.valor - a.valor);
+  const currentYear = 2025;
   sorted.forEach(c => {
+    const age = currentYear - c.anio;
+    const isFresh = age <= 2;
+    const isOld = age > 5;
+    const freshBadge = isFresh ? '<span style="font-family:var(--mono);font-size:9px;color:var(--positive);margin-left:8px;padding:2px 6px;background:rgba(95,128,96,0.15);border-radius:2px;">RECIENTE</span>' : '';
+    const oldBadge = isOld ? '<span style="font-family:var(--mono);font-size:9px;color:var(--critical);margin-left:8px;padding:2px 6px;background:var(--critical-soft);border-radius:2px;">' + age + ' AÑOS</span>' : '';
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="country-name"><span class="country-dot" style="background:${colorByValue(c.valor)}"></span>${c.pais}</td>
+      <td class="country-name"><span class="country-dot" style="background:${colorByValue(c.valor)}"></span>${c.pais}${freshBadge}${oldBadge}</td>
       <td class="num">${c.valor.toFixed(1)}</td>
-      <td class="num">${c.anio}</td>
+      <td class="num">${c.anio}<div style="font-family:var(--mono);font-size:9px;color:var(--ink-muted);margin-top:2px;">${c.fuente || 'OIT'}</div></td>
     `;
     tbody.appendChild(tr);
   });
