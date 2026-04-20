@@ -1606,8 +1606,11 @@ function computeMetrics() {
   const percentilPeor = Math.round(cdf * 100);
   const percentilMejor = 100 - percentilPeor;
 
-  // Brecha con promedio rubro
-  const brechaPct = ((tasa - promRubro) / promRubro * 100);
+// Brecha con promedio rubro — ambos cálculos separados y correctos
+  // Absoluta: diferencia directa en puntos porcentuales (ej: 2.9 - 2.8 = 0.1 pp)
+  // Relativa: qué % representa esa diferencia sobre el promedio (ej: 0.1/2.8 = 3.6%)
+  const brechaAbsPp = tasa - promRubro;
+  const brechaRelPct = (brechaAbsPp / promRubro) * 100;
 
   // Checklist score — cuenta transversal + sectorial separados
   const allItems = document.querySelectorAll('.check-item');
@@ -1646,9 +1649,9 @@ function computeMetrics() {
   const impactoMax = Math.round(planillaAnual * (excesoTasa * 0.006));
   const impactoEstimado = Math.round(planillaAnual * (excesoTasa * 0.005));
 
-  return {
+return {
     promRubro, tasa, z, percentilPeor, percentilMejor,
-    brechaPct, cumplimientoPct, cumplimientoTransPct, cumplimientoSectPct,
+    brechaAbsPp, brechaRelPct, cumplimientoPct, cumplimientoTransPct, cumplimientoSectPct,
     gaps, gapsSectoriales, checked: checkedAll, total: totalAll,
     checkedTrans, totalTrans, checkedSect, totalSect,
     impactoEstimado, impactoMin, impactoMax, nTrab, planillaAnual, excesoTasa, rentaBruta
