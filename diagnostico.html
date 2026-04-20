@@ -635,16 +635,19 @@ footer strong { font-family: var(--display); font-weight: 600; color: var(--ink)
       </div>
 
       <div class="form-field">
-        <label>N° de trabajadores <span class="required">*</span></label>
-        <select id="f-tamano" required>
-          <option value="">Selecciona...</option>
-          <option value="micro">1 - 9 (Micro)</option>
-          <option value="pequena">10 - 49 (Pequeña)</option>
-          <option value="mediana">50 - 199 (Mediana)</option>
-          <option value="grande">200 - 499 (Grande)</option>
-          <option value="muygrande">500 o más</option>
-        </select>
-        <div class="error">Selecciona un tamaño</div>
+        <label>N° de trabajadores <span class="required">*</span>
+          <span class="hint">cifra exacta</span>
+        </label>
+        <input type="number" id="f-trabajadores" min="1" max="100000" step="1" placeholder="Ej: 45" required>
+        <div class="error">Ingresa un número entre 1 y 100.000</div>
+      </div>
+
+      <div class="form-field">
+        <label>Renta promedio mensual bruta <span class="required">*</span>
+          <span class="hint">imponible, antes de descuentos previsionales</span>
+        </label>
+        <input type="number" id="f-renta" min="100000" max="20000000" step="10000" placeholder="Ej: 850000" required>
+        <div class="error">Ingresa un monto válido (mínimo 100.000)</div>
       </div>
     </div>
 
@@ -892,11 +895,12 @@ function prevStep(to) {
 // ========== VALIDACIÓN ==========
 function validateStep1() {
   const fields = [
-    { id: 'f-empresa', check: v => v.trim().length >= 2 },
-    { id: 'f-pais',    check: v => !!v },
-    { id: 'f-region',  check: v => !!v },
-    { id: 'f-rubro',   check: v => !!v },
-    { id: 'f-tamano',  check: v => !!v }
+    { id: 'f-empresa',      check: v => v.trim().length >= 2 },
+    { id: 'f-pais',         check: v => !!v },
+    { id: 'f-region',       check: v => !!v },
+    { id: 'f-rubro',        check: v => !!v },
+    { id: 'f-trabajadores', check: v => { const n = parseInt(v); return !isNaN(n) && n >= 1 && n <= 100000; } },
+    { id: 'f-renta',        check: v => { const n = parseFloat(v); return !isNaN(n) && n >= 100000 && n <= 20000000; } }
   ];
   let allOk = true;
   fields.forEach(f => {
@@ -914,7 +918,12 @@ function validateStep1() {
     formData.pais = document.getElementById('f-pais').value;
     formData.region = document.getElementById('f-region').value;
     formData.rubro = document.getElementById('f-rubro').value;
-    formData.tamano = document.getElementById('f-tamano').value;
+    formData.trabajadores = parseInt(document.getElementById('f-trabajadores').value);
+    formData.renta = parseFloat(document.getElementById('f-renta').value);
+    // Tamaño calculado automáticamente según clasificación estándar
+    const n = formData.trabajadores;
+    formData.tamano = n >= 500 ? 'muygrande' : n >= 200 ? 'grande' : n >= 50 ? 'mediana' : n >= 10 ? 'pequena' : 'micro';
+    formData.tamanoLabel = n >= 500 ? 'Muy grande (500+)' : n >= 200 ? 'Grande (200-499)' : n >= 50 ? 'Mediana (50-199)' : n >= 10 ? 'Pequeña (10-49)' : 'Micro (1-9)';
   }
   return allOk;
 }
@@ -996,20 +1005,20 @@ function computeMetrics() {
     }
   });
 
-  // Impacto económico estimado (Chile)
-  // Fórmula simplificada: cada 0.1% sobre promedio rubro ≈ 0.05% de planilla en cotización adicional SUSESO
-  const trabajadoresEstimados = { micro: 5, pequena: 25, mediana: 100, grande: 300, muygrande: 800 };
-  const nTrab = trabajadoresEstimados[formData.tamano] || 100;
-  const sueldoPromedio = formData.pais === 'PE' ? 1800000 : 720000; // CLP promedio Chile
-  const planillaAnual = nTrab * sueldoPromedio * 12;
-  // Brecha económica si la tasa está sobre promedio rubro
+  // Impacto económico estimado usando datos reales del usuario
+  // Fórmula: planilla anual × (exceso de tasa × 0.5%)
+  // Base: cada 1 punto porcentual de tasa sobre el promedio sectorial incrementa ~0,5% la cotización adicional SUSESO/SCTR
+  const nTrab = formData.trabajadores;
+  const rentaBruta = formData.renta;
+  // Planilla anual: 12 meses × renta bruta × (1 + factor gratificaciones/aguinaldos 8%)
+  const planillaAnual = nTrab * rentaBruta * 12 * 1.08;
   const excesoTasa = Math.max(0, tasa - promRubro);
   const impactoEstimado = Math.round(planillaAnual * (excesoTasa * 0.005));
 
   return {
     promRubro, tasa, z, percentilPeor, percentilMejor,
     brechaPct, cumplimientoPct, gaps, checked, total,
-    impactoEstimado, nTrab, planillaAnual, excesoTasa
+    impactoEstimado, nTrab, planillaAnual, excesoTasa, rentaBruta
   };
 }
 
@@ -1211,7 +1220,13 @@ function renderReport() {
             <div class="impact-label">Estimación conservadora de sobrecosto anual</div>
             <div class="impact-number">~${formData.pais === 'PE' ? 'S/.' : '$'}${m.impactoEstimado.toLocaleString('es-CL')}<span class="unit"> ${formData.pais === 'PE' ? 'PEN' : 'CLP'}</span></div>
             <div class="impact-narrative">
-              Si llevas tu tasa del <strong>${m.tasa.toFixed(1)}%</strong> al promedio del rubro <strong>(${m.promRubro.toFixed(1)}%)</strong>, el ahorro estimado en cotización adicional SUSESO equivale a <strong>${(m.impactoEstimado / 1000000).toFixed(1)} millones</strong> al año sobre una planilla de ~${m.nTrab} trabajadores. No incluye días perdidos ni indemnizaciones eventuales.
+              Si llevas tu tasa del <strong>${m.tasa.toFixed(1)}%</strong> al promedio del rubro <strong>(${m.promRubro.toFixed(1)}%)</strong>, el ahorro estimado en cotización adicional ${formData.pais === 'PE' ? 'SCTR' : 'SUSESO'} equivale a <strong>${formatMM(m.impactoEstimado)}</strong> al año sobre una planilla de <strong>${m.nTrab.toLocaleString('es-CL')} ${m.nTrab === 1 ? 'trabajador' : 'trabajadores'}</strong> con renta bruta promedio de ${formData.pais === 'PE' ? 'S/.' : '$'}${(m.rentaBruta).toLocaleString('es-CL')}. No incluye días perdidos, indemnizaciones eventuales ni pérdidas de productividad asociadas.
+            </div>
+            <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--hairline); font-family: var(--mono); font-size: 11px; color: var(--ink-muted); line-height: 1.6;">
+              <strong style="color: var(--ink-soft); font-family: var(--ui); font-size: 12px; letter-spacing: 0.08em;">CÓMO SE CALCULA</strong><br>
+              Planilla anual estimada: ${m.nTrab.toLocaleString('es-CL')} × ${formData.pais === 'PE' ? 'S/.' : '$'}${m.rentaBruta.toLocaleString('es-CL')} × 12 meses × 1,08 (gratificaciones) = ${formData.pais === 'PE' ? 'S/.' : '$'}${Math.round(m.planillaAnual).toLocaleString('es-CL')}<br>
+              Exceso de tasa sobre promedio sectorial: ${m.excesoTasa.toFixed(2)} puntos porcentuales<br>
+              Sobrecosto aplicado: 0,5% de la planilla por cada punto de exceso (base DS 67 ajustado)
             </div>
           </div>
         </div>
@@ -1298,10 +1313,18 @@ function renderComplianceUI(m) {
 }
 
 // ========== GENERADORES DE TEXTO (reglas — Claude API vendrá en Entrega 2B) ==========
+
+// Formatea un monto grande en millones o miles para legibilidad
+function formatMM(monto) {
+  if (monto >= 1000000) return (monto / 1000000).toFixed(1) + ' millones';
+  if (monto >= 1000) return (monto / 1000).toFixed(0) + ' mil';
+  return monto.toLocaleString('es-CL');
+}
+
 function generateExecutiveNarrative(m, form, riesgos) {
   const posText = m.z < -0.67 ? 'sobresale en' : (m.z > 0.67 ? 'queda rezagada en' : 'se ubica cerca del promedio en');
   const cumplimientoText = m.cumplimientoPct >= 80 ? 'sólido' : (m.cumplimientoPct >= 40 ? 'parcial' : 'preocupantemente bajo');
-  const impactoPhrase = m.excesoTasa > 0 ? ` Tu exceso de accidentabilidad está costándote estimativamente ${(m.impactoEstimado / 1000000).toFixed(1)}M anuales en cotización adicional.` : '';
+  const impactoPhrase = m.excesoTasa > 0 ? ` Tu exceso de accidentabilidad está costándote estimativamente <strong>${formatMM(m.impactoEstimado)}</strong> anuales en cotización adicional.` : '';
 
   const gapTexts = m.gaps.map(g => g.titulo).slice(0, 2).join(' y ');
   const gapParrafo = m.gaps.length > 0
@@ -1309,7 +1332,7 @@ function generateExecutiveNarrative(m, form, riesgos) {
     : `<p>Tu <strong>cumplimiento legal básico es sólido</strong> — los 5 puntos fundamentales están en orden. Eso te ubica por encima de la mayoría de empresas en tu rubro, donde el cumplimiento promedio es 60%.</p>`;
 
   return `
-    <p><strong>${form.empresa}</strong> ${posText} comparación con el promedio del rubro ${form.rubro.toLowerCase()} chileno.
+    <p><strong>${form.empresa}</strong> ${posText} comparación con el promedio del rubro ${form.rubro.toLowerCase()} ${form.pais === 'PE' ? 'peruano' : 'chileno'}.
     Con una tasa de accidentabilidad de <strong>${m.tasa.toFixed(1)}%</strong> contra un promedio sectorial de <strong>${m.promRubro.toFixed(1)}%</strong>,
     ${m.brechaPct > 0 ? 'estás por sobre la media' : 'estás por debajo de la media'} en <em>${Math.abs(m.brechaPct).toFixed(0)} puntos porcentuales</em> relativos.${impactoPhrase}</p>
     ${gapParrafo}
@@ -1366,93 +1389,463 @@ function generateRecommendations(m, form, riesgos) {
   return recs;
 }
 
-// ========== PDF ==========
+// ========== PDF — reporte completo con todas las secciones del web ==========
 function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({unit: 'pt', format: 'a4'});
   const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
   const m = formData.metrics;
   const riesgos = RIESGOS_POR_RUBRO[formData.rubro] || [];
   const recs = generateRecommendations(m, formData, riesgos);
 
-  // Página 1 — Portada
-  doc.setFillColor(15, 20, 25);
-  doc.rect(0, 0, pageW, doc.internal.pageSize.getHeight(), 'F');
+  // Paleta Medianoche
+  const BG = [15, 20, 25];            // #0F1419 fondo
+  const BG_SOFT = [26, 31, 38];       // #1A1F26 superficie
+  const INK = [238, 233, 222];        // #EEE9DE texto principal
+  const INK_SOFT = [212, 207, 196];   // #D4CFC4 texto secundario
+  const INK_MUTED = [140, 139, 129];  // #8C8B81 muted
+  const INK_FAINT = [92, 90, 82];     // #5C5A52 sutil
+  const ACCENT = [212, 185, 143];     // #D4B98F dorado
+  const HAIRLINE = [45, 51, 64];      // #2D3340
+  const RISK_LOW = [95, 128, 96];     // verde
+  const RISK_MID = [212, 148, 71];    // naranja
+  const RISK_HIGH = [192, 104, 70];   // rojo-naranja
+  const RISK_CRIT = [155, 56, 40];    // rojo profundo
 
-  doc.setTextColor(212, 185, 143);
-  doc.setFontSize(10);
-  doc.text('OBSERVATORIO SSOMA · MÁS PREVENCIÓN', 40, 60);
+  const fechaHoy = new Date().toLocaleDateString('es-CL', {day: 'numeric', month: 'long', year: 'numeric'});
+  const moneda = formData.pais === 'PE' ? 'S/.' : '$';
+  const monedaCode = formData.pais === 'PE' ? 'PEN' : 'CLP';
 
-  doc.setTextColor(238, 233, 222);
-  doc.setFontSize(28);
-  doc.text('Reporte de diagnóstico', 40, 130, {maxWidth: pageW - 80});
+  let pageNum = 0;
+  const totalPages = m.excesoTasa > 0 ? 6 : 5;
 
-  doc.setFontSize(42);
-  doc.text(formData.empresa, 40, 180, {maxWidth: pageW - 80});
-
-  doc.setFontSize(12);
-  doc.setTextColor(140, 139, 129);
-  doc.text(`${formData.rubro} · ${formData.region} · ${formData.pais === 'PE' ? 'Perú' : 'Chile'}`, 40, 220);
-  doc.text(`Generado el ${new Date().toLocaleDateString('es-CL', {day: 'numeric', month: 'long', year: 'numeric'})}`, 40, 240);
-
-  // Stats principales
-  doc.setDrawColor(45, 51, 64);
-  doc.setLineWidth(0.5);
-  doc.line(40, 300, pageW - 40, 300);
-
-  doc.setTextColor(212, 185, 143);
-  doc.setFontSize(72);
-  const principal = m.percentilPeor > 50 ? m.percentilPeor : m.percentilMejor;
-  doc.text(principal + '%', 40, 400);
-
-  doc.setTextColor(238, 233, 222);
-  doc.setFontSize(14);
-  doc.text(m.percentilPeor > 50 ? 'peor del rubro' : 'mejor del rubro', 40, 425);
-
-  doc.setFontSize(11);
-  doc.setTextColor(140, 139, 129);
-  doc.text(`Tasa: ${m.tasa.toFixed(1)}% · Promedio rubro: ${m.promRubro.toFixed(1)}%`, 40, 450);
-  doc.text(`Cumplimiento legal: ${m.cumplimientoPct}% (${m.checked}/${m.total})`, 40, 470);
-  if (m.excesoTasa > 0) {
-    doc.text(`Impacto económico estimado: ~${(m.impactoEstimado / 1000000).toFixed(1)}M ${formData.pais === 'PE' ? 'PEN' : 'CLP'}/año`, 40, 490);
+  // Helper: dibujar fondo + footer + página N
+  function paintPage() {
+    doc.setFillColor(...BG);
+    doc.rect(0, 0, pageW, pageH, 'F');
+    // Footer con paginación
+    doc.setDrawColor(...HAIRLINE);
+    doc.setLineWidth(0.5);
+    doc.line(40, pageH - 60, pageW - 40, pageH - 60);
+    doc.setTextColor(...INK_FAINT);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Observatorio SSOMA · Más Prevención · info@masprevencion.cl', 40, pageH - 40);
+    doc.text(`${pageNum} / ${totalPages}`, pageW - 40, pageH - 40, {align: 'right'});
+    // Marca visual en header
+    doc.setFillColor(...ACCENT);
+    doc.rect(40, 40, 4, 4, 'F');
   }
 
-  // Página 2 — Recomendaciones
+  // Helper: título de sección
+  function sectionHeader(kicker, title, y) {
+    doc.setTextColor(...ACCENT);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(kicker.toUpperCase(), 54, y);
+    doc.setTextColor(...INK);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    const titleLines = doc.splitTextToSize(title, pageW - 80);
+    doc.text(titleLines, 40, y + 26);
+    return y + 26 + titleLines.length * 24;
+  }
+
+  // =====================================================================
+  // PÁGINA 1 — PORTADA
+  // =====================================================================
+  pageNum = 1;
+  paintPage();
+
+  doc.setTextColor(...ACCENT);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('OBSERVATORIO SSOMA · MÁS PREVENCIÓN', 54, 60);
+
+  doc.setTextColor(...INK_MUTED);
+  doc.setFontSize(11);
+  doc.text('Reporte de diagnóstico', 40, 130);
+
+  doc.setTextColor(...INK);
+  doc.setFontSize(34);
+  doc.setFont('helvetica', 'bold');
+  const empresaLines = doc.splitTextToSize(formData.empresa, pageW - 80);
+  doc.text(empresaLines, 40, 170);
+  let y = 170 + empresaLines.length * 36;
+
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...INK_MUTED);
+  doc.text(`${formData.rubro} · ${formData.region}`, 40, y + 18);
+  doc.text(`${formData.pais === 'PE' ? 'Perú' : 'Chile'} · ${formData.tamanoLabel}`, 40, y + 36);
+  doc.text(`Generado el ${fechaHoy}`, 40, y + 54);
+
+  // Separador
+  doc.setDrawColor(...HAIRLINE);
+  doc.setLineWidth(0.5);
+  doc.line(40, y + 90, pageW - 40, y + 90);
+
+  // Número grande (percentil)
+  const principal = m.percentilPeor > 50 ? m.percentilPeor : m.percentilMejor;
+  const posTexto = m.percentilPeor > 50 ? 'peor del rubro' : 'mejor del rubro';
+
+  doc.setTextColor(...ACCENT);
+  doc.setFontSize(84);
+  doc.setFont('helvetica', 'bold');
+  doc.text(principal + '%', 40, y + 200);
+
+  doc.setTextColor(...INK);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'normal');
+  doc.text(posTexto, 40, y + 230);
+
+  // Stats mini
+  doc.setDrawColor(...HAIRLINE);
+  doc.line(40, y + 260, pageW - 40, y + 260);
+
+  doc.setTextColor(...INK_MUTED);
+  doc.setFontSize(9);
+  doc.text('TASA ACCIDENTABILIDAD', 40, y + 285);
+  doc.text('PROMEDIO RUBRO', 200, y + 285);
+  doc.text('CUMPLIMIENTO LEGAL', 360, y + 285);
+
+  doc.setTextColor(...INK);
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${m.tasa.toFixed(1)}%`, 40, y + 310);
+  doc.text(`${m.promRubro.toFixed(1)}%`, 200, y + 310);
+  doc.text(`${m.cumplimientoPct}%`, 360, y + 310);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...INK_MUTED);
+  doc.text(`${formData.rubro}`, 200, y + 325);
+  doc.text(`${m.checked} de ${m.total} puntos`, 360, y + 325);
+
+  // =====================================================================
+  // PÁGINA 2 — RESUMEN EJECUTIVO
+  // =====================================================================
   doc.addPage();
-  doc.setFillColor(15, 20, 25);
-  doc.rect(0, 0, pageW, doc.internal.pageSize.getHeight(), 'F');
+  pageNum = 2;
+  paintPage();
 
-  doc.setTextColor(212, 185, 143);
-  doc.setFontSize(10);
-  doc.text('RECOMENDACIONES PRIORIZADAS', 40, 60);
-  doc.setTextColor(238, 233, 222);
-  doc.setFontSize(24);
-  doc.text('Qué hacer primero', 40, 90);
+  let cy = sectionHeader('I · Resumen ejecutivo', 'Una posición ' + (m.z < -0.67 ? 'excelente' : m.z > 0.67 ? 'crítica' : 'intermedia') + ' en tu rubro.', 60);
+  cy += 20;
 
-  let y = 140;
-  recs.forEach((r, i) => {
-    doc.setTextColor(212, 185, 143);
-    doc.setFontSize(10);
-    doc.text(`PRIORIDAD ${r.priorityLabel.toUpperCase()}`, 40, y);
-    y += 20;
-    doc.setTextColor(238, 233, 222);
-    doc.setFontSize(16);
-    const titleLines = doc.splitTextToSize(r.title, pageW - 80);
-    doc.text(titleLines, 40, y);
-    y += titleLines.length * 20 + 6;
-    doc.setTextColor(180, 175, 165);
-    doc.setFontSize(11);
-    const bodyLines = doc.splitTextToSize(r.body, pageW - 80);
-    doc.text(bodyLines, 40, y);
-    y += bodyLines.length * 14 + 30;
+  // Narrativa — extraemos texto limpio del HTML
+  function stripHTML(html) {
+    return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  const narrativaRaw = generateExecutiveNarrative(m, formData, riesgos);
+  // Split por <p>
+  const paragraphs = narrativaRaw.match(/<p>(.*?)<\/p>/g) || [];
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.setTextColor(...INK_SOFT);
+
+  paragraphs.forEach(p => {
+    const clean = stripHTML(p);
+    const lines = doc.splitTextToSize(clean, pageW - 80);
+    doc.text(lines, 40, cy);
+    cy += lines.length * 14 + 10;
   });
 
-  // Footer
-  doc.setTextColor(95, 93, 85);
-  doc.setFontSize(9);
-  doc.text('Observatorio SSOMA · Más Prevención · observatorio-ssoma.vercel.app · info@masprevencion.cl', 40, doc.internal.pageSize.getHeight() - 40);
+  // 3 stats en caja
+  cy += 16;
+  doc.setDrawColor(...HAIRLINE);
+  doc.setLineWidth(0.5);
+  doc.line(40, cy, pageW - 40, cy);
+  cy += 24;
 
-  doc.save(`Diagnostico_${formData.empresa.replace(/\s+/g, '_')}.pdf`);
+  const colW = (pageW - 80) / 3;
+  const stats = [
+    { label: 'TU PERCENTIL', val: principal + '%', detail: posTexto, color: m.z > 0.67 ? RISK_HIGH : m.z < -0.67 ? RISK_LOW : RISK_MID },
+    { label: 'CUMPLIMIENTO LEGAL', val: m.cumplimientoPct + '%', detail: `${m.checked} de ${m.total} puntos`, color: m.cumplimientoPct >= 80 ? RISK_LOW : m.cumplimientoPct >= 40 ? RISK_MID : RISK_HIGH },
+    { label: 'BRECHA VS RUBRO', val: (m.brechaPct > 0 ? '+' : '') + m.brechaPct.toFixed(0) + '%', detail: m.brechaPct > 0 ? 'sobre promedio' : 'bajo promedio', color: m.brechaPct > 20 ? RISK_HIGH : m.brechaPct > -20 ? RISK_MID : RISK_LOW }
+  ];
+
+  stats.forEach((s, i) => {
+    const x = 40 + i * colW;
+    // Línea lateral colorida
+    doc.setFillColor(...s.color);
+    doc.rect(x, cy, 3, 70, 'F');
+    doc.setTextColor(...INK_MUTED);
+    doc.setFontSize(8);
+    doc.text(s.label, x + 12, cy + 12);
+    doc.setTextColor(...INK);
+    doc.setFontSize(26);
+    doc.setFont('helvetica', 'bold');
+    doc.text(s.val, x + 12, cy + 42);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...INK_MUTED);
+    doc.text(s.detail, x + 12, cy + 60);
+  });
+
+  // =====================================================================
+  // PÁGINA 3 — CUMPLIMIENTO LEGAL
+  // =====================================================================
+  doc.addPage();
+  pageNum = 3;
+  paintPage();
+
+  cy = sectionHeader('II · Cumplimiento legal básico', 'Tu radar normativo.', 60);
+  cy += 20;
+
+  const items = document.querySelectorAll('.check-item');
+  items.forEach(it => {
+    const checked = it.classList.contains('checked');
+    const label = it.querySelector('.check-label').textContent;
+    const sub = it.querySelector('.check-sub').textContent;
+
+    // Caja de item
+    doc.setFillColor(...BG_SOFT);
+    doc.rect(40, cy, pageW - 80, 56, 'F');
+    doc.setDrawColor(...HAIRLINE);
+    doc.rect(40, cy, pageW - 80, 56, 'S');
+
+    // Dot
+    doc.setFillColor(...(checked ? RISK_LOW : RISK_HIGH));
+    doc.circle(58, cy + 28, 4, 'F');
+
+    // Texto
+    doc.setTextColor(...INK);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text(label, 76, cy + 22);
+
+    doc.setTextColor(...INK_MUTED);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    const subLines = doc.splitTextToSize(sub, pageW - 240);
+    doc.text(subLines, 76, cy + 38);
+
+    // Badge
+    doc.setFillColor(...(checked ? [30, 50, 35] : [58, 31, 25]));
+    doc.roundedRect(pageW - 140, cy + 18, 80, 22, 2, 2, 'F');
+    doc.setTextColor(...(checked ? RISK_LOW : RISK_HIGH));
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(checked ? 'CUMPLE' : 'NO CUMPLE', pageW - 100, cy + 32, {align: 'center'});
+
+    cy += 66;
+  });
+
+  // =====================================================================
+  // PÁGINA 4 — RIESGOS CARACTERÍSTICOS
+  // =====================================================================
+  doc.addPage();
+  pageNum = 4;
+  paintPage();
+
+  cy = sectionHeader('III · Riesgos característicos', 'Los tres riesgos que explican tu sector.', 60);
+  cy += 20;
+
+  doc.setTextColor(...INK_SOFT);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  const introRiesgos = `Según datos oficiales, así se distribuyen los accidentes en ${formData.rubro.toLowerCase()}. Atender estos tres riesgos típicos del sector debería ser la prioridad de cualquier programa preventivo.`;
+  const introLines = doc.splitTextToSize(introRiesgos, pageW - 80);
+  doc.text(introLines, 40, cy);
+  cy += introLines.length * 14 + 30;
+
+  const colorsRiesgos = [RISK_CRIT, RISK_MID, RISK_LOW];
+  riesgos.forEach((r, i) => {
+    const cardY = cy + i * 100;
+    // Caja
+    doc.setFillColor(...BG_SOFT);
+    doc.rect(40, cardY, pageW - 80, 80, 'F');
+    // Línea superior colorida
+    doc.setFillColor(...colorsRiesgos[i]);
+    doc.rect(40, cardY, pageW - 80, 3, 'F');
+
+    doc.setTextColor(...INK_MUTED);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`PRIORIDAD ${i + 1}`, 56, cardY + 24);
+
+    doc.setTextColor(...INK);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    const titleLines = doc.splitTextToSize(r, pageW - 120);
+    doc.text(titleLines, 56, cardY + 48);
+  });
+
+  // =====================================================================
+  // PÁGINA 5 — RECOMENDACIONES
+  // =====================================================================
+  doc.addPage();
+  pageNum = 5;
+  paintPage();
+
+  cy = sectionHeader('IV · Recomendaciones', 'Tres acciones priorizadas para tu empresa.', 60);
+  cy += 20;
+
+  doc.setTextColor(...INK_SOFT);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  const introRecs = `Generadas con los datos que nos entregaste y el benchmark del rubro ${formData.rubro.toLowerCase()}. Cada recomendación tiene su prioridad y acción concreta sugerida.`;
+  const introRecLines = doc.splitTextToSize(introRecs, pageW - 80);
+  doc.text(introRecLines, 40, cy);
+  cy += introRecLines.length * 14 + 24;
+
+  const priorityColors = { high: RISK_CRIT, medium: RISK_MID, low: RISK_LOW };
+
+  recs.forEach((r) => {
+    // Calcular altura estimada
+    doc.setFontSize(10);
+    const bodyLinesArr = doc.splitTextToSize(r.body, pageW - 120);
+    const cardH = 60 + bodyLinesArr.length * 13;
+
+    // Si no cabe, nueva página
+    if (cy + cardH > pageH - 80) {
+      doc.addPage();
+      pageNum++;
+      paintPage();
+      cy = 60;
+    }
+
+    // Caja
+    doc.setFillColor(...BG_SOFT);
+    doc.rect(40, cy, pageW - 80, cardH, 'F');
+    // Borde izquierdo colorido según prioridad
+    doc.setFillColor(...priorityColors[r.priority]);
+    doc.rect(40, cy, 3, cardH, 'F');
+
+    // Badge prioridad
+    doc.setTextColor(...priorityColors[r.priority]);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`PRIORIDAD ${r.priorityLabel.toUpperCase()}`, 56, cy + 20);
+
+    // Título
+    doc.setTextColor(...INK);
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    const titleLines = doc.splitTextToSize(r.title, pageW - 120);
+    doc.text(titleLines, 56, cy + 40);
+
+    // Body
+    doc.setTextColor(...INK_SOFT);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(bodyLinesArr, 56, cy + 40 + titleLines.length * 16);
+
+    cy += cardH + 16;
+  });
+
+  // =====================================================================
+  // PÁGINA 6 — IMPACTO ECONÓMICO (solo si hay exceso)
+  // =====================================================================
+  if (m.excesoTasa > 0) {
+    doc.addPage();
+    pageNum++;
+    paintPage();
+
+    cy = sectionHeader('V · Impacto económico estimado', 'Cuánto te cuesta hoy tu brecha.', 60);
+    cy += 32;
+
+    // Caja grande con el número
+    doc.setFillColor(...BG_SOFT);
+    doc.rect(40, cy, pageW - 80, 180, 'F');
+    doc.setFillColor(...ACCENT);
+    doc.rect(40, cy, pageW - 80, 2, 'F');
+
+    doc.setTextColor(...INK_MUTED);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('ESTIMACIÓN CONSERVADORA DE SOBRECOSTO ANUAL', 60, cy + 26);
+
+    doc.setTextColor(...ACCENT);
+    doc.setFontSize(48);
+    doc.setFont('helvetica', 'bold');
+    const bigNumber = `~${moneda}${m.impactoEstimado.toLocaleString('es-CL')}`;
+    doc.text(bigNumber, 60, cy + 76);
+
+    doc.setTextColor(...INK_MUTED);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(monedaCode + ' al año', 60, cy + 98);
+
+    // Narrativa
+    doc.setTextColor(...INK_SOFT);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    const narrativa = `Si llevas tu tasa del ${m.tasa.toFixed(1)}% al promedio del rubro (${m.promRubro.toFixed(1)}%), el ahorro estimado en cotización adicional ${formData.pais === 'PE' ? 'SCTR' : 'SUSESO'} equivale a ${formatMM(m.impactoEstimado)} al año sobre una planilla de ${m.nTrab.toLocaleString('es-CL')} ${m.nTrab === 1 ? 'trabajador' : 'trabajadores'} con renta bruta promedio de ${moneda}${m.rentaBruta.toLocaleString('es-CL')}.`;
+    const narrLines = doc.splitTextToSize(narrativa, pageW - 120);
+    doc.text(narrLines, 60, cy + 126);
+
+    cy += 200;
+
+    // Fórmula de cálculo
+    doc.setDrawColor(...HAIRLINE);
+    doc.setLineWidth(0.5);
+    doc.line(40, cy, pageW - 40, cy);
+    cy += 24;
+
+    doc.setTextColor(...ACCENT);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CÓMO SE CALCULA', 40, cy);
+    cy += 18;
+
+    doc.setTextColor(...INK_SOFT);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    const formulaTxt = [
+      `Planilla anual estimada: ${m.nTrab.toLocaleString('es-CL')} × ${moneda}${m.rentaBruta.toLocaleString('es-CL')} × 12 meses × 1,08 (gratificaciones)`,
+      `= ${moneda}${Math.round(m.planillaAnual).toLocaleString('es-CL')} ${monedaCode}`,
+      ``,
+      `Exceso de tasa sobre promedio sectorial: ${m.excesoTasa.toFixed(2)} puntos porcentuales`,
+      `Sobrecosto aplicado: 0,5% de la planilla por cada punto de exceso (base DS 67 ajustado)`,
+      ``,
+      `No incluye días perdidos, indemnizaciones eventuales ni pérdidas de productividad asociadas.`
+    ];
+    formulaTxt.forEach(line => {
+      doc.text(line, 40, cy);
+      cy += 14;
+    });
+  }
+
+  // =====================================================================
+  // PÁGINA FINAL — CTA
+  // =====================================================================
+  doc.addPage();
+  pageNum++;
+  paintPage();
+
+  cy = 180;
+  doc.setTextColor(...ACCENT);
+  doc.setFontSize(10);
+  doc.text('SIGUIENTE PASO', 40, cy);
+  cy += 36;
+
+  doc.setTextColor(...INK);
+  doc.setFontSize(28);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Tu diagnóstico está listo.', 40, cy);
+  cy += 36;
+  doc.text('Ahora, trabajémoslo.', 40, cy);
+  cy += 48;
+
+  doc.setTextColor(...INK_SOFT);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  const ctaText = `Más Prevención puede ayudarte a cerrar las brechas que identificó este reporte. Agenda una llamada de 30 minutos con nuestro equipo para profundizar en tu caso específico.`;
+  const ctaLines = doc.splitTextToSize(ctaText, pageW - 80);
+  doc.text(ctaLines, 40, cy);
+  cy += ctaLines.length * 16 + 36;
+
+  doc.setTextColor(...ACCENT);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('info@masprevencion.cl', 40, cy);
+
+  // Guardar
+  const fileName = `Diagnostico_${formData.empresa.replace(/[^a-zA-Z0-9]+/g, '_')}.pdf`;
+  doc.save(fileName);
 }
 
 // Init
