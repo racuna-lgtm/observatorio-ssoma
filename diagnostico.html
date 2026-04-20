@@ -1910,16 +1910,33 @@ function renderReport() {
 }
 
 function renderPerfilCTA(perfil, form) {
-  // CTA editorial, sin promesas de productos inexistentes ni agendamientos prematuros
+  // CTA editorial — honesto, sin promesas de productos inexistentes
+  const urlDiagnostico = 'https://' + window.location.host + '/diagnostico.html';
+
   let headline = '';
   let body = '';
+  let extraButton = '';
 
   if (perfil === 'mandante') {
-    headline = `Tu cadena, tu <em>responsabilidad directa</em>.`;
-    body = `Como mandante, tu responsabilidad SSOMA no se detiene en tu planilla interna. El observatorio documenta cómo se distribuye el riesgo entre mandantes y contratistas en Chile y Perú, y qué exige la Ley 20.123 / 29.245. Úsalo como base para conversar con tu equipo.`;
+    headline = `Tu diagnóstico <em>está listo</em>. El de tu cadena, aún no.`;
+    body = `Este reporte cubre tu operación directa. Como mandante, la Ley 20.123 (Chile) y la Ley 29.245 (Perú) te hacen responsable directo de los trabajadores de tus contratistas en tus faenas. Comparte el diagnóstico con ellos para que hagan el suyo — así cierras la brecha de información de tu cadena completa.`;
+
+    const mailSubject = encodeURIComponent('Diagnóstico SSOMA Observatorio — te invitamos a hacerlo');
+    const mailBody = encodeURIComponent(
+      'Hola,\n\n' +
+      'Como parte de nuestra gestión SSOMA, completamos el Diagnóstico del Observatorio de Más Prevención. ' +
+      'Nos gustaría que tú, como nuestro contratista, también lo hagas.\n\n' +
+      'Toma 4 minutos y te entrega un reporte con tu posición en el rubro, brechas de cumplimiento legal y recomendaciones priorizadas:\n\n' +
+      urlDiagnostico + '\n\n' +
+      'Cualquier duda, nos escribes.\n\n' +
+      'Saludos,\n' + (form.lead?.nombre || '') + '\n' + (form.empresa || '')
+    );
+    extraButton = `<a href="mailto:?subject=${mailSubject}&body=${mailBody}" class="btn" style="text-decoration:none;">Invitar a un contratista <span class="arrow">→</span></a>`;
+
   } else if (perfil === 'contratista') {
     headline = `Tu ficha SSOMA es tu <em>carta de presentación</em>.`;
     body = `Cuando operas como contratista, la forma en que gestionas y documentas tu cumplimiento define qué tan rápido accedes a nuevos contratos. Guarda este reporte como parte de tu evidencia y úsalo para priorizar qué cerrar primero.`;
+
   } else {
     headline = `Tu diagnóstico <em>está listo</em>.`;
     body = `Guarda este PDF como línea base de tu gestión SSOMA. Úsalo para presentar al directorio, priorizar inversiones preventivas o comparar tu evolución en el próximo año. Los datos y la metodología son tuyos.`;
@@ -1931,6 +1948,7 @@ function renderPerfilCTA(perfil, form) {
     <div class="cta-buttons">
       <button class="btn btn-primary" onclick="downloadPDF()">Descargar PDF <span class="arrow">↓</span></button>
       <a href="index.html" class="btn" style="text-decoration:none;">Volver al observatorio <span class="arrow">→</span></a>
+      ${extraButton}
     </div>
     <div style="font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: 0.06em; max-width: 520px; margin: 28px auto 0;">
       Observatorio SSOMA · Más Prevención · Edición 2025 · Datos oficiales SUSESO, MTPE y OIT
