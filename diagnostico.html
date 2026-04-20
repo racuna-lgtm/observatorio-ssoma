@@ -1955,6 +1955,23 @@ function renderPerfilCTA(perfil, form) {
     </div>
   `;
 }
+  function copiarInvitacion(btn) {
+  const texto = window._invitacionContratista || '';
+  if (!texto) return;
+  navigator.clipboard.writeText(texto).then(() => {
+    const textoOriginal = btn.innerHTML;
+    btn.innerHTML = 'Copiado ✓ pégalo en tu correo o WhatsApp';
+    btn.style.background = 'var(--accent)';
+    btn.style.color = 'var(--paper)';
+    setTimeout(() => {
+      btn.innerHTML = textoOriginal;
+      btn.style.background = '';
+      btn.style.color = '';
+    }, 2500);
+  }).catch(() => {
+    alert('No se pudo copiar. El texto es:\n\n' + texto);
+  });
+}
 // Sección exclusiva para mandantes: riesgo de cadena de contratistas
 function injectMandanteSection(m) {
   const lastSection = document.querySelector('#step-6 .cta-final');
