@@ -2355,7 +2355,7 @@ function downloadPDF() {
   const stats = [
     { label: 'TU PERCENTIL', val: principal + '%', detail: posTexto, color: m.z > 0.67 ? RISK_HIGH : m.z < -0.67 ? RISK_LOW : RISK_MID },
     { label: 'CUMPLIMIENTO LEGAL', val: m.cumplimientoPct + '%', detail: `${m.checked} de ${m.total} puntos`, color: m.cumplimientoPct >= 80 ? RISK_LOW : m.cumplimientoPct >= 40 ? RISK_MID : RISK_HIGH },
-    { label: 'BRECHA VS RUBRO', val: (m.brechaPct > 0 ? '+' : '') + m.brechaPct.toFixed(0) + '%', detail: m.brechaPct > 0 ? 'sobre promedio' : 'bajo promedio', color: m.brechaPct > 20 ? RISK_HIGH : m.brechaPct > -20 ? RISK_MID : RISK_LOW }
+   { label: 'BRECHA VS RUBRO', val: (m.brechaAbsPp > 0 ? '+' : '') + m.brechaAbsPp.toFixed(1) + ' pp', detail: (m.brechaRelPct > 0 ? '+' : '') + m.brechaRelPct.toFixed(0) + '% relativo', color: Math.abs(m.brechaAbsPp) > 0.5 ? (m.brechaAbsPp > 0 ? RISK_HIGH : RISK_LOW) : RISK_MID }
   ];
 
   stats.forEach((s, i) => {
