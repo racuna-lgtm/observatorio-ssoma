@@ -1778,10 +1778,10 @@ function renderReport() {
               <div class="s-value">${m.cumplimientoPct}<span class="unit">%</span></div>
               <div class="s-detail">${m.checked} de ${m.total} puntos</div>
             </div>
-            <div class="summary-stat ${m.brechaPct > 20 ? 'bad' : (m.brechaPct > -20 ? 'warn' : 'good')}">
+           <div class="summary-stat ${Math.abs(m.brechaAbsPp) > 0.5 ? (m.brechaAbsPp > 0 ? 'bad' : 'good') : 'warn'}">
               <div class="s-label">Brecha vs rubro</div>
-              <div class="s-value">${m.brechaPct > 0 ? '+' : ''}${m.brechaPct.toFixed(0)}<span class="unit">%</span></div>
-              <div class="s-detail">${m.brechaPct > 0 ? 'sobre promedio' : 'bajo promedio'}</div>
+              <div class="s-value">${m.brechaAbsPp > 0 ? '+' : ''}${m.brechaAbsPp.toFixed(1)}<span class="unit"> pp</span></div>
+              <div class="s-detail">puntos porcentuales ${m.brechaAbsPp > 0 ? 'sobre' : (m.brechaAbsPp < 0 ? 'bajo' : 'en')} promedio <span style="color: var(--ink-faint);">· ${m.brechaRelPct > 0 ? '+' : ''}${m.brechaRelPct.toFixed(0)}% relativo</span></div>
             </div>
           </div>
 
