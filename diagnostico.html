@@ -1901,42 +1901,33 @@ function renderReport() {
 }
 
 function renderPerfilCTA(perfil, form) {
-  const empresaParam = encodeURIComponent(form.empresa);
-  const ctaSubtitle = `<div class="cta-meta"><span>Primera reunión sin costo</span><span>·</span><span>30 minutos</span><span>·</span><span>Con un prevencionista senior</span></div>`;
+  // CTA editorial, sin promesas de productos inexistentes ni agendamientos prematuros
+  let headline = '';
+  let body = '';
 
   if (perfil === 'mandante') {
-    return `
-      <h2>Gestionar contratistas no debería<br>ser un <em>dolor de cabeza</em>.</h2>
-      <p>Más Prevención Portal centraliza toda la documentación SSOMA de tus contratistas: reglamento especial, vigilancias de cumplimiento, investigaciones de accidentes, CPHS de faena. Cumple Ley 20.123 sin planillas Excel.</p>
-      ${ctaSubtitle}
-      <div class="cta-buttons">
-        <button class="btn btn-primary" onclick="downloadPDF()">Descargar PDF <span class="arrow">↓</span></button>
-        <a href="mailto:info@masprevencion.cl?subject=Demo%20Más%20Prevención%20Portal%20-%20${empresaParam}" class="btn" style="text-decoration:none;">Agendar demo del Portal <span class="arrow">→</span></a>
-      </div>
-    `;
+    headline = `Tu cadena, tu <em>responsabilidad directa</em>.`;
+    body = `Como mandante, tu responsabilidad SSOMA no se detiene en tu planilla interna. El observatorio documenta cómo se distribuye el riesgo entre mandantes y contratistas en Chile y Perú, y qué exige la Ley 20.123 / 29.245. Úsalo como base para conversar con tu equipo.`;
+  } else if (perfil === 'contratista') {
+    headline = `Tu ficha SSOMA es tu <em>carta de presentación</em>.`;
+    body = `Cuando operas como contratista, la forma en que gestionas y documentas tu cumplimiento define qué tan rápido accedes a nuevos contratos. Guarda este reporte como parte de tu evidencia y úsalo para priorizar qué cerrar primero.`;
+  } else {
+    headline = `Tu diagnóstico <em>está listo</em>.`;
+    body = `Guarda este PDF como línea base de tu gestión SSOMA. Úsalo para presentar al directorio, priorizar inversiones preventivas o comparar tu evolución en el próximo año. Los datos y la metodología son tuyos.`;
   }
-  if (perfil === 'contratista') {
-    return `
-      <h2>Demuestra tu cumplimiento<br>ante tus <em>mandantes</em>.</h2>
-      <p>Cuando operas como contratista, tu ficha SSOMA es tu carta de presentación. Más Prevención Portal te permite mantener toda tu documentación en orden y compartirla con los mandantes que te exigen cumplimiento.</p>
-      ${ctaSubtitle}
-      <div class="cta-buttons">
-        <button class="btn btn-primary" onclick="downloadPDF()">Descargar PDF <span class="arrow">↓</span></button>
-        <a href="mailto:info@masprevencion.cl?subject=Consulta%20contratista%20-%20${empresaParam}" class="btn" style="text-decoration:none;">Conversemos <span class="arrow">→</span></a>
-      </div>
-    `;
-  }
+
   return `
-    <h2>Tu diagnóstico está listo.<br>Ahora, <em>trabajémoslo</em>.</h2>
-    <p>Más Prevención puede ayudarte a cerrar las brechas que identificó este reporte. Esta primera conversación busca entender tu contexto, no venderte un paquete — salimos de la llamada con claridad sobre qué puede aportar Más Prevención a tu caso y qué no.</p>
-    ${ctaSubtitle}
+    <h2>${headline}</h2>
+    <p>${body}</p>
     <div class="cta-buttons">
       <button class="btn btn-primary" onclick="downloadPDF()">Descargar PDF <span class="arrow">↓</span></button>
-      <a href="mailto:info@masprevencion.cl?subject=Agendar%20diagnóstico%20profundo%20-%20${empresaParam}" class="btn" style="text-decoration:none;">Agendar llamada <span class="arrow">→</span></a>
+      <a href="index.html" class="btn" style="text-decoration:none;">Volver al observatorio <span class="arrow">→</span></a>
+    </div>
+    <div style="font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: 0.06em; max-width: 520px; margin: 28px auto 0;">
+      Observatorio SSOMA · Más Prevención · Edición 2025 · Datos oficiales SUSESO, MTPE y OIT
     </div>
   `;
 }
-
 // Sección exclusiva para mandantes: riesgo de cadena de contratistas
 function injectMandanteSection(m) {
   const lastSection = document.querySelector('#step-6 .cta-final');
