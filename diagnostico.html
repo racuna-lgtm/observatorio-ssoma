@@ -760,7 +760,7 @@ footer strong { font-family: var(--display); font-weight: 600; color: var(--ink)
       <div class="expect-card">
         <div class="expect-num">01</div>
         <div class="expect-title">Tu empresa y tu rol</div>
-        <div class="expect-desc">Perfil SSOMA (operativa, mandante o contratista), rubro y sub-categoría, región, tamaño y renta promedio.</div>
+        <div class="expect-desc">Perfil SSOMA (operativa, mandante o contratista), rubro y sub-categoría, tamaño y renta promedio.</div>
       </div>
       <div class="expect-card">
         <div class="expect-num">02</div>
@@ -841,14 +841,6 @@ footer strong { font-family: var(--display); font-weight: 600; color: var(--ink)
           <option value="PE">Perú</option>
         </select>
         <div class="error">Selecciona un país</div>
-      </div>
-
-      <div class="form-field">
-        <label>Región principal <span class="required">*</span></label>
-        <select id="f-region" required>
-          <option value="">Primero elige país</option>
-        </select>
-        <div class="error">Selecciona una región</div>
       </div>
 
       <div class="form-field">
@@ -1086,6 +1078,14 @@ footer strong { font-family: var(--display); font-weight: 600; color: var(--ink)
         <div class="form-field">
           <label>Teléfono</label>
           <input type="tel" id="f-telefono" placeholder="+56 9 ...">
+        </div>
+        <div class="form-field wide">
+          <label>Región principal de tu empresa
+            <span class="hint">opcional — nos ayuda a contextualizar la conversación</span>
+          </label>
+          <select id="f-region">
+            <option value="">Selecciona (opcional)...</option>
+          </select>
         </div>
       </div>
 
@@ -1396,6 +1396,15 @@ function showStep(id) {
   window.scrollTo({top: 0, behavior: 'smooth'});
   if (id === 3) renderChecklist();
   if (id === '1b') adjustMandanteLabels();
+  if (id === 5) populateGateRegion();
+}
+
+function populateGateRegion() {
+  const regEl = document.getElementById('f-region');
+  if (!regEl || regEl.options.length > 1) return;
+  const regs = formData.pais === 'PE' ? REGIONES_PE : REGIONES_CL;
+  regEl.innerHTML = '<option value="">Selecciona (opcional)...</option>' +
+    regs.map(r => `<option value="${r}">${r}</option>`).join('');
 }
 
 function nextStep(to) {
@@ -1468,7 +1477,6 @@ function validateStep1() {
     { id: 'f-perfil',       check: v => !!v },
     { id: 'f-empresa',      check: v => v.trim().length >= 2 },
     { id: 'f-pais',         check: v => !!v },
-    { id: 'f-region',       check: v => !!v },
     { id: 'f-rubro',        check: v => !!v },
     { id: 'f-subrubro',     check: v => !!v },
     { id: 'f-trabajadores', check: v => { const n = parseInt(v); return !isNaN(n) && n >= 1 && n <= 100000; } },
@@ -1489,7 +1497,6 @@ function validateStep1() {
     formData.perfil = document.getElementById('f-perfil').value;
     formData.empresa = document.getElementById('f-empresa').value.trim();
     formData.pais = document.getElementById('f-pais').value;
-    formData.region = document.getElementById('f-region').value;
     formData.rubro = document.getElementById('f-rubro').value;
     formData.subrubro = document.getElementById('f-subrubro').value;
     const sr = (SUBRUBROS[formData.rubro] || []).find(s => s.key === formData.subrubro);
@@ -1538,13 +1545,6 @@ function validateStep2() {
   formData.tasa = v;
   return true;
 }
-
-// País → regiones
-document.getElementById('f-pais').addEventListener('change', (e) => {
-  const regEl = document.getElementById('f-region');
-  const regs = e.target.value === 'PE' ? REGIONES_PE : (e.target.value === 'CL' ? REGIONES_CL : []);
-  regEl.innerHTML = '<option value="">Selecciona...</option>' + regs.map(r => `<option value="${r}">${r}</option>`).join('');
-});
 
 // ========== CHECKLIST ==========
 function renderChecklist() {
@@ -1725,6 +1725,7 @@ async function submitLead() {
   if (!ok) return;
 
   formData.lead = { nombre, email, cargo, telefono };
+  formData.region = document.getElementById('f-region').value || null;
 
   // [Integración Supabase — se conectará en Entrega 2B]
   // Por ahora, solo renderizamos el reporte
@@ -1752,7 +1753,7 @@ function renderReport() {
           ${formData.empresa}
         </h1>
         <p style="font-family: var(--editorial); font-size: 17px; color: var(--ink-soft);">
-          ${formData.rubro}${formData.subrubroLabel ? ' · ' + formData.subrubroLabel : ''} · ${formData.region} · ${formData.pais === 'PE' ? 'Perú' : 'Chile'} · Generado el ${fechaHoy}
+          ${formData.rubro}${formData.subrubroLabel ? ' · ' + formData.subrubroLabel : ''}${formData.region ? ' · ' + formData.region : ''} · ${formData.pais === 'PE' ? 'Perú' : 'Chile'} · Generado el ${fechaHoy}
         </p>
       </div>
 
