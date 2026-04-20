@@ -729,6 +729,15 @@ footer strong { font-family: var(--display); font-weight: 600; color: var(--ink)
 }
 
 .hidden { display: none !important; }
+
+/* Estados "NO APLICA" para checklist e items de cumplimiento */
+.check-item.na { cursor: default; opacity: 0.55; background: transparent; border-style: dashed; }
+.check-item.na:hover { border-color: var(--hairline); background: transparent; }
+.check-item.na .check-box { border-style: dashed; color: var(--ink-faint); }
+.check-item.na .check-info { background: rgba(140,139,129,0.12); color: var(--ink-muted); }
+.compliance-item.na { opacity: 0.55; border-style: dashed; background: transparent; }
+.compliance-dot.na { background: var(--ink-muted); }
+.compliance-status.na { background: rgba(140,139,129,0.12); color: var(--ink-muted); }
 </style>
 </head>
 <body>
