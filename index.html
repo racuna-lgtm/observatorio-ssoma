@@ -1407,6 +1407,126 @@ footer {
   .country-divider { padding: 80px 20px; }
 }
 
+/* ============================================================
+   CAPÍTULO IV · CADENA DE CONTRATISTAS
+   ============================================================ */
+.contratistas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.contra-card {
+  padding: 44px 40px 40px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+.contra-card.mandantes { border-top: 3px solid var(--risk-2); }
+.contra-card.contratistas { border-top: 3px solid var(--risk-6); }
+.contra-card-label {
+  font-family: var(--ui); font-size: 11px; font-weight: 500;
+  color: var(--ink-muted);
+  text-transform: uppercase; letter-spacing: 0.12em;
+  margin-bottom: 18px;
+}
+.contra-card-num {
+  font-family: var(--display); font-weight: 500;
+  font-size: 112px; line-height: 0.95;
+  letter-spacing: -0.04em; color: var(--ink);
+  margin-bottom: 8px;
+}
+.contra-card.contratistas .contra-card-num { color: var(--risk-5); }
+.contra-card-sub {
+  font-family: var(--editorial); font-size: 16px;
+  color: var(--ink-soft); line-height: 1.5;
+  margin-bottom: 28px;
+}
+.contra-card-bar {
+  height: 10px; background: var(--hairline-soft);
+  border-radius: 1px; overflow: hidden;
+  margin-bottom: 12px;
+}
+.contra-bar-fill {
+  height: 100%;
+  transition: width 1.4s cubic-bezier(0.22,1,0.36,1);
+}
+.mandantes-fill { background: var(--risk-2); }
+.contratistas-fill { background: var(--risk-6); }
+.contra-card-pct {
+  font-family: var(--mono); font-size: 12px;
+  color: var(--ink-muted); letter-spacing: 0.04em;
+}
+
+/* Marco legal */
+.legal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.legal-card {
+  padding: 44px 40px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--accent);
+  border-radius: 2px;
+}
+.legal-country {
+  font-family: var(--ui); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--accent); margin-bottom: 10px;
+}
+.legal-law {
+  font-family: var(--display); font-weight: 500;
+  font-size: 22px; line-height: 1.2; letter-spacing: -0.015em;
+  color: var(--ink); margin-bottom: 20px;
+}
+.legal-body {
+  font-family: var(--editorial); font-size: 16px;
+  line-height: 1.55; color: var(--ink-soft);
+  margin-bottom: 28px;
+}
+.legal-body strong {
+  color: var(--ink); font-weight: 600;
+}
+.legal-req {
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline);
+}
+.legal-req strong {
+  display: block;
+  font-family: var(--ui); font-size: 12px; font-weight: 500;
+  color: var(--ink); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 14px;
+}
+.legal-req ul {
+  list-style: none; padding: 0; margin: 0;
+}
+.legal-req li {
+  font-family: var(--editorial); font-size: 14px;
+  line-height: 1.55; color: var(--ink-soft);
+  padding: 6px 0 6px 22px; position: relative;
+}
+.legal-req li::before {
+  content: ''; position: absolute; left: 0; top: 14px;
+  width: 12px; height: 1px; background: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .contratistas-grid { grid-template-columns: 1fr; gap: 20px; padding: 0 20px; }
+  .contra-card { padding: 32px 28px 28px; }
+  .contra-card-num { font-size: 88px; }
+  .legal-grid { grid-template-columns: 1fr; gap: 20px; padding: 0 20px; }
+  .legal-card { padding: 32px 28px; }
+}
+
 /* Section number variations for sub-items (I.1, I.2, II.1, etc.) */
 .section-number.sub {
   font-size: 18px;
@@ -1661,6 +1781,7 @@ footer {
       <a href="#chile">Chile</a>
       <a href="#peru">Perú</a>
       <a href="#latam">LATAM</a>
+      <a href="#cadena">Cadena</a>
       <a href="#diagnostico">Diagnóstico</a>
     </div>
     <a href="diagnostico.html" class="nav-cta">Diagnóstico gratis</a>
@@ -2271,6 +2392,118 @@ footer {
 </section>
 
 <!-- ============================================================
+     CAPÍTULO IV · CADENA DE CONTRATISTAS
+     Divider editorial
+     ============================================================ -->
+<section class="country-divider" id="cadena">
+  <div class="cd-inner">
+    <div class="cd-left">
+      <div class="cd-kicker">Capítulo IV · Sistema</div>
+      <h2 class="cd-title"><em>La cadena</em></h2>
+      <p class="cd-lead">
+        El riesgo no se detiene en la puerta de tu empresa. Cuando una faena se ejecuta con contratistas,
+        la responsabilidad legal sobre su seguridad es directa del mandante. La brecha entre lo que se
+        sabe y lo que se gestiona es el espacio donde ocurre la mayoría de las fatalidades laborales graves.
+      </p>
+    </div>
+    <div class="cd-right">
+      <div class="cd-stat">
+        <span class="cd-stat-num">73<span class="small">%</span></span>
+        <span class="cd-stat-label">Fatalidades en minería 2025</span>
+        <span class="cd-stat-detail">Ocurrieron en empresas contratistas. 8 de 11 muertes según SERNAGEOMIN (a octubre 2025).</span>
+      </div>
+      <div class="cd-stat">
+        <span class="cd-stat-num">Directa</span>
+        <span class="cd-stat-label">Responsabilidad del mandante</span>
+        <span class="cd-stat-detail">Ley 20.123 (CL) y Ley 29.245 (PE) — no solidaria, no subsidiaria: directa.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     IV.1 — CONTRATISTAS VS MANDANTES EN LA ESTADÍSTICA
+     ============================================================ -->
+<section class="viz-section">
+  <div class="section-header">
+    <div class="section-number">IV.1</div>
+    <h2 class="section-title">Minería chilena: una <em>radiografía</em> de la brecha.</h2>
+    <p class="section-lead">
+      SERNAGEOMIN publica las fatalidades mineras desagregadas por tipo de empleador. Los datos de los últimos tres años muestran un patrón persistente: las empresas contratistas concentran la mayoría de las muertes, siendo proporcionalmente menores en fuerza laboral.
+    </p>
+  </div>
+
+  <div class="contratistas-grid">
+    <div class="contra-card mandantes">
+      <div class="contra-card-label">Empresas mandantes</div>
+      <div class="contra-card-num">3</div>
+      <div class="contra-card-sub">fatalidades acumuladas a octubre 2025</div>
+      <div class="contra-card-bar"><div class="contra-bar-fill mandantes-fill" style="width: 27%;"></div></div>
+      <div class="contra-card-pct">27% del total</div>
+    </div>
+    <div class="contra-card contratistas">
+      <div class="contra-card-label">Empresas contratistas</div>
+      <div class="contra-card-num">8</div>
+      <div class="contra-card-sub">fatalidades acumuladas a octubre 2025</div>
+      <div class="contra-card-bar"><div class="contra-bar-fill contratistas-fill" style="width: 73%;"></div></div>
+      <div class="contra-card-pct">73% del total</div>
+    </div>
+  </div>
+
+  <p class="source-line" style="margin-top: 24px;">
+    <strong>Fuente:</strong> SERNAGEOMIN · Estadísticas de Accidentabilidad Minera 2025 (corte a octubre) · Elaboración Observatorio Más Prevención · El patrón se repite en 2023 (33% contratistas) y 2024 (cifra similar), siendo 2025 un año particularmente marcado.
+  </p>
+</section>
+
+<!-- ============================================================
+     IV.2 — MARCO LEGAL
+     ============================================================ -->
+<section class="viz-section">
+  <div class="section-header">
+    <div class="section-number">IV.2</div>
+    <h2 class="section-title">La responsabilidad del mandante <em>ya es ley</em>.</h2>
+    <p class="section-lead">
+      Desde 2007 en Chile y desde 2008 en Perú, la legislación establece obligaciones claras del mandante sobre la seguridad de sus contratistas. No es un estándar voluntario ni un código de ética: es norma exigible con sanciones civiles, administrativas y penales.
+    </p>
+  </div>
+
+  <div class="legal-grid">
+    <div class="legal-card">
+      <div class="legal-country">Chile</div>
+      <div class="legal-law">Ley 20.123 · Art. 183-E Código del Trabajo</div>
+      <p class="legal-body">
+        La empresa principal tiene <strong>responsabilidad directa</strong> — no solidaria ni subsidiaria — sobre los accidentes del trabajo sufridos por trabajadores de sus contratistas y subcontratistas mientras operen en sus faenas. Debe adoptar todas las medidas necesarias para proteger eficazmente la vida y salud de todos quienes laboren en su obra.
+      </p>
+      <div class="legal-req">
+        <strong>Requisitos operativos (Art. 66 bis Ley 16.744 + DS 76/2006):</strong>
+        <ul>
+          <li>Reglamento Especial para contratistas y subcontratistas</li>
+          <li>Comité Paritario de Faena (si ≥25 trabajadores en faena)</li>
+          <li>Departamento de Prevención de Riesgos de Faena (si ≥100)</li>
+          <li>Coordinación de actividades preventivas entre empresas</li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal-card">
+      <div class="legal-country">Perú</div>
+      <div class="legal-law">Ley 29.245 · Ley 29.783 · DS 005-2012-TR</div>
+      <p class="legal-body">
+        La Ley 29.245 regula la tercerización y establece <strong>responsabilidad solidaria</strong> de la empresa principal respecto de las obligaciones laborales y de seguridad social. Complementariamente, la Ley 29.783 (SST) impone al empleador garantizar la seguridad de todo trabajador en su centro de labores, sin distinguir relación contractual.
+      </p>
+      <div class="legal-req">
+        <strong>Requisitos operativos (Art. 53 DS 005-2012-TR):</strong>
+        <ul>
+          <li>Verificar el SGSST del contratista antes de iniciar labores</li>
+          <li>Coordinar la gestión SST cuando coincidan trabajadores de distintas empresas</li>
+          <li>Supervisar el cumplimiento de la normativa en su centro</li>
+          <li>Informar sobre peligros y riesgos del lugar de trabajo</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
      CTA DIAGNÓSTICO
      ============================================================ -->
 <section class="cta-diag" id="diagnostico">
@@ -2352,6 +2585,7 @@ footer {
         <li><a href="#chile">Chile</a></li>
         <li><a href="#industrias">Industrias</a></li>
         <li><a href="#latam">LATAM</a></li>
+        <li><a href="#cadena">Cadena de contratistas</a></li>
         <li><a href="#diagnostico">Diagnóstico</a></li>
       </ul>
     </div>
