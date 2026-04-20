@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico SSOMA · Observatorio Más Prevención</title>
+<meta name="description" content="Diagnostica la posición de tu empresa en 2 minutos. Recibe tu percentil, brechas y recomendaciones con datos reales de SUSESO y MTPE.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root {
+  --ink: #EEE9DE;
+  --ink-soft: #D4CFC4;
+  --ink-muted: #8E8B81;
+  --ink-faint: #5C5A52;
+  --paper: #0F1419;
+  --paper-soft: #1A1F26;
+  --paper-warm: #141820;
+  --cream: #252A32;
+  --hairline: #2D3340;
+  --hairline-soft: #20252E;
+  --accent: #D4B98F;
+  --accent-deep: #B89B6F;
+  --accent-soft: #2C2518;
+  --critical: #C06846;
+  --critical-soft: #3A1F19;
+  --positive: #5F8060;
+  --risk-1: #5F8060;
+  --risk-2: #8E9B5E;
+  --risk-3: #C9B353;
+  --risk-4: #D49447;
+  --risk-5: #C06846;
+  --risk-6: #9B3828;
+  --display: 'Fraunces', serif;
+  --editorial: 'Newsreader', Georgia, serif;
+  --ui: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--editorial);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none;
+  opacity: 0.025; z-index: 1000; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(15,20,25,0.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+}
+.nav-inner {
+  max-width: 1280px; margin: 0 auto; padding: 14px 32px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.logo {
+  font-family: var(--display); font-weight: 700; font-size: 20px;
+  letter-spacing: -0.02em; color: var(--ink); text-decoration: none;
+  display: flex; align-items: baseline; gap: 10px;
+}
+.logo-bullet { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; transform: translateY(-2px); }
+.logo-sub { font-family: var(--ui); font-size: 11px; font-weight: 500; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.12em; }
+.back-link {
+  font-family: var(--ui); font-size: 13px; color: var(--ink-soft);
+  text-decoration: none; display: flex; align-items: center; gap: 8px;
+}
+.back-link:hover { color: var(--accent); }
+
+/* HEADER */
+.page-header {
+  padding: 80px 32px 60px;
+  border-bottom: 1px solid var(--hairline);
+}
+.page-header-inner { max-width: 1100px; margin: 0 auto; }
+.kicker {
+  font-family: var(--ui); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+  display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+}
+.kicker::before { content: ''; display: inline-block; width: 36px; height: 1px; background: var(--accent); }
+.page-title {
+  font-family: var(--display); font-weight: 500;
+  font-size: clamp(40px, 5.5vw, 64px); line-height: 1.02;
+  letter-spacing: -0.03em; margin-bottom: 24px; max-width: 900px;
+}
+.page-title em { font-style: italic; color: var(--accent); font-weight: 400; }
+.page-lead {
+  font-family: var(--editorial); font-size: 19px; line-height: 1.5;
+  color: var(--ink-soft); max-width: 680px;
+}
+.page-lead strong { color: var(--ink); font-weight: 600; }
+
+/* PROGRESS */
+.progress-bar {
+  position: sticky; top: 62px; z-index: 50;
+  height: 3px; background: var(--hairline-soft);
+  width: 100%;
+}
+.progress-fill {
+  height: 100%; background: var(--accent);
+  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+  width: 25%;
+}
+
+/* STEPS CONTAINER */
+.step-container {
+  padding: 60px 32px 120px;
+  min-height: 600px;
+}
+.step {
+  max-width: 860px; margin: 0 auto;
+  display: none;
+  animation: fadeIn 0.6s cubic-bezier(0.22,1,0.36,1);
+}
+.step.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+.step-header { margin-bottom: 48px; }
+.step-num {
+  font-family: var(--display); font-style: italic; font-size: 20px;
+  color: var(--accent); margin-bottom: 8px;
+}
+.step-title {
+  font-family: var(--display); font-weight: 500;
+  font-size: clamp(28px, 3.5vw, 42px); line-height: 1.1;
+  letter-spacing: -0.02em; margin-bottom: 16px;
+}
+.step-desc { font-family: var(--editorial); font-size: 17px; color: var(--ink-soft); line-height: 1.5; }
+
+/* FORM */
+.form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  margin-bottom: 32px;
+}
+.form-field { display: flex; flex-direction: column; gap: 8px; }
+.form-field.wide { grid-column: span 2; }
+.form-field label {
+  font-family: var(--ui); font-size: 12px; font-weight: 500;
+  color: var(--ink-muted); text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.form-field label .required { color: var(--accent); }
+.form-field label .hint { text-transform: none; letter-spacing: normal; font-weight: 400; color: var(--ink-faint); font-size: 11px; margin-left: 6px; }
+
+.form-field input, .form-field select {
+  font-family: var(--editorial); font-size: 18px;
+  padding: 14px 16px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  border-radius: 2px;
+  color-scheme: dark;
+  transition: border-color 0.15s, background 0.15s;
+}
+.form-field input:focus, .form-field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--cream);
+}
+.form-field select option { background: #1A1F26 !important; color: #EEE9DE !important; padding: 10px !important; }
+.form-field .error {
+  font-family: var(--ui); font-size: 12px; color: var(--critical);
+  margin-top: 4px; display: none;
+}
+.form-field.has-error input, .form-field.has-error select { border-color: var(--critical); }
+.form-field.has-error .error { display: block; }
+
+/* CHECKLIST */
+.checklist { display: flex; flex-direction: column; gap: 12px; }
+.check-item {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 16px; align-items: center;
+  padding: 18px 20px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.check-item:hover { border-color: var(--accent); background: var(--cream); }
+.check-item.checked { border-color: var(--accent); background: var(--accent-soft); }
+.check-box {
+  width: 22px; height: 22px; border: 1.5px solid var(--ink-muted);
+  border-radius: 2px; display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 14px; color: var(--accent);
+  transition: all 0.15s;
+}
+.check-item.checked .check-box { border-color: var(--accent); background: var(--accent); color: var(--paper); }
+.check-label {
+  font-family: var(--ui); font-size: 15px; color: var(--ink);
+}
+.check-sub { font-family: var(--editorial); font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+.check-info {
+  font-family: var(--mono); font-size: 10px;
+  padding: 4px 8px; border-radius: 100px;
+  background: var(--critical-soft); color: var(--critical);
+}
+.check-item.checked .check-info { background: rgba(95,128,96,0.15); color: var(--positive); }
+
+/* NAV BUTTONS */
+.step-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 48px; padding-top: 32px;
+  border-top: 1px solid var(--hairline);
+}
+.btn {
+  font-family: var(--ui); font-size: 14px; font-weight: 500;
+  padding: 14px 28px;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--ink-soft);
+  transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.btn:hover { border-color: var(--ink); color: var(--ink); }
+.btn-primary {
+  background: var(--accent); color: var(--paper); border-color: var(--accent);
+  font-weight: 600;
+}
+.btn-primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); color: var(--paper); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn .arrow { font-family: var(--display); font-size: 16px; }
+
+/* PREVIEW */
+.preview-wrapper {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+  align-items: center; margin-bottom: 48px;
+}
+.preview-card {
+  padding: 40px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+}
+.preview-percentile {
+  font-family: var(--display); font-weight: 500;
+  font-size: 120px; line-height: 1;
+  color: var(--accent); letter-spacing: -0.04em;
+  margin-bottom: 16px;
+}
+.preview-percentile .small { font-size: 40px; color: var(--ink-muted); }
+.preview-label {
+  font-family: var(--ui); font-size: 12px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--ink-muted); margin-bottom: 32px;
+}
+.preview-narrative {
+  font-family: var(--editorial); font-size: 19px;
+  line-height: 1.55; color: var(--ink);
+}
+.preview-narrative em { color: var(--accent); font-style: italic; }
+.preview-narrative strong { color: var(--ink); font-weight: 600; }
+
+.distribution-chart {
+  position: relative; height: 380px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  padding: 24px;
+}
+
+/* GATE */
+.gate-wrapper {
+  max-width: 680px; margin: 0 auto;
+  padding: 48px;
+  background: var(--cream);
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+.gate-wrapper::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--accent);
+}
+.gate-title {
+  font-family: var(--display); font-weight: 500;
+  font-size: 32px; line-height: 1.1; letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.gate-title em { font-style: italic; color: var(--accent); }
+.gate-sub {
+  font-family: var(--editorial); font-size: 16px; color: var(--ink-soft);
+  margin-bottom: 32px;
+}
+.gate-benefits {
+  list-style: none; padding: 0; margin: 24px 0 32px;
+}
+.gate-benefits li {
+  font-family: var(--ui); font-size: 14px; color: var(--ink-soft);
+  padding: 10px 0 10px 28px; position: relative;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+.gate-benefits li:last-child { border-bottom: none; }
+.gate-benefits li::before {
+  content: ''; position: absolute; left: 0; top: 16px;
+  width: 14px; height: 2px; background: var(--accent);
+}
+
+.privacy-note {
+  font-family: var(--ui); font-size: 11px; color: var(--ink-muted);
+  margin-top: 20px; line-height: 1.5;
+}
+.privacy-note a { color: var(--accent); text-decoration: none; }
+
+/* REPORT */
+.report-section { padding: 60px 32px; border-bottom: 1px solid var(--hairline); }
+.report-section:last-child { border-bottom: none; }
+.report-inner { max-width: 1100px; margin: 0 auto; }
+.report-section-num {
+  font-family: var(--display); font-style: italic; font-size: 18px;
+  color: var(--accent); margin-bottom: 8px;
+}
+.report-section-title {
+  font-family: var(--display); font-weight: 500;
+  font-size: 32px; line-height: 1.1; letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+.report-section-title em { font-style: italic; color: var(--accent); }
+
+.summary-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  border-top: 1px solid var(--hairline);
+  border-left: 1px solid var(--hairline);
+}
+.summary-stat {
+  padding: 32px 24px;
+  border-right: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--paper-soft);
+}
+.summary-stat .s-label {
+  font-family: var(--ui); font-size: 11px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--ink-muted); margin-bottom: 10px;
+}
+.summary-stat .s-value {
+  font-family: var(--display); font-weight: 500;
+  font-size: 42px; line-height: 1;
+  color: var(--ink); letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.summary-stat .s-value .unit { font-size: 18px; color: var(--ink-muted); font-weight: 400; }
+.summary-stat .s-detail {
+  font-family: var(--editorial); font-size: 13px;
+  color: var(--ink-soft);
+}
+.summary-stat.good { border-left: 3px solid var(--positive); }
+.summary-stat.bad { border-left: 3px solid var(--critical); }
+.summary-stat.warn { border-left: 3px solid var(--risk-3); }
+
+.executive-summary {
+  background: var(--paper-soft);
+  padding: 40px;
+  border-left: 3px solid var(--accent);
+  margin-top: 32px;
+}
+.executive-summary h3 {
+  font-family: var(--display); font-weight: 500; font-size: 24px;
+  margin-bottom: 20px; letter-spacing: -0.015em;
+}
+.executive-summary p {
+  font-family: var(--editorial); font-size: 17px;
+  line-height: 1.6; color: var(--ink-soft);
+  margin-bottom: 14px;
+}
+.executive-summary strong { color: var(--ink); }
+.executive-summary em { color: var(--accent); font-style: italic; }
+
+.radar-wrapper {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+  align-items: center;
+}
+.chart-box { position: relative; height: 360px; }
+.compliance-list {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.compliance-item {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 14px;
+  align-items: center;
+  padding: 14px 18px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+}
+.compliance-dot { width: 10px; height: 10px; border-radius: 50%; }
+.compliance-dot.yes { background: var(--positive); }
+.compliance-dot.no { background: var(--critical); }
+.compliance-label { font-family: var(--ui); font-size: 14px; color: var(--ink); }
+.compliance-status {
+  font-family: var(--mono); font-size: 10px;
+  padding: 3px 10px; border-radius: 100px;
+  letter-spacing: 0.04em;
+}
+.compliance-status.yes { background: rgba(95,128,96,0.15); color: var(--positive); }
+.compliance-status.no { background: var(--critical-soft); color: var(--critical); }
+
+.recommendations-list { display: flex; flex-direction: column; gap: 18px; margin-top: 24px; }
+.rec-card {
+  padding: 28px 32px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--accent);
+  position: relative;
+}
+.rec-card.high-priority { border-left-color: var(--critical); }
+.rec-card.medium-priority { border-left-color: var(--risk-3); }
+.rec-card.low-priority { border-left-color: var(--positive); }
+.rec-priority {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 3px 10px;
+  border-radius: 100px; display: inline-block;
+  margin-bottom: 14px;
+}
+.rec-priority.high { background: var(--critical-soft); color: var(--critical); }
+.rec-priority.medium { background: rgba(201,179,83,0.15); color: var(--risk-3); }
+.rec-priority.low { background: rgba(95,128,96,0.15); color: var(--positive); }
+.rec-title {
+  font-family: var(--display); font-weight: 500; font-size: 22px;
+  letter-spacing: -0.015em; margin-bottom: 12px;
+}
+.rec-body {
+  font-family: var(--editorial); font-size: 16px;
+  line-height: 1.6; color: var(--ink-soft);
+}
+
+.economic-impact {
+  padding: 48px;
+  background: linear-gradient(135deg, var(--paper-soft), var(--cream));
+  border: 1px solid var(--accent);
+  margin-top: 24px;
+  position: relative;
+}
+.economic-impact::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: var(--accent);
+}
+.impact-number {
+  font-family: var(--display); font-weight: 500;
+  font-size: 72px; line-height: 1;
+  color: var(--accent); letter-spacing: -0.03em;
+  margin-bottom: 12px;
+}
+.impact-number .unit { font-size: 24px; color: var(--ink); font-weight: 400; }
+.impact-label {
+  font-family: var(--ui); font-size: 12px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--ink-muted); margin-bottom: 20px;
+}
+.impact-narrative {
+  font-family: var(--editorial); font-size: 17px;
+  line-height: 1.6; color: var(--ink);
+  max-width: 700px;
+}
+
+.cta-final {
+  padding: 80px 32px;
+  background: #05090E;
+  text-align: center;
+  border-top: 1px solid var(--hairline);
+}
+.cta-final h2 {
+  font-family: var(--display); font-weight: 500;
+  font-size: clamp(32px, 4vw, 48px); line-height: 1.1;
+  letter-spacing: -0.02em; margin-bottom: 20px;
+}
+.cta-final h2 em { font-style: italic; color: var(--accent); }
+.cta-final p {
+  font-family: var(--editorial); font-size: 18px;
+  color: var(--ink-soft); max-width: 600px; margin: 0 auto 32px;
+}
+.cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+/* FOOTER */
+footer {
+  padding: 40px 32px;
+  background: var(--paper-warm);
+  border-top: 1px solid var(--hairline);
+  text-align: center;
+  font-family: var(--ui); font-size: 12px;
+  color: var(--ink-muted);
+}
+footer .powered {
+  display: inline-flex; align-items: center; gap: 10px;
+}
+footer strong { font-family: var(--display); font-weight: 600; color: var(--ink); font-size: 14px; }
+
+/* DISTRIBUTION VISUAL (percentil) */
+.dist-scale {
+  position: relative; height: 120px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 24px;
+}
+.dist-gradient {
+  position: absolute; top: 0; left: 0; right: 0; height: 100%;
+  background: linear-gradient(to right, var(--risk-1), var(--risk-2), var(--risk-3), var(--risk-4), var(--risk-5), var(--risk-6));
+  opacity: 0.35;
+}
+.dist-marker {
+  position: absolute; top: 0; bottom: 0; width: 3px;
+  background: var(--ink);
+  box-shadow: 0 0 16px rgba(238,233,222,0.5);
+}
+.dist-marker::before {
+  content: ''; position: absolute; top: -12px; left: -9px;
+  border: 10px solid transparent;
+  border-top-color: var(--ink);
+}
+.dist-marker-label {
+  position: absolute; top: -42px; transform: translateX(-50%);
+  font-family: var(--ui); font-size: 11px; font-weight: 600;
+  color: var(--ink); white-space: nowrap;
+  background: var(--ink); padding: 4px 10px;
+  border-radius: 2px;
+}
+.dist-marker-label span { color: var(--paper); }
+.dist-labels {
+  display: flex; justify-content: space-between;
+  margin-top: 10px;
+  font-family: var(--mono); font-size: 10px; color: var(--ink-muted);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 900px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-field.wide { grid-column: span 1; }
+  .preview-wrapper { grid-template-columns: 1fr; }
+  .radar-wrapper { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr; }
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-bullet"></span>
+      Observatorio SSOMA
+      <span class="logo-sub">· Más Prevención</span>
+    </a>
+    <a href="index.html" class="back-link">← Volver al observatorio</a>
+  </div>
+</nav>
+
+<div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+<!-- PASO 1 — IDENTIFICACIÓN EMPRESA -->
+<section class="page-header" id="header-1">
+  <div class="page-header-inner">
+    <div class="kicker">Diagnóstico SSOMA · 2 minutos</div>
+    <h1 class="page-title">Descubre <em>dónde está</em> tu empresa en su sector.</h1>
+    <p class="page-lead">
+      Seis datos bastan. Te mostramos tu posición exacta frente al promedio del rubro,
+      tu cumplimiento legal básico, tus brechas económicas y tres recomendaciones
+      priorizadas con <strong>datos oficiales SUSESO y MTPE</strong>.
+    </p>
+  </div>
+</section>
+
+<section class="step-container">
+  <!-- STEP 1: EMPRESA -->
+  <div class="step active" id="step-1">
+    <div class="step-header">
+      <div class="step-num">Paso 1 de 3</div>
+      <h2 class="step-title">Tu <em>empresa</em> en 4 datos.</h2>
+      <p class="step-desc">Nombre, país, rubro, tamaño. Con eso ya sabemos contra quién compararte.</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field wide">
+        <label>Nombre de tu empresa <span class="required">*</span></label>
+        <input type="text" id="f-empresa" placeholder="Ej: Constructora San Francisco Ltda." required>
+        <div class="error">Este campo es requerido</div>
+      </div>
+
+      <div class="form-field">
+        <label>País de operación <span class="required">*</span></label>
+        <select id="f-pais" required>
+          <option value="">Selecciona...</option>
+          <option value="CL">Chile</option>
+          <option value="PE">Perú</option>
+        </select>
+        <div class="error">Selecciona un país</div>
+      </div>
+
+      <div class="form-field">
+        <label>Región principal <span class="required">*</span></label>
+        <select id="f-region" required>
+          <option value="">Primero elige país</option>
+        </select>
+        <div class="error">Selecciona una región</div>
+      </div>
+
+      <div class="form-field">
+        <label>Rubro principal <span class="required">*</span></label>
+        <select id="f-rubro" required>
+          <option value="">Selecciona...</option>
+          <option value="Construcción">Construcción</option>
+          <option value="Industria Manufacturera">Industria Manufacturera</option>
+          <option value="Agricultura y pesca">Agricultura y pesca</option>
+          <option value="Transporte y com.">Transporte y comunicaciones</option>
+          <option value="Comercio">Comercio</option>
+          <option value="Servicios">Servicios</option>
+          <option value="Minería">Minería</option>
+          <option value="Electricidad/Gas/Agua">Electricidad, gas y agua</option>
+        </select>
+        <div class="error">Selecciona un rubro</div>
+      </div>
+
+      <div class="form-field">
+        <label>N° de trabajadores <span class="required">*</span></label>
+        <select id="f-tamano" required>
+          <option value="">Selecciona...</option>
+          <option value="micro">1 - 9 (Micro)</option>
+          <option value="pequena">10 - 49 (Pequeña)</option>
+          <option value="mediana">50 - 199 (Mediana)</option>
+          <option value="grande">200 - 499 (Grande)</option>
+          <option value="muygrande">500 o más</option>
+        </select>
+        <div class="error">Selecciona un tamaño</div>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <div></div>
+      <button class="btn btn-primary" onclick="nextStep(2)">Continuar <span class="arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 2: ACCIDENTABILIDAD -->
+  <div class="step" id="step-2">
+    <div class="step-header">
+      <div class="step-num">Paso 2 de 3</div>
+      <h2 class="step-title">Tu <em>tasa de accidentabilidad</em>.</h2>
+      <p class="step-desc">El indicador que más importa. Tómatelo con calma — si no sabes el dato exacto, pon el más cercano según tu mutualidad.</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field wide">
+        <label>Tasa de accidentabilidad últimos 12 meses <span class="required">*</span>
+          <span class="hint">Accidentes del trabajo por cada 100 trabajadores</span>
+        </label>
+        <input type="number" id="f-tasa" min="0" max="30" step="0.1" placeholder="Ej: 3.5" required>
+        <div class="error">Ingresa un valor entre 0 y 30</div>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn" onclick="prevStep(1)"><span class="arrow">←</span> Volver</button>
+      <button class="btn btn-primary" onclick="nextStep(3)">Continuar <span class="arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 3: CHECKLIST LEGAL -->
+  <div class="step" id="step-3">
+    <div class="step-header">
+      <div class="step-num">Paso 3 de 3</div>
+      <h2 class="step-title">Tu <em>cumplimiento legal</em> básico.</h2>
+      <p class="step-desc">5 puntos fundamentales. Marca lo que cumples. Lo que te falte será una brecha en tu reporte.</p>
+    </div>
+
+    <div class="checklist" id="checklist"></div>
+
+    <div class="step-nav">
+      <button class="btn" onclick="prevStep(2)"><span class="arrow">←</span> Volver</button>
+      <button class="btn btn-primary" onclick="computeAndPreview()">Ver mi posicionamiento <span class="arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 4: PREVIEW (antes del gate) -->
+  <div class="step" id="step-4">
+    <div class="step-header">
+      <div class="step-num">Resultado preliminar</div>
+      <h2 class="step-title">Tu empresa vs. <em id="pv-rubro">tu rubro</em>.</h2>
+      <p class="step-desc">Este es tu posicionamiento. El reporte completo con brechas, recomendaciones y PDF descargable te lo enviamos al correo.</p>
+    </div>
+
+    <div class="preview-wrapper">
+      <div class="preview-card">
+        <div class="preview-label">Percentil en tu rubro</div>
+        <div class="preview-percentile" id="pv-percentile">—<span class="small">%</span></div>
+        <div class="preview-narrative" id="pv-narrative"></div>
+      </div>
+
+      <div>
+        <div class="preview-label">Tu posición en la distribución del rubro</div>
+        <div class="dist-scale">
+          <div class="dist-gradient"></div>
+          <div class="dist-marker" id="dist-marker" style="left: 50%;">
+            <div class="dist-marker-label"><span id="dist-marker-val">3.5%</span></div>
+          </div>
+        </div>
+        <div class="dist-labels">
+          <span>Mejor del rubro</span>
+          <span>Promedio</span>
+          <span>Peor del rubro</span>
+        </div>
+        <div style="margin-top: 20px; font-family: var(--mono); font-size: 12px; color: var(--ink-muted);" id="pv-rango"></div>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn" onclick="prevStep(3)"><span class="arrow">←</span> Corregir datos</button>
+      <button class="btn btn-primary" onclick="goToGate()">Ver reporte completo <span class="arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 5: GATE -->
+  <div class="step" id="step-5">
+    <div class="gate-wrapper">
+      <h2 class="gate-title">Tu reporte completo está <em>listo</em>.</h2>
+      <p class="gate-sub">Déjanos tu correo y te mostramos el detalle + te enviamos el PDF descargable.</p>
+
+      <ul class="gate-benefits">
+        <li>Radar de cumplimiento legal con tu score</li>
+        <li>Brecha económica estimada en pesos</li>
+        <li>3 recomendaciones priorizadas para tu rubro</li>
+        <li>Los 3 riesgos característicos de tu sector</li>
+        <li>PDF descargable con branding del observatorio</li>
+      </ul>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Nombre <span class="required">*</span></label>
+          <input type="text" id="f-nombre" placeholder="Tu nombre" required>
+          <div class="error">Ingresa tu nombre</div>
+        </div>
+        <div class="form-field">
+          <label>Cargo</label>
+          <input type="text" id="f-cargo" placeholder="Ej: Gerente de operaciones">
+        </div>
+        <div class="form-field">
+          <label>Email corporativo <span class="required">*</span></label>
+          <input type="email" id="f-email" placeholder="tu@empresa.com" required>
+          <div class="error">Ingresa un email válido</div>
+        </div>
+        <div class="form-field">
+          <label>Teléfono</label>
+          <input type="tel" id="f-telefono" placeholder="+56 9 ...">
+        </div>
+      </div>
+
+      <div class="step-nav" style="margin-top: 32px;">
+        <button class="btn" onclick="prevStep(4)"><span class="arrow">←</span> Volver</button>
+        <button class="btn btn-primary" onclick="submitLead()">Ver mi reporte completo <span class="arrow">→</span></button>
+      </div>
+
+      <p class="privacy-note">
+        Al enviar aceptas recibir el reporte y comunicaciones relacionadas de Más Prevención.
+        No compartimos tus datos con terceros. Puedes darte de baja cuando quieras.
+      </p>
+    </div>
+  </div>
+
+  <!-- STEP 6: REPORT -->
+  <div class="step" id="step-6"></div>
+
+</section>
+
+<footer>
+  <div class="powered">
+    Observatorio SSOMA · <strong>Más Prevención</strong>
+  </div>
+  <div style="margin-top: 8px; font-size: 11px; color: var(--ink-faint);">
+    Datos oficiales SUSESO y MTPE · Diagnóstico basado en benchmark público
+  </div>
+</footer>
+
+<script>
+// ========== DATOS BASE ==========
+const TASA_RUBRO_2024 = {
+  'Industria Manufacturera': 3.5,
+  'Agricultura y pesca':     3.3,
+  'Transporte y com.':       3.1,
+  'Comercio':                2.8,
+  'Construcción':            2.8,
+  'Servicios':               2.0,
+  'Electricidad/Gas/Agua':   1.1,
+  'Minería':                 0.9
+};
+const PROMEDIO_NACIONAL_2024 = 2.5;
+
+// Distribución aproximada del rubro (para estimar percentil)
+// Usamos desviación estándar estimada: ~40% del promedio del rubro
+const DESVIACION_ESTIMADA = {
+  'Industria Manufacturera': 1.4,
+  'Agricultura y pesca':     1.3,
+  'Transporte y com.':       1.2,
+  'Comercio':                1.1,
+  'Construcción':            1.1,
+  'Servicios':               0.8,
+  'Electricidad/Gas/Agua':   0.5,
+  'Minería':                 0.4
+};
+
+// Top formas de accidente por rubro (SUSESO + elaboración propia)
+const RIESGOS_POR_RUBRO = {
+  'Construcción':            ['Caídas de altura (34%)', 'Golpes por objetos (28%)', 'Sobreesfuerzo (14%)'],
+  'Minería':                 ['Atrapamientos (28%)', 'Caídas de altura (22%)', 'Golpes (18%)'],
+  'Industria Manufacturera': ['Golpes por objetos (40%)', 'Atrapamientos (24%)', 'Sobreesfuerzo (16%)'],
+  'Agricultura y pesca':     ['Sobreesfuerzo (38%)', 'Golpes (22%)', 'Sustancias químicas (14%)'],
+  'Transporte y com.':       ['Sobreesfuerzo (32%)', 'Golpes (30%)', 'Caídas (14%)'],
+  'Comercio':                ['Golpes (34%)', 'Sobreesfuerzo (26%)', 'Caídas (18%)'],
+  'Servicios':               ['Sobreesfuerzo (40%)', 'Golpes (22%)', 'Caídas (20%)'],
+  'Electricidad/Gas/Agua':   ['Caídas de altura (26%)', 'Eléctricos (24%)', 'Golpes (18%)']
+};
+
+// Regiones
+const REGIONES_CL = [
+  'Metropolitana de Santiago','Valparaíso','Biobío','Maule',"Libertador O'Higgins",
+  'Antofagasta','Los Lagos','Coquimbo','Ñuble','La Araucanía','Los Ríos',
+  'Atacama','Tarapacá','Magallanes','Arica y Parinacota','Aysén'
+];
+const REGIONES_PE = [
+  'Lima Metropolitana','Arequipa','Callao','La Libertad','Piura','Lambayeque','Cusco',
+  'Junín','Ancash','Ica','Cajamarca','Puno','San Martín','Loreto','Tacna','Moquegua',
+  'Ucayali','Huánuco','Apurímac','Ayacucho','Pasco','Tumbes','Amazonas','Madre de Dios','Huancavelica'
+];
+
+// Checklist legal CL vs PE
+const CHECKLIST_CL = [
+  { key: 'reglamento', titulo: 'Reglamento Interno de Orden, Higiene y Seguridad', sub: 'Obligatorio empresas ≥10 trabajadores — DS 594 / Código del Trabajo' },
+  { key: 'iper', titulo: 'Matriz IPER vigente', sub: 'Identificación de Peligros y Evaluación de Riesgos documentada' },
+  { key: 'cphs', titulo: 'CPHS activo con sesiones mensuales', sub: 'Comité Paritario obligatorio ≥25 trabajadores (Ley 16.744)' },
+  { key: 'doha', titulo: 'Capacitaciones DOHA al día', sub: 'Derecho a saber — registros firmados por cada trabajador' },
+  { key: 'karin', titulo: 'Protocolo Ley Karin implementado', sub: 'Acoso laboral y sexual — obligatorio desde agosto 2024' }
+];
+const CHECKLIST_PE = [
+  { key: 'reglamento', titulo: 'Reglamento Interno de Seguridad y Salud en el Trabajo', sub: 'Obligatorio según Ley 29.783 — SST' },
+  { key: 'iperc', titulo: 'Matriz IPERC vigente', sub: 'Identificación de Peligros, Evaluación y Control de Riesgos' },
+  { key: 'csst', titulo: 'Comité de SST o Supervisor designado', sub: 'Comité si ≥20 trabajadores — Supervisor si menos' },
+  { key: 'programa', titulo: 'Programa Anual de SST', sub: 'Planificación documentada y registro de avance' },
+  { key: 'hostigamiento', titulo: 'Protocolo contra Hostigamiento Sexual', sub: 'Ley 27.942 — procedimiento de atención y sanción' }
+];
+
+// Estado
+let formData = {};
+let currentStep = 1;
+
+// ========== FLUJO DE PASOS ==========
+function updateProgress() {
+  const map = { 1: 20, 2: 40, 3: 60, 4: 75, 5: 90, 6: 100 };
+  document.getElementById('progress-fill').style.width = (map[currentStep] || 20) + '%';
+}
+
+function nextStep(to) {
+  if (to === 2 && !validateStep1()) return;
+  if (to === 3 && !validateStep2()) return;
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + to).classList.add('active');
+  currentStep = to;
+  updateProgress();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (to === 3) renderChecklist();
+}
+
+function prevStep(to) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + to).classList.add('active');
+  currentStep = to;
+  updateProgress();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ========== VALIDACIÓN ==========
+function validateStep1() {
+  const fields = [
+    { id: 'f-empresa', check: v => v.trim().length >= 2 },
+    { id: 'f-pais',    check: v => !!v },
+    { id: 'f-region',  check: v => !!v },
+    { id: 'f-rubro',   check: v => !!v },
+    { id: 'f-tamano',  check: v => !!v }
+  ];
+  let allOk = true;
+  fields.forEach(f => {
+    const el = document.getElementById(f.id);
+    const parent = el.closest('.form-field');
+    if (!f.check(el.value)) {
+      parent.classList.add('has-error');
+      allOk = false;
+    } else {
+      parent.classList.remove('has-error');
+    }
+  });
+  if (allOk) {
+    formData.empresa = document.getElementById('f-empresa').value.trim();
+    formData.pais = document.getElementById('f-pais').value;
+    formData.region = document.getElementById('f-region').value;
+    formData.rubro = document.getElementById('f-rubro').value;
+    formData.tamano = document.getElementById('f-tamano').value;
+  }
+  return allOk;
+}
+
+function validateStep2() {
+  const el = document.getElementById('f-tasa');
+  const parent = el.closest('.form-field');
+  const v = parseFloat(el.value);
+  if (isNaN(v) || v < 0 || v > 30) {
+    parent.classList.add('has-error');
+    return false;
+  }
+  parent.classList.remove('has-error');
+  formData.tasa = v;
+  return true;
+}
+
+// País → regiones
+document.getElementById('f-pais').addEventListener('change', (e) => {
+  const regEl = document.getElementById('f-region');
+  const regs = e.target.value === 'PE' ? REGIONES_PE : (e.target.value === 'CL' ? REGIONES_CL : []);
+  regEl.innerHTML = '<option value="">Selecciona...</option>' + regs.map(r => `<option value="${r}">${r}</option>`).join('');
+});
+
+// ========== CHECKLIST ==========
+function renderChecklist() {
+  const pais = formData.pais;
+  const list = pais === 'PE' ? CHECKLIST_PE : CHECKLIST_CL;
+  const container = document.getElementById('checklist');
+  container.innerHTML = '';
+  list.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'check-item';
+    div.dataset.key = item.key;
+    div.innerHTML = `
+      <div class="check-box">✓</div>
+      <div>
+        <div class="check-label">${item.titulo}</div>
+        <div class="check-sub">${item.sub}</div>
+      </div>
+      <div class="check-info">NO CUMPLE</div>
+    `;
+    div.addEventListener('click', () => {
+      div.classList.toggle('checked');
+      const info = div.querySelector('.check-info');
+      info.textContent = div.classList.contains('checked') ? 'CUMPLE' : 'NO CUMPLE';
+    });
+    container.appendChild(div);
+  });
+}
+
+// ========== CÁLCULOS ==========
+function computeMetrics() {
+  const promRubro = TASA_RUBRO_2024[formData.rubro];
+  const sigma = DESVIACION_ESTIMADA[formData.rubro];
+  const tasa = formData.tasa;
+
+  // Z-score → percentil (distribución normal aproximada)
+  // En accidentabilidad: menor tasa = mejor, entonces percentil alto = peor empresa
+  const z = (tasa - promRubro) / sigma;
+  // CDF aproximada
+  const cdf = 0.5 * (1 + erf(z / Math.sqrt(2)));
+  // Percentil: qué % de empresas del rubro tienen tasa menor a la tuya
+  // Menor percentil = mejor posición; le damos vuelta para mostrarlo como "estás en el X% peor"
+  const percentilPeor = Math.round(cdf * 100);
+  const percentilMejor = 100 - percentilPeor;
+
+  // Brecha con promedio rubro
+  const brechaPct = ((tasa - promRubro) / promRubro * 100);
+
+  // Checklist score
+  const checked = document.querySelectorAll('.check-item.checked').length;
+  const total = document.querySelectorAll('.check-item').length;
+  const cumplimientoPct = Math.round((checked / total) * 100);
+  const gaps = [];
+  document.querySelectorAll('.check-item').forEach(el => {
+    if (!el.classList.contains('checked')) {
+      gaps.push({ key: el.dataset.key, titulo: el.querySelector('.check-label').textContent });
+    }
+  });
+
+  // Impacto económico estimado (Chile)
+  // Fórmula simplificada: cada 0.1% sobre promedio rubro ≈ 0.05% de planilla en cotización adicional SUSESO
+  const trabajadoresEstimados = { micro: 5, pequena: 25, mediana: 100, grande: 300, muygrande: 800 };
+  const nTrab = trabajadoresEstimados[formData.tamano] || 100;
+  const sueldoPromedio = formData.pais === 'PE' ? 1800000 : 720000; // CLP promedio Chile
+  const planillaAnual = nTrab * sueldoPromedio * 12;
+  // Brecha económica si la tasa está sobre promedio rubro
+  const excesoTasa = Math.max(0, tasa - promRubro);
+  const impactoEstimado = Math.round(planillaAnual * (excesoTasa * 0.005));
+
+  return {
+    promRubro, tasa, z, percentilPeor, percentilMejor,
+    brechaPct, cumplimientoPct, gaps, checked, total,
+    impactoEstimado, nTrab, planillaAnual, excesoTasa
+  };
+}
+
+// Aproximación error function
+function erf(x) {
+  const a1 =  0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+  const a4 = -1.453152027, a5 =  1.061405429, p = 0.3275911;
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x);
+  const t = 1.0 / (1.0 + p * x);
+  const y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t * Math.exp(-x*x);
+  return sign * y;
+}
+
+// ========== PREVIEW (step 4) ==========
+function computeAndPreview() {
+  const m = computeMetrics();
+  formData.metrics = m;
+
+  document.getElementById('pv-rubro').textContent = formData.rubro.toLowerCase();
+
+  // Percentil grande
+  const shownPercentile = m.percentilMejor > 50 ? m.percentilMejor : m.percentilPeor;
+  document.getElementById('pv-percentile').innerHTML = `${shownPercentile}<span class="small">%</span>`;
+
+  // Narrativa
+  let narrative = '';
+  if (m.z < -0.67) {
+    narrative = `Estás entre el <em>${m.percentilMejor}% mejor</em> del rubro ${formData.rubro.toLowerCase()}. Tu tasa es ${Math.abs(m.brechaPct).toFixed(0)}% <strong>menor</strong> que el promedio del sector.`;
+  } else if (m.z > 0.67) {
+    narrative = `Estás en el <em>${m.percentilPeor}% peor</em> del rubro ${formData.rubro.toLowerCase()}. Tu tasa es ${m.brechaPct.toFixed(0)}% <strong>mayor</strong> que el promedio del sector.`;
+  } else {
+    narrative = `Estás <em>cerca del promedio</em> del rubro ${formData.rubro.toLowerCase()}. Tu tasa difiere en ${Math.abs(m.brechaPct).toFixed(0)}% respecto al benchmark sectorial.`;
+  }
+  document.getElementById('pv-narrative').innerHTML = narrative;
+
+  // Marcador en distribución
+  // Posición del marcador: percentilPeor (0-100% de izq a der: de "mejor" a "peor")
+  const pos = Math.min(95, Math.max(5, m.percentilPeor));
+  const marker = document.getElementById('dist-marker');
+  marker.style.left = pos + '%';
+  document.getElementById('dist-marker-val').textContent = m.tasa.toFixed(1) + '%';
+
+  document.getElementById('pv-rango').innerHTML = `
+    Tu tasa: <strong style="color:var(--ink)">${m.tasa.toFixed(1)}%</strong> ·
+    Promedio rubro: <strong style="color:var(--ink)">${m.promRubro.toFixed(1)}%</strong> ·
+    Promedio nacional: <strong style="color:var(--ink)">${PROMEDIO_NACIONAL_2024}%</strong>
+  `;
+
+  nextStep(4);
+}
+
+// ========== GATE ==========
+function goToGate() {
+  nextStep(5);
+}
+
+// ========== SUBMIT LEAD ==========
+async function submitLead() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const cargo = document.getElementById('f-cargo').value.trim();
+  const telefono = document.getElementById('f-telefono').value.trim();
+
+  // Validación
+  let ok = true;
+  const nEl = document.getElementById('f-nombre').closest('.form-field');
+  const eEl = document.getElementById('f-email').closest('.form-field');
+  if (nombre.length < 2) { nEl.classList.add('has-error'); ok = false; } else { nEl.classList.remove('has-error'); }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { eEl.classList.add('has-error'); ok = false; } else { eEl.classList.remove('has-error'); }
+  if (!ok) return;
+
+  formData.lead = { nombre, email, cargo, telefono };
+
+  // [Integración Supabase — se conectará en Entrega 2B]
+  // Por ahora, solo renderizamos el reporte
+  renderReport();
+  nextStep(6);
+}
+
+// ========== REPORT ==========
+function renderReport() {
+  const m = formData.metrics;
+  const riesgos = RIESGOS_POR_RUBRO[formData.rubro] || [];
+  const recs = generateRecommendations(m, formData, riesgos);
+  const fechaHoy = new Date().toLocaleDateString('es-CL', {day: 'numeric', month: 'long', year: 'numeric'});
+
+  const posText = m.z < -0.67 ? 'excelente' : (m.z > 0.67 ? 'crítica' : 'intermedia');
+  const posColor = m.z < -0.67 ? 'good' : (m.z > 0.67 ? 'bad' : 'warn');
+
+  document.getElementById('step-6').innerHTML = `
+    <div style="max-width: 1100px; margin: 0 auto;">
+
+      <!-- Encabezado del reporte -->
+      <div style="padding: 60px 32px 40px; border-bottom: 1px solid var(--hairline);">
+        <div class="kicker">Reporte de diagnóstico SSOMA</div>
+        <h1 style="font-family: var(--display); font-size: clamp(36px, 5vw, 56px); font-weight: 500; letter-spacing: -0.025em; line-height: 1.05; margin-bottom: 20px;">
+          ${formData.empresa}
+        </h1>
+        <p style="font-family: var(--editorial); font-size: 17px; color: var(--ink-soft);">
+          ${formData.rubro} · ${formData.region} · ${formData.pais === 'PE' ? 'Perú' : 'Chile'} · Generado el ${fechaHoy}
+        </p>
+      </div>
+
+      <!-- I. Resumen ejecutivo -->
+      <div class="report-section">
+        <div class="report-inner">
+          <div class="report-section-num">I · Resumen ejecutivo</div>
+          <h2 class="report-section-title">Una posición <em>${posText}</em> en tu rubro.</h2>
+
+          <div class="summary-grid" style="margin-top: 32px;">
+            <div class="summary-stat ${posColor}">
+              <div class="s-label">Tu percentil</div>
+              <div class="s-value">${m.percentilPeor > 50 ? m.percentilPeor : m.percentilMejor}<span class="unit">%</span></div>
+              <div class="s-detail">${m.percentilPeor > 50 ? 'peor del rubro' : 'mejor del rubro'}</div>
+            </div>
+            <div class="summary-stat ${m.cumplimientoPct >= 80 ? 'good' : (m.cumplimientoPct >= 40 ? 'warn' : 'bad')}">
+              <div class="s-label">Cumplimiento legal</div>
+              <div class="s-value">${m.cumplimientoPct}<span class="unit">%</span></div>
+              <div class="s-detail">${m.checked} de ${m.total} puntos</div>
+            </div>
+            <div class="summary-stat ${m.brechaPct > 20 ? 'bad' : (m.brechaPct > -20 ? 'warn' : 'good')}">
+              <div class="s-label">Brecha vs rubro</div>
+              <div class="s-value">${m.brechaPct > 0 ? '+' : ''}${m.brechaPct.toFixed(0)}<span class="unit">%</span></div>
+              <div class="s-detail">${m.brechaPct > 0 ? 'sobre promedio' : 'bajo promedio'}</div>
+            </div>
+          </div>
+
+          <div class="executive-summary">
+            <h3>Qué dice tu diagnóstico</h3>
+            ${generateExecutiveNarrative(m, formData, riesgos)}
+          </div>
+        </div>
+      </div>
+
+      <!-- II. Cumplimiento legal -->
+      <div class="report-section">
+        <div class="report-inner">
+          <div class="report-section-num">II · Cumplimiento legal básico</div>
+          <h2 class="report-section-title">Tu <em>radar</em> normativo.</h2>
+
+          <div class="radar-wrapper" style="margin-top: 32px;">
+            <div class="chart-box">
+              <canvas id="compliance-chart"></canvas>
+            </div>
+            <div class="compliance-list" id="compliance-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- III. Riesgos del sector -->
+      <div class="report-section">
+        <div class="report-inner">
+          <div class="report-section-num">III · Riesgos característicos</div>
+          <h2 class="report-section-title">Los <em>tres riesgos</em> que explican tu sector.</h2>
+          <p style="font-family: var(--editorial); font-size: 17px; color: var(--ink-soft); max-width: 700px; margin-bottom: 32px;">
+            Según datos oficiales, así se distribuyen los accidentes en ${formData.rubro.toLowerCase()}.
+            Atender estos tres riesgos típicos del sector debería ser la prioridad de cualquier programa preventivo.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            ${riesgos.map((r, i) => `
+              <div style="padding: 32px 28px; background: var(--paper-soft); border: 1px solid var(--hairline); border-top: 3px solid ${['var(--risk-6)','var(--risk-4)','var(--risk-3)'][i]};">
+                <div style="font-family: var(--mono); font-size: 11px; color: var(--ink-muted); letter-spacing: 0.1em; margin-bottom: 12px;">PRIORIDAD ${i+1}</div>
+                <div style="font-family: var(--display); font-size: 22px; font-weight: 500; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink);">${r}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- IV. Recomendaciones -->
+      <div class="report-section">
+        <div class="report-inner">
+          <div class="report-section-num">IV · Recomendaciones</div>
+          <h2 class="report-section-title">Tres <em>acciones priorizadas</em> para tu empresa.</h2>
+          <p style="font-family: var(--editorial); font-size: 17px; color: var(--ink-soft); max-width: 700px; margin-bottom: 24px;">
+            Generadas con los datos que nos entregaste y el benchmark del rubro ${formData.rubro.toLowerCase()}.
+            Cada recomendación tiene su prioridad y acción concreta sugerida.
+          </p>
+          <div class="recommendations-list">
+            ${recs.map(r => `
+              <div class="rec-card ${r.priority}-priority">
+                <div class="rec-priority ${r.priority}">Prioridad ${r.priorityLabel}</div>
+                <div class="rec-title">${r.title}</div>
+                <div class="rec-body">${r.body}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- V. Impacto económico -->
+      ${m.excesoTasa > 0 ? `
+      <div class="report-section">
+        <div class="report-inner">
+          <div class="report-section-num">V · Impacto económico estimado</div>
+          <h2 class="report-section-title">Cuánto te <em>cuesta</em> hoy tu brecha.</h2>
+          <div class="economic-impact">
+            <div class="impact-label">Estimación conservadora de sobrecosto anual</div>
+            <div class="impact-number">~${formData.pais === 'PE' ? 'S/.' : '$'}${m.impactoEstimado.toLocaleString('es-CL')}<span class="unit"> ${formData.pais === 'PE' ? 'PEN' : 'CLP'}</span></div>
+            <div class="impact-narrative">
+              Si llevas tu tasa del <strong>${m.tasa.toFixed(1)}%</strong> al promedio del rubro <strong>(${m.promRubro.toFixed(1)}%)</strong>, el ahorro estimado en cotización adicional SUSESO equivale a <strong>${(m.impactoEstimado / 1000000).toFixed(1)} millones</strong> al año sobre una planilla de ~${m.nTrab} trabajadores. No incluye días perdidos ni indemnizaciones eventuales.
+            </div>
+          </div>
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- CTA final -->
+      <div class="cta-final">
+        <h2>Tu diagnóstico está listo.<br>Ahora, <em>trabajémoslo</em>.</h2>
+        <p>Más Prevención puede ayudarte a cerrar las brechas que identificó este reporte.
+        Agenda una llamada de 30 minutos con nuestro equipo para profundizar en tu caso específico.</p>
+        <div class="cta-buttons">
+          <button class="btn btn-primary" onclick="downloadPDF()">Descargar PDF <span class="arrow">↓</span></button>
+          <a href="mailto:info@masprevencion.cl?subject=Agendar%20diagnóstico%20profundo%20-%20${encodeURIComponent(formData.empresa)}" class="btn" style="text-decoration:none;">Agendar llamada <span class="arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  // Render compliance list + chart
+  renderComplianceUI(m);
+}
+
+function renderComplianceUI(m) {
+  const list = document.getElementById('compliance-list');
+  const items = document.querySelectorAll('.check-item');
+  list.innerHTML = '';
+  items.forEach(it => {
+    const checked = it.classList.contains('checked');
+    const label = it.querySelector('.check-label').textContent;
+    list.innerHTML += `
+      <div class="compliance-item">
+        <div class="compliance-dot ${checked ? 'yes' : 'no'}"></div>
+        <div class="compliance-label">${label}</div>
+        <div class="compliance-status ${checked ? 'yes' : 'no'}">${checked ? 'CUMPLE' : 'NO CUMPLE'}</div>
+      </div>
+    `;
+  });
+
+  // Radar chart con 5 ejes de cumplimiento
+  const labels = Array.from(items).map(it => it.querySelector('.check-label').textContent.split(' ').slice(0, 3).join(' '));
+  const data = Array.from(items).map(it => it.classList.contains('checked') ? 100 : 0);
+
+  new Chart(document.getElementById('compliance-chart'), {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Tu empresa',
+        data: data,
+        backgroundColor: 'rgba(212,185,143,0.25)',
+        borderColor: '#D4B98F',
+        borderWidth: 2,
+        pointBackgroundColor: '#D4B98F',
+        pointBorderColor: '#0F1419',
+        pointRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#05090E',
+          titleColor: '#D4B98F',
+          bodyColor: '#EEE9DE',
+          borderColor: 'rgba(212,185,143,0.35)',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        r: {
+          min: 0, max: 100,
+          angleLines: { color: '#2D3340' },
+          grid: { color: '#2D3340' },
+          pointLabels: { color: '#D4CFC4', font: { family: 'IBM Plex Sans', size: 11 } },
+          ticks: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ========== GENERADORES DE TEXTO (reglas — Claude API vendrá en Entrega 2B) ==========
+function generateExecutiveNarrative(m, form, riesgos) {
+  const posText = m.z < -0.67 ? 'sobresale en' : (m.z > 0.67 ? 'queda rezagada en' : 'se ubica cerca del promedio en');
+  const cumplimientoText = m.cumplimientoPct >= 80 ? 'sólido' : (m.cumplimientoPct >= 40 ? 'parcial' : 'preocupantemente bajo');
+  const impactoPhrase = m.excesoTasa > 0 ? ` Tu exceso de accidentabilidad está costándote estimativamente ${(m.impactoEstimado / 1000000).toFixed(1)}M anuales en cotización adicional.` : '';
+
+  const gapTexts = m.gaps.map(g => g.titulo).slice(0, 2).join(' y ');
+  const gapParrafo = m.gaps.length > 0
+    ? `<p>Tu <strong>cumplimiento legal es ${cumplimientoText}</strong> (${m.cumplimientoPct}%). Las brechas críticas están en: <em>${gapTexts}</em>${m.gaps.length > 2 ? ` (y ${m.gaps.length - 2} más)` : ''}. Estas son las primeras que deberías cerrar — son exigibles legalmente y su ausencia expone a multas y responsabilidad civil.</p>`
+    : `<p>Tu <strong>cumplimiento legal básico es sólido</strong> — los 5 puntos fundamentales están en orden. Eso te ubica por encima de la mayoría de empresas en tu rubro, donde el cumplimiento promedio es 60%.</p>`;
+
+  return `
+    <p><strong>${form.empresa}</strong> ${posText} comparación con el promedio del rubro ${form.rubro.toLowerCase()} chileno.
+    Con una tasa de accidentabilidad de <strong>${m.tasa.toFixed(1)}%</strong> contra un promedio sectorial de <strong>${m.promRubro.toFixed(1)}%</strong>,
+    ${m.brechaPct > 0 ? 'estás por sobre la media' : 'estás por debajo de la media'} en <em>${Math.abs(m.brechaPct).toFixed(0)} puntos porcentuales</em> relativos.${impactoPhrase}</p>
+    ${gapParrafo}
+    <p>Los tres riesgos que más pesan en tu rubro son ${riesgos.slice(0, 2).map(r => r.split(' (')[0].toLowerCase()).join(' y ')}. Cualquier programa preventivo debería empezar por ahí.</p>
+  `;
+}
+
+function generateRecommendations(m, form, riesgos) {
+  const recs = [];
+
+  // Rec 1: mayor brecha (tasa alta) o riesgo principal del rubro
+  if (m.brechaPct > 15) {
+    recs.push({
+      priority: 'high',
+      priorityLabel: 'alta',
+      title: `Reduce tu tasa hacia el promedio del rubro`,
+      body: `Tu tasa (${m.tasa.toFixed(1)}%) está ${m.brechaPct.toFixed(0)}% sobre el promedio de ${form.rubro.toLowerCase()} (${m.promRubro.toFixed(1)}%). Prioriza un análisis causa-raíz de los últimos 12 accidentes: ~80% de los casos suelen concentrarse en 2-3 tareas críticas. Intervenir esas tareas con capacitación específica y controles de ingeniería es la palanca más rápida.`
+    });
+  } else {
+    recs.push({
+      priority: 'medium',
+      priorityLabel: 'media',
+      title: `Ataca el riesgo número uno de tu sector: ${riesgos[0].split(' (')[0].toLowerCase()}`,
+      body: `Los datos oficiales muestran que ${riesgos[0]} es la forma de accidente más frecuente en ${form.rubro.toLowerCase()}. Revisa tu matriz IPER para confirmar que este riesgo está levantado con controles concretos (ingeniería primero, EPP al final) y que hay supervisión diaria de su cumplimiento.`
+    });
+  }
+
+  // Rec 2: cumplimiento legal
+  if (m.gaps.length > 0) {
+    const gap = m.gaps[0];
+    recs.push({
+      priority: 'high',
+      priorityLabel: 'alta',
+      title: `Implementa: ${gap.titulo}`,
+      body: `Este es un requisito legal exigible. No tenerlo documentado te expone a multas de la inspección del trabajo y debilita tu defensa ante un accidente grave. Empieza por redactar un procedimiento escrito, asignar un responsable con nombre y apellido, y dejar evidencia fechada de su implementación.${m.gaps.length > 1 ? ` Después quedan ${m.gaps.length - 1} puntos más por cerrar.` : ''}`
+    });
+  } else {
+    recs.push({
+      priority: 'low',
+      priorityLabel: 'baja',
+      title: 'Consolida tu sistema de gestión SSOMA',
+      body: `Tu cumplimiento legal básico está en orden. El siguiente nivel es integrar estos elementos en un Sistema de Gestión SSOMA formal (DS 44 en Chile / Ley 29.783 en Perú), con ciclo PDCA documentado. Esto te permite certificar ISO 45001 si lo requieres comercialmente, y te da defensa robusta ante fiscalización.`
+    });
+  }
+
+  // Rec 3: segundo riesgo sectorial o capacitación específica
+  recs.push({
+    priority: 'medium',
+    priorityLabel: 'media',
+    title: `Refuerza la capacitación en ${riesgos[1].split(' (')[0].toLowerCase()}`,
+    body: `Con ${m.cumplimientoPct >= 60 ? 'tu cumplimiento legal actual' : 'las brechas legales cerradas'}, el siguiente eje es la cultura preventiva. En ${form.rubro.toLowerCase()}, ${riesgos[1]} explica una parte significativa de los accidentes. Programa charlas cortas de 10 minutos por semana con casos reales del rubro, rotación de los responsables del CPHS que las dictan, y registro DOHA firmado cada vez.`
+  });
+
+  return recs;
+}
+
+// ========== PDF ==========
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit: 'pt', format: 'a4'});
+  const pageW = doc.internal.pageSize.getWidth();
+  const m = formData.metrics;
+  const riesgos = RIESGOS_POR_RUBRO[formData.rubro] || [];
+  const recs = generateRecommendations(m, formData, riesgos);
+
+  // Página 1 — Portada
+  doc.setFillColor(15, 20, 25);
+  doc.rect(0, 0, pageW, doc.internal.pageSize.getHeight(), 'F');
+
+  doc.setTextColor(212, 185, 143);
+  doc.setFontSize(10);
+  doc.text('OBSERVATORIO SSOMA · MÁS PREVENCIÓN', 40, 60);
+
+  doc.setTextColor(238, 233, 222);
+  doc.setFontSize(28);
+  doc.text('Reporte de diagnóstico', 40, 130, {maxWidth: pageW - 80});
+
+  doc.setFontSize(42);
+  doc.text(formData.empresa, 40, 180, {maxWidth: pageW - 80});
+
+  doc.setFontSize(12);
+  doc.setTextColor(140, 139, 129);
+  doc.text(`${formData.rubro} · ${formData.region} · ${formData.pais === 'PE' ? 'Perú' : 'Chile'}`, 40, 220);
+  doc.text(`Generado el ${new Date().toLocaleDateString('es-CL', {day: 'numeric', month: 'long', year: 'numeric'})}`, 40, 240);
+
+  // Stats principales
+  doc.setDrawColor(45, 51, 64);
+  doc.setLineWidth(0.5);
+  doc.line(40, 300, pageW - 40, 300);
+
+  doc.setTextColor(212, 185, 143);
+  doc.setFontSize(72);
+  const principal = m.percentilPeor > 50 ? m.percentilPeor : m.percentilMejor;
+  doc.text(principal + '%', 40, 400);
+
+  doc.setTextColor(238, 233, 222);
+  doc.setFontSize(14);
+  doc.text(m.percentilPeor > 50 ? 'peor del rubro' : 'mejor del rubro', 40, 425);
+
+  doc.setFontSize(11);
+  doc.setTextColor(140, 139, 129);
+  doc.text(`Tasa: ${m.tasa.toFixed(1)}% · Promedio rubro: ${m.promRubro.toFixed(1)}%`, 40, 450);
+  doc.text(`Cumplimiento legal: ${m.cumplimientoPct}% (${m.checked}/${m.total})`, 40, 470);
+  if (m.excesoTasa > 0) {
+    doc.text(`Impacto económico estimado: ~${(m.impactoEstimado / 1000000).toFixed(1)}M ${formData.pais === 'PE' ? 'PEN' : 'CLP'}/año`, 40, 490);
+  }
+
+  // Página 2 — Recomendaciones
+  doc.addPage();
+  doc.setFillColor(15, 20, 25);
+  doc.rect(0, 0, pageW, doc.internal.pageSize.getHeight(), 'F');
+
+  doc.setTextColor(212, 185, 143);
+  doc.setFontSize(10);
+  doc.text('RECOMENDACIONES PRIORIZADAS', 40, 60);
+  doc.setTextColor(238, 233, 222);
+  doc.setFontSize(24);
+  doc.text('Qué hacer primero', 40, 90);
+
+  let y = 140;
+  recs.forEach((r, i) => {
+    doc.setTextColor(212, 185, 143);
+    doc.setFontSize(10);
+    doc.text(`PRIORIDAD ${r.priorityLabel.toUpperCase()}`, 40, y);
+    y += 20;
+    doc.setTextColor(238, 233, 222);
+    doc.setFontSize(16);
+    const titleLines = doc.splitTextToSize(r.title, pageW - 80);
+    doc.text(titleLines, 40, y);
+    y += titleLines.length * 20 + 6;
+    doc.setTextColor(180, 175, 165);
+    doc.setFontSize(11);
+    const bodyLines = doc.splitTextToSize(r.body, pageW - 80);
+    doc.text(bodyLines, 40, y);
+    y += bodyLines.length * 14 + 30;
+  });
+
+  // Footer
+  doc.setTextColor(95, 93, 85);
+  doc.setFontSize(9);
+  doc.text('Observatorio SSOMA · Más Prevención · observatorio-ssoma.vercel.app · info@masprevencion.cl', 40, doc.internal.pageSize.getHeight() - 40);
+
+  doc.save(`Diagnostico_${formData.empresa.replace(/\s+/g, '_')}.pdf`);
+}
+
+// Init
+updateProgress();
+</script>
+
+</body>
+</html>
