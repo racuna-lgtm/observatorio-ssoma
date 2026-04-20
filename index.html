@@ -1642,6 +1642,168 @@ footer {
   }
 }
 
+/* ============================================================
+   CASOS DE USO
+   ============================================================ */
+.usecases-section {
+  padding: 100px 0;
+  border-top: 1px solid var(--hairline);
+  background: var(--paper-warm);
+}
+.usecases-inner {
+  max-width: var(--container); margin: 0 auto;
+  padding: 0 32px;
+}
+.usecases-title {
+  font-family: var(--display); font-weight: 500;
+  font-size: clamp(32px, 4.5vw, 52px); line-height: 1.05;
+  letter-spacing: -0.025em; margin: 18px 0 20px;
+  max-width: 800px;
+}
+.usecases-title em { font-style: italic; color: var(--accent); font-weight: 400; }
+.usecases-lead {
+  font-family: var(--editorial); font-size: 18px;
+  color: var(--ink-soft); line-height: 1.5;
+  max-width: 680px; margin-bottom: 48px;
+}
+.usecases-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+}
+.usecase-card {
+  padding: 36px 32px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  border-top: 3px solid var(--accent);
+  border-radius: 2px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.usecase-card:hover {
+  transform: translateY(-2px);
+  border-top-color: var(--accent-deep);
+}
+.usecase-num {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--accent); letter-spacing: 0.16em;
+  margin-bottom: 16px;
+}
+.usecase-title {
+  font-family: var(--display); font-weight: 500;
+  font-size: 22px; line-height: 1.2;
+  letter-spacing: -0.01em; color: var(--ink);
+  margin-bottom: 16px;
+}
+.usecase-card p {
+  font-family: var(--editorial); font-size: 16px;
+  line-height: 1.6; color: var(--ink-soft);
+}
+.usecase-card strong { color: var(--ink); font-weight: 600; }
+
+/* ============================================================
+   SUSCRIPCIÓN · nueva edición
+   ============================================================ */
+.subscribe-section {
+  padding: 80px 0;
+  border-top: 1px solid var(--hairline);
+  background: var(--paper);
+}
+.subscribe-inner {
+  max-width: var(--container); margin: 0 auto;
+  padding: 0 32px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 64px; align-items: center;
+}
+.subscribe-text .kicker { margin-bottom: 14px; }
+.subscribe-text h3 {
+  font-family: var(--display); font-weight: 500;
+  font-size: clamp(28px, 3.6vw, 40px); line-height: 1.1;
+  letter-spacing: -0.02em; margin-bottom: 16px;
+}
+.subscribe-text h3 em { font-style: italic; color: var(--accent); font-weight: 400; }
+.subscribe-text p {
+  font-family: var(--editorial); font-size: 16px;
+  line-height: 1.55; color: var(--ink-soft);
+}
+.subscribe-form {
+  display: flex; gap: 12px; align-items: stretch;
+  flex-wrap: wrap;
+}
+.subscribe-form input {
+  flex: 1; min-width: 240px;
+  font-family: var(--editorial); font-size: 17px;
+  padding: 16px 18px;
+  background: var(--paper-soft);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  border-radius: 2px;
+}
+.subscribe-form input:focus {
+  outline: none; border-color: var(--accent);
+  background: var(--cream);
+}
+.btn-subscribe {
+  font-family: var(--ui); font-size: 14px; font-weight: 600;
+  padding: 16px 28px;
+  background: var(--accent);
+  color: var(--paper);
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 10px;
+  transition: background 0.15s;
+}
+.btn-subscribe:hover { background: var(--accent-deep); }
+.btn-subscribe .arrow { font-family: var(--display); font-size: 16px; }
+.subscribe-confirm {
+  margin-top: 16px;
+  font-family: var(--editorial); font-size: 14px;
+  color: var(--accent);
+  min-height: 22px;
+}
+
+/* ============================================================
+   FIRMA HUMANA · créditos y referencia
+   ============================================================ */
+.credits-section {
+  padding: 60px 0;
+  background: var(--paper-warm);
+  border-top: 1px solid var(--hairline);
+}
+.credits-inner {
+  max-width: var(--container); margin: 0 auto;
+  padding: 0 32px;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 32px 40px;
+}
+.credits-col-wide {
+  grid-column: 1 / -1;
+  padding-top: 28px;
+  border-top: 1px solid var(--hairline);
+  margin-top: 8px;
+}
+.credits-label {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-muted); letter-spacing: 0.14em;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.credits-text {
+  font-family: var(--editorial); font-size: 15px;
+  color: var(--ink-soft); line-height: 1.55;
+}
+.credits-text strong { color: var(--ink); font-weight: 600; }
+.credits-text a { color: var(--accent); text-decoration: none; }
+.credits-text a:hover { text-decoration: underline; }
+.credits-cite {
+  font-family: var(--mono); font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 900px) {
+  .usecases-grid { grid-template-columns: 1fr; }
+  .subscribe-inner { grid-template-columns: 1fr; gap: 32px; }
+  .credits-inner { grid-template-columns: 1fr; }
+}
+
 /* Leyenda de color semáforo en rankings */
 .ranking-color-legend {
   display: flex; flex-wrap: wrap; align-items: center;
@@ -1664,7 +1826,55 @@ footer {
   display: inline-block;
 }
 
-/* Section number variations for sub-items (I.1, I.2, II.1, etc.) */
+/* Acciones de sección (exportar CSV, compartir) */
+.section-actions {
+  display: flex; gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.section-action-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--ui); font-size: 11px;
+  color: var(--ink-muted);
+  background: transparent;
+  border: 1px solid var(--hairline);
+  padding: 8px 14px;
+  border-radius: 2px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.15s;
+}
+.section-action-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.section-action-btn svg {
+  width: 12px; height: 12px;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.5;
+}
+
+/* Toast de compartir */
+.share-toast {
+  position: fixed;
+  bottom: 30px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--accent);
+  color: var(--paper);
+  font-family: var(--ui); font-size: 13px; font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 2px;
+  z-index: 1500;
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+}
+.share-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Section number variations for sub-items */
 .section-number.sub {
   font-size: 18px;
 }
@@ -1976,16 +2186,14 @@ footer {
     <div class="about-col-label">Sobre este observatorio</div>
     <div class="about-col-body">
       <p class="about-lead">
-        Somos <strong>Más Prevención</strong>, empresa de SSOMA que opera en Chile y Perú.
-        Publicamos este observatorio con <strong>datos oficiales de SUSESO, MTPE y OIT</strong>
-        porque la información comparada sobre seguridad laboral en Latinoamérica
-        es escasa, cara o está fragmentada.
+        <strong>Más Prevención es una plataforma chilena de herramientas SSOMA.</strong>
+        Usamos tecnología para simplificar la gestión de seguridad laboral —
+        desde portales de contratistas hasta análisis de data pública como este observatorio.
       </p>
       <p class="about-body">
-        Usamos estos datos internamente para nuestras operaciones y los publicamos
-        abiertamente para cualquier persona que los necesite: gerencias de SSOMA,
-        investigadores, periodistas, estudiantes, sindicatos. Nadie es cliente por leer.
-        Lo que ves acá es el mismo análisis con el que tomamos decisiones puertas adentro.
+        Creemos que mejor información genera mejores decisiones. Por eso consolidamos aquí
+        los datos oficiales de <strong>SUSESO, MTPE y OIT</strong> en un solo lugar,
+        abiertos para cualquiera que los necesite.
       </p>
       <div class="about-meta">
         <div class="about-meta-item">
@@ -2142,7 +2350,7 @@ footer {
 <!-- ============================================================
      I.2 — RANKING INDUSTRIAS CHILE
      ============================================================ -->
-<section class="viz-section alt">
+<section class="viz-section alt" id="ranking-chile">
   <div class="section-header">
     <div class="section-number">I.2</div>
     <h2 class="section-title">La <em>industria manufacturera</em> vuelve a liderar el riesgo.</h2>
@@ -2189,6 +2397,16 @@ footer {
     <p class="source-line" style="border: none; padding: 0; max-width: 100%;">
       <strong>Fuente:</strong> SUSESO, Informe Anual SST 2024 · Tasa = accidentes del trabajo por cada 100 personas trabajadoras protegidas · No incluye accidentes de trayecto
     </p>
+    <div class="section-actions">
+      <button class="section-action-btn" onclick="exportRankingChile()">
+        <svg viewBox="0 0 24 24"><path d="M12 3v14M5 10l7 7 7-7M4 21h16"/></svg>
+        Descargar CSV
+      </button>
+      <button class="section-action-btn" onclick="copyShareLink('ranking-chile')">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
+        Compartir sección
+      </button>
+    </div>
   </div>
 </section>
 
@@ -2229,7 +2447,7 @@ footer {
 <!-- ============================================================
      I.4 — MATRIZ INDUSTRIA × TIPO DE ACCIDENTE
      ============================================================ -->
-<section class="viz-section alt">
+<section class="viz-section alt" id="matriz-riesgo">
   <div class="section-header">
     <div class="section-number">I.4</div>
     <h2 class="section-title">Cada industria tiene <em>su riesgo característico</em>.</h2>
@@ -2244,13 +2462,23 @@ footer {
     <p class="source-line">
       <strong>Fuente:</strong> SUSESO 2024 (formas del accidente) · Elaboración Observatorio Más Prevención basada en distribución relativa por sector. Celdas muestran el porcentaje de los accidentes de la industria que corresponden a cada forma.
     </p>
+    <div class="section-actions">
+      <button class="section-action-btn" onclick="exportMatrizRiesgo()">
+        <svg viewBox="0 0 24 24"><path d="M12 3v14M5 10l7 7 7-7M4 21h16"/></svg>
+        Descargar CSV
+      </button>
+      <button class="section-action-btn" onclick="copyShareLink('matriz-riesgo')">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
+        Compartir sección
+      </button>
+    </div>
   </div>
 </section>
 
 <!-- ============================================================
      I.5 — FORMAS DE ACCIDENTE FATAL
      ============================================================ -->
-<section class="viz-section">
+<section class="viz-section" id="formas-fatal">
   <div class="section-header">
     <div class="section-number">I.5</div>
     <h2 class="section-title">Cómo <em>mueren</em> los trabajadores en Chile.</h2>
@@ -2270,6 +2498,16 @@ footer {
     <p class="source-line" style="border: none; padding: 0; max-width: 100%;">
       <strong>Fuente:</strong> SUSESO, SISESAT, datos actualizados al 24/04/2025 · N=78 accidentes fatales sin participación de vehículo
     </p>
+    <div class="section-actions">
+      <button class="section-action-btn" onclick="exportFormasFatal()">
+        <svg viewBox="0 0 24 24"><path d="M12 3v14M5 10l7 7 7-7M4 21h16"/></svg>
+        Descargar CSV
+      </button>
+      <button class="section-action-btn" onclick="copyShareLink('formas-fatal')">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
+        Compartir sección
+      </button>
+    </div>
   </div>
 </section>
 
@@ -2344,7 +2582,7 @@ footer {
 <!-- ============================================================
      II.1 — RANKING SECTORES ECONÓMICOS PERÚ
      ============================================================ -->
-<section class="viz-section">
+<section class="viz-section" id="sectores-peru">
   <div class="section-header">
     <div class="section-number">II.1</div>
     <h2 class="section-title">Los <em>sectores más riesgosos</em> del Perú.</h2>
@@ -2384,13 +2622,23 @@ footer {
     <p class="source-line" style="border: none; padding: 0; max-width: 100%;">
       <strong>Fuente:</strong> MTPE Perú, Boletín Estadístico de Notificaciones SAT 2024 · Los tres primeros sectores son cifras oficiales. Distribución del resto: estimación basada en patrón histórico.
     </p>
+    <div class="section-actions">
+      <button class="section-action-btn" onclick="exportPeruSectores()">
+        <svg viewBox="0 0 24 24"><path d="M12 3v14M5 10l7 7 7-7M4 21h16"/></svg>
+        Descargar CSV
+      </button>
+      <button class="section-action-btn" onclick="copyShareLink('sectores-peru')">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
+        Compartir sección
+      </button>
+    </div>
   </div>
 </section>
 
 <!-- ============================================================
      II.2 — CONCENTRACIÓN REGIONAL PERÚ
      ============================================================ -->
-<section class="viz-section alt">
+<section class="viz-section alt" id="regiones-peru">
   <div class="section-header">
     <div class="section-number">II.2</div>
     <h2 class="section-title">El <em>Perú invisible</em>: 24 departamentos detrás de Lima.</h2>
@@ -2449,6 +2697,16 @@ footer {
     <p class="source-line" style="border: none; padding: 0; max-width: 100%;">
       <strong>Fuente:</strong> MTPE Perú, Boletín Estadístico SAT 2024 · Las tres regiones con mayor número absoluto de notificaciones. Silueta simplificada con fines ilustrativos.
     </p>
+    <div class="section-actions">
+      <button class="section-action-btn" onclick="exportPeruRegiones()">
+        <svg viewBox="0 0 24 24"><path d="M12 3v14M5 10l7 7 7-7M4 21h16"/></svg>
+        Descargar CSV
+      </button>
+      <button class="section-action-btn" onclick="copyShareLink('regiones-peru')">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
+        Compartir sección
+      </button>
+    </div>
   </div>
 </section>
 
@@ -2593,6 +2851,16 @@ footer {
       <p class="source-line" style="margin-top: 24px;">
         <strong>Fuentes:</strong> SUSESO Chile (2024), MTPE Perú (2024), ILOSTAT/OIT para el resto · Tasa por cada 100.000 trabajadores · Año = última publicación oficial disponible · Las coberturas nacionales varían; los datos no siempre son directamente comparables debido a diferencias metodológicas y niveles de subregistro.
       </p>
+      <div class="section-actions">
+        <button class="section-action-btn" onclick="exportLatam()">
+          <svg viewBox="0 0 24 24"><path d="M12 3v14M5 10l7 7 7-7M4 21h16"/></svg>
+          Descargar CSV
+        </button>
+        <button class="section-action-btn" onclick="copyShareLink('latam')">
+          <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
+          Compartir sección
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -2761,6 +3029,93 @@ footer {
 </section>
 
 <!-- ============================================================
+     CASOS DE USO · ¿Quién usa este observatorio?
+     ============================================================ -->
+<section class="usecases-section" id="casos-de-uso">
+  <div class="usecases-inner">
+    <div class="kicker">Casos de uso</div>
+    <h2 class="usecases-title">¿Cómo usar <em>este observatorio</em>?</h2>
+    <p class="usecases-lead">
+      Los datos de aquí son de dominio público. Algunos ejemplos de para qué puede servirte.
+    </p>
+    <div class="usecases-grid">
+      <div class="usecase-card">
+        <div class="usecase-num">01</div>
+        <div class="usecase-title">Si eres gerencia de operaciones o SSOMA</div>
+        <p>Úsalos para <strong>construir tu caso de inversión en prevención</strong> frente a la gerencia general. Compara tu empresa con el promedio del rubro, estima el costo de tu brecha y prioriza qué atacar primero.</p>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-num">02</div>
+        <div class="usecase-title">Si eres consultor o prevencionista</div>
+        <p>Úsalos como <strong>benchmark para tus propuestas</strong> y diagnósticos a clientes. Ahorra horas de búsqueda de datos oficiales y cita fuentes directamente desde aquí.</p>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-num">03</div>
+        <div class="usecase-title">Si eres periodista o investigador</div>
+        <p>Los datos vienen con <strong>fuentes declaradas y metodología transparente</strong>. Descarga los CSV, cítanos y contribuye a visibilizar información que rara vez llega al debate público.</p>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-num">04</div>
+        <div class="usecase-title">Si eres sindicato o dirigente</div>
+        <p>Úsalos para <strong>respaldar con evidencia</strong> negociaciones, denuncias o propuestas de mejora. Los datos son oficiales y comparables entre rubros.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SUSCRIPCIÓN · Notifícame cuando haya una nueva edición
+     ============================================================ -->
+<section class="subscribe-section">
+  <div class="subscribe-inner">
+    <div class="subscribe-text">
+      <div class="kicker">Próxima edición</div>
+      <h3>Avísame cuando salga la <em>nueva versión</em>.</h3>
+      <p>Una sola línea al año, cuando publiquemos la siguiente edición del observatorio. Sin marketing, sin spam, sin contenido comercial. Solo el aviso de que hay datos nuevos.</p>
+    </div>
+    <form class="subscribe-form" onsubmit="handleSubscribe(event)">
+      <input type="email" id="subscribe-email" placeholder="tu@correo.cl" required>
+      <button type="submit" class="btn-subscribe">Suscribirme <span class="arrow">→</span></button>
+    </form>
+    <div id="subscribe-confirm" class="subscribe-confirm"></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FIRMA HUMANA · Equipo y actualización
+     ============================================================ -->
+<section class="credits-section">
+  <div class="credits-inner">
+    <div class="credits-col">
+      <div class="credits-label">Quién lo construye</div>
+      <p class="credits-text">
+        Un equipo de prevencionistas, analistas de datos y diseñadores de <strong>Más Prevención</strong>.
+        La selección de datos, metodología y redacción son responsabilidad editorial del equipo.
+      </p>
+    </div>
+    <div class="credits-col">
+      <div class="credits-label">Última revisión</div>
+      <p class="credits-text">
+        <strong id="ultima-revision">Abril 2025</strong> — Edición 2025 · Volumen I.
+        Próxima actualización prevista: octubre 2025.
+      </p>
+    </div>
+    <div class="credits-col">
+      <div class="credits-label">Contacto editorial</div>
+      <p class="credits-text">
+        Correcciones, erratas o sugerencias de datos: <a href="mailto:info@masprevencion.cl">info@masprevencion.cl</a>
+      </p>
+    </div>
+    <div class="credits-col credits-col-wide">
+      <div class="credits-label">Referencia</div>
+      <p class="credits-text credits-cite">
+        Observatorio SSOMA · Más Prevención · 2025
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
      FOOTER
      ============================================================ -->
 <footer id="metodologia">
@@ -2836,6 +3191,122 @@ footer {
      DATOS + RENDER LOGIC
      ============================================================ -->
 <script>
+/* =============================================================
+   UTILIDAD: EXPORTACIÓN CSV Y COMPARTIR
+   ============================================================= */
+function downloadCSV(filename, rows) {
+  // rows: array de arrays. Primera fila son headers.
+  const csv = rows.map(r => r.map(cell => {
+    const s = String(cell ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n')
+      ? '"' + s.replace(/"/g, '""') + '"'
+      : s;
+  }).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyShareLink(hash) {
+  const url = window.location.origin + window.location.pathname + '#' + hash;
+  navigator.clipboard.writeText(url).then(() => {
+    const toast = document.createElement('div');
+    toast.className = 'share-toast';
+    toast.textContent = 'Enlace copiado';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('visible'), 10);
+    setTimeout(() => {
+      toast.classList.remove('visible');
+      setTimeout(() => toast.remove(), 300);
+    }, 2000);
+  }).catch(() => alert('No se pudo copiar el enlace'));
+}
+
+function handleSubscribe(event) {
+  event.preventDefault();
+  const emailInput = document.getElementById('subscribe-email');
+  const confirm = document.getElementById('subscribe-confirm');
+  const email = emailInput.value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    confirm.textContent = 'Ingresa un email válido';
+    confirm.style.color = 'var(--critical)';
+    return;
+  }
+  // Por ahora, enviamos como mailto a info@masprevencion.cl
+  // En Entrega 2B esto se reemplaza por guardado en Supabase
+  const subject = encodeURIComponent('Suscripción Observatorio SSOMA');
+  const body = encodeURIComponent('Quiero recibir el aviso cuando publiquen una nueva edición del Observatorio.\n\nEmail: ' + email);
+  window.location.href = 'mailto:info@masprevencion.cl?subject=' + subject + '&body=' + body;
+  confirm.textContent = 'Gracias. Te abrimos un correo prellenado — al enviarlo quedarás suscrito.';
+  confirm.style.color = 'var(--accent)';
+  emailInput.value = '';
+}
+
+function sectionActionsHTML(hash, exportHandler) {
+  return `
+    <div class="section-actions">
+      <button class="section-action-btn" onclick="${exportHandler}">
+        <svg viewBox="0 0 24 24"><path d="M12 3v14M5 10l7 7 7-7M4 21h16"/></svg>
+        Descargar CSV
+      </button>
+      <button class="section-action-btn" onclick="copyShareLink('${hash}')">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
+        Compartir sección
+      </button>
+    </div>
+  `;
+}
+
+// Handlers de exportación específicos por sección
+function exportRankingChile() {
+  const year = document.querySelector('.control-btn.active')?.dataset.year || '2024';
+  const rows = [['Rubro', 'Tasa ' + year + ' (%)']];
+  Object.keys(TASA_RUBRO).forEach(r => {
+    if (TASA_RUBRO[r][year] !== undefined) rows.push([r, TASA_RUBRO[r][year]]);
+  });
+  downloadCSV('tasa-accidentabilidad-chile-' + year + '.csv', rows);
+}
+function exportMatrizRiesgo() {
+  const rows = [['Industria', ...MATRIZ.formas]];
+  MATRIZ.industrias.forEach((ind, i) => {
+    rows.push([ind, ...MATRIZ.valores[i].map(v => v + '%')]);
+  });
+  downloadCSV('matriz-industria-riesgo-chile.csv', rows);
+}
+function exportFormasFatal() {
+  const rows = [['Forma de accidente', 'Casos', 'Porcentaje']];
+  FORMAS_FATAL.forEach(f => rows.push([f.forma, f.n, f.pct + '%']));
+  downloadCSV('formas-accidente-fatal-chile-2024.csv', rows);
+}
+function exportPeruSectores() {
+  const rows = [['Sector', 'Notificaciones', 'Oficial']];
+  PERU_SECTORES.forEach(s => rows.push([s.sector, s.n, s.official ? 'Sí' : 'Estimación']));
+  downloadCSV('sectores-peru-mtpe-2024.csv', rows);
+}
+function exportPeruRegiones() {
+  const rows = [['Región', 'Notificaciones', 'Porcentaje']];
+  PERU_REGIONES.forEach(r => rows.push([r.region, r.n, r.pct + '%']));
+  downloadCSV('regiones-peru-mtpe-2024.csv', rows);
+}
+function exportLatam() {
+  const rows = [['País', 'Tasa mortalidad /100k', 'Año', 'Fuente']];
+  LATAM_DATA.forEach(c => rows.push([c.pais, c.valor, c.anio, c.fuente || 'OIT']));
+  downloadCSV('tasa-mortalidad-laboral-latam.csv', rows);
+}
+function exportRegionesChile() {
+  const rows = [['Región', 'Trabajadores protegidos']];
+  (typeof REGIONES_CL_DATA !== 'undefined' ? REGIONES_CL_DATA : []).forEach(r => {
+    rows.push([r.region, r.trabajadores]);
+  });
+  downloadCSV('regiones-chile-trabajadores-protegidos.csv', rows);
+}
+
 /* =============================================================
    TOOLTIP GLOBAL — reutilizable en múltiples elementos
    ============================================================= */
