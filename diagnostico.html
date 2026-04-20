@@ -1680,14 +1680,15 @@ function computeAndPreview() {
   const shownPercentile = m.percentilMejor > 50 ? m.percentilMejor : m.percentilPeor;
   document.getElementById('pv-percentile').innerHTML = `${shownPercentile}<span class="small">%</span>`;
 
-  // Narrativa
+  // Narrativa — uso puntos porcentuales absolutos (honestos, no inflan el número)
   let narrative = '';
+  const absPp = Math.abs(m.brechaAbsPp).toFixed(1);
   if (m.z < -0.67) {
-    narrative = `Estás entre el <em>${m.percentilMejor}% mejor</em> del rubro ${formData.rubro.toLowerCase()}. Tu tasa es ${Math.abs(m.brechaPct).toFixed(0)}% <strong>menor</strong> que el promedio del sector.`;
+    narrative = `Estás entre el <em>${m.percentilMejor}% mejor</em> del rubro ${formData.rubro.toLowerCase()}. Tu tasa (${m.tasa.toFixed(1)}%) está <strong>${absPp} puntos porcentuales bajo</strong> el promedio del sector (${m.promRubro.toFixed(1)}%).`;
   } else if (m.z > 0.67) {
-    narrative = `Estás en el <em>${m.percentilPeor}% peor</em> del rubro ${formData.rubro.toLowerCase()}. Tu tasa es ${m.brechaPct.toFixed(0)}% <strong>mayor</strong> que el promedio del sector.`;
+    narrative = `Estás en el <em>${m.percentilPeor}% peor</em> del rubro ${formData.rubro.toLowerCase()}. Tu tasa (${m.tasa.toFixed(1)}%) está <strong>${absPp} puntos porcentuales sobre</strong> el promedio del sector (${m.promRubro.toFixed(1)}%).`;
   } else {
-    narrative = `Estás <em>cerca del promedio</em> del rubro ${formData.rubro.toLowerCase()}. Tu tasa difiere en ${Math.abs(m.brechaPct).toFixed(0)}% respecto al benchmark sectorial.`;
+    narrative = `Estás <em>cerca del promedio</em> del rubro ${formData.rubro.toLowerCase()}. La diferencia con el benchmark sectorial es de <strong>${absPp} puntos porcentuales</strong>.`;
   }
   document.getElementById('pv-narrative').innerHTML = narrative;
 
