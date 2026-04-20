@@ -1921,17 +1921,17 @@ function renderPerfilCTA(perfil, form) {
     headline = `Tu diagnóstico <em>está listo</em>. El de tu cadena, aún no.`;
     body = `Este reporte cubre tu operación directa. Como mandante, la Ley 20.123 (Chile) y la Ley 29.245 (Perú) te hacen responsable directo de los trabajadores de tus contratistas en tus faenas. Comparte el diagnóstico con ellos para que hagan el suyo — así cierras la brecha de información de tu cadena completa.`;
 
-    const mailSubject = encodeURIComponent('Diagnóstico SSOMA Observatorio — te invitamos a hacerlo');
-    const mailBody = encodeURIComponent(
+   const invitacionTexto =
       'Hola,\n\n' +
       'Como parte de nuestra gestión SSOMA, completamos el Diagnóstico del Observatorio de Más Prevención. ' +
       'Nos gustaría que tú, como nuestro contratista, también lo hagas.\n\n' +
       'Toma 4 minutos y te entrega un reporte con tu posición en el rubro, brechas de cumplimiento legal y recomendaciones priorizadas:\n\n' +
       urlDiagnostico + '\n\n' +
       'Cualquier duda, nos escribes.\n\n' +
-      'Saludos,\n' + (form.lead?.nombre || '') + '\n' + (form.empresa || '')
-    );
-    extraButton = `<a href="mailto:?subject=${mailSubject}&body=${mailBody}" class="btn" style="text-decoration:none;">Invitar a un contratista <span class="arrow">→</span></a>`;
+      'Saludos,\n' + ((form.lead && form.lead.nombre) ? form.lead.nombre : '') + '\n' + (form.empresa || '');
+    // Guardamos el texto en window para que el botón lo lea
+    window._invitacionContratista = invitacionTexto;
+    extraButton = `<button type="button" class="btn" onclick="copiarInvitacion(this)">Copiar invitación para contratistas <span class="arrow">→</span></button>`;
 
   } else if (perfil === 'contratista') {
     headline = `Tu ficha SSOMA es tu <em>carta de presentación</em>.`;
