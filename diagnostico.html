@@ -2099,15 +2099,20 @@ function generateExecutiveNarrative(m, form, riesgos) {
   const cumplimientoText = m.cumplimientoPct >= 80 ? 'sólido' : (m.cumplimientoPct >= 40 ? 'parcial' : 'preocupantemente bajo');
   const impactoPhrase = m.excesoTasa > 0 ? ` Tu exceso de accidentabilidad está costándote estimativamente <strong>${formatMM(m.impactoEstimado)}</strong> anuales en cotización adicional.` : '';
 
+  // Terminología honesta: puntos porcentuales absolutos como cifra principal
+  const absPp = Math.abs(m.brechaAbsPp).toFixed(1);
+  const direccion = m.brechaAbsPp > 0 ? 'sobre' : (m.brechaAbsPp < 0 ? 'bajo' : 'en');
+  const direccionFrase = m.brechaAbsPp > 0 ? 'por sobre' : (m.brechaAbsPp < 0 ? 'por debajo de' : 'en línea con');
+
   const gapTexts = m.gaps.map(g => g.titulo).slice(0, 2).join(' y ');
   const gapParrafo = m.gaps.length > 0
-    ? `<p>Tu <strong>cumplimiento legal es ${cumplimientoText}</strong> (${m.cumplimientoPct}%). Las brechas críticas están en: <em>${gapTexts}</em>${m.gaps.length > 2 ? ` (y ${m.gaps.length - 2} más)` : ''}. Estas son las primeras que deberías cerrar — son exigibles legalmente y su ausencia expone a multas y responsabilidad civil.</p>`
-    : `<p>Tu <strong>cumplimiento legal básico es sólido</strong> — los 5 puntos fundamentales están en orden. Eso te ubica por encima de la mayoría de empresas en tu rubro, donde el cumplimiento promedio es 60%.</p>`;
+    ? `<p>Tu <strong>cumplimiento legal es ${cumplimientoText}</strong> (${m.cumplimientoPct}% de los puntos aplicables). Las brechas críticas están en: <em>${gapTexts}</em>${m.gaps.length > 2 ? ` (y ${m.gaps.length - 2} más)` : ''}. Estas son las primeras que deberías cerrar — son exigibles legalmente y su ausencia expone a multas y responsabilidad civil.</p>`
+    : `<p>Tu <strong>cumplimiento legal básico es sólido</strong> — todos los puntos aplicables a tu empresa están en orden. Eso te ubica por encima del promedio del rubro.</p>`;
 
   return `
     <p><strong>${form.empresa}</strong> ${posText} comparación con el promedio del rubro ${form.rubro.toLowerCase()} ${form.pais === 'PE' ? 'peruano' : 'chileno'}.
     Con una tasa de accidentabilidad de <strong>${m.tasa.toFixed(1)}%</strong> contra un promedio sectorial de <strong>${m.promRubro.toFixed(1)}%</strong>,
-    ${m.brechaPct > 0 ? 'estás por sobre la media' : 'estás por debajo de la media'} en <em>${Math.abs(m.brechaPct).toFixed(0)} puntos porcentuales</em> relativos.${impactoPhrase}</p>
+    estás <strong>${absPp} puntos porcentuales ${direccionFrase}</strong> la media del sector.${impactoPhrase}</p>
     ${gapParrafo}
     <p>Los tres riesgos que más pesan en tu rubro son ${riesgos.slice(0, 2).map(r => r.split(' (')[0].toLowerCase()).join(' y ')}. Cualquier programa preventivo debería empezar por ahí.</p>
   `;
