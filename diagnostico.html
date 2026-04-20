@@ -2639,14 +2639,14 @@ function downloadPDF() {
   }
   cy += 48;
 
-  doc.setTextColor(...INK_SOFT);
+ doc.setTextColor(...INK_SOFT);
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
   const ctaText = formData.perfil === 'mandante'
-    ? 'Más Prevención Portal centraliza toda la documentación SSOMA de tus contratistas: reglamento especial, vigilancias de cumplimiento, investigaciones de accidentes, CPHS de faena. Cumple Ley 20.123 sin planillas Excel.'
+    ? 'Como mandante, tu responsabilidad SSOMA no se detiene en tu planilla interna. Usa este reporte como base para conversar con tu equipo sobre la gestión de tu cadena de contratistas y las obligaciones de la Ley 20.123.'
     : formData.perfil === 'contratista'
-    ? 'Cuando operas como contratista, tu ficha SSOMA es tu carta de presentación. Más Prevención Portal te permite mantener toda tu documentación en orden y compartirla con los mandantes que te exigen cumplimiento.'
-    : 'Más Prevención puede ayudarte a cerrar las brechas que identificó este reporte. Agenda una llamada de 30 minutos con nuestro equipo para profundizar en tu caso específico.';
+    ? 'Cuando operas como contratista, la forma en que gestionas y documentas tu cumplimiento define qué tan rápido accedes a nuevos contratos. Guarda este reporte como parte de tu evidencia ante mandantes.'
+    : 'Guarda este PDF como línea base de tu gestión SSOMA. Úsalo para presentar al directorio, priorizar inversiones preventivas o comparar tu evolución en el próximo año.';
   const ctaLines = doc.splitTextToSize(ctaText, pageW - 80);
   doc.text(ctaLines, 40, cy);
   cy += ctaLines.length * 16 + 36;
