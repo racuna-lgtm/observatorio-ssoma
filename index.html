@@ -3228,24 +3228,39 @@ function copyShareLink(hash) {
   }).catch(() => alert('No se pudo copiar el enlace'));
 }
 
-function handleSubscribe(event) {
+async function handleSubscribe(event) {
   event.preventDefault();
   const emailInput = document.getElementById('subscribe-email');
-  const confirm = document.getElementById('subscribe-confirm');
+  const confirmEl = document.getElementById('subscribe-confirm');
   const email = emailInput.value.trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    confirm.textContent = 'Ingresa un email válido';
-    confirm.style.color = 'var(--critical)';
+    confirmEl.textContent = 'Ingresa un email válido';
+    confirmEl.style.color = 'var(--critical)';
     return;
   }
-  // Por ahora, enviamos como mailto a info@masprevencion.cl
-  // En Entrega 2B esto se reemplaza por guardado en Supabase
-  const subject = encodeURIComponent('Suscripción Observatorio SSOMA');
-  const body = encodeURIComponent('Quiero recibir el aviso cuando publiquen una nueva edición del Observatorio.\n\nEmail: ' + email);
-  window.location.href = 'mailto:info@masprevencion.cl?subject=' + subject + '&body=' + body;
-  confirm.textContent = 'Gracias. Te abrimos un correo prellenado — al enviarlo quedarás suscrito.';
-  confirm.style.color = 'var(--accent)';
-  emailInput.value = '';
+  confirmEl.textContent = 'Enviando...';
+  confirmEl.style.color = 'var(--ink-muted)';
+  try {
+    const res = await fetch('https://formspree.io/f/xrerlvbv', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email,
+        origen: 'Suscripción Observatorio',
+        _subject: 'Nueva suscripción al Observatorio SSOMA'
+      })
+    });
+    if (res.ok) {
+      confirmEl.textContent = 'Listo. Te avisaremos cuando publiquemos la próxima edición.';
+      confirmEl.style.color = 'var(--accent)';
+      emailInput.value = '';
+    } else {
+      throw new Error('Formspree respondió error');
+    }
+  } catch (err) {
+    confirmEl.textContent = 'Hubo un error. Escríbenos a info@masprevencion.cl';
+    confirmEl.style.color = 'var(--critical)';
+  }
 }
 
 function sectionActionsHTML(hash, exportHandler) {
