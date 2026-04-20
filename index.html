@@ -2557,8 +2557,8 @@ const LATAM_DATA = [
     maxZoom: 19
   }).addTo(map);
 
-  // Escala semáforo: mayor concentración de trabajadores = mayor exposición relativa
-  const heatColors = ['#5F8060', '#8E9B5E', '#C9B353', '#D49447', '#C06846', '#9B3828'];
+  // Escala monocromática dorada — el mapa muestra concentración, NO riesgo
+  const heatColors = ['#252A32', '#3A3528', '#5A4A30', '#7A5F38', '#B08248', '#E8C995'];
   function getColor(pct) {
     if (pct > 40) return heatColors[5];
     if (pct > 20) return heatColors[4];
