@@ -1168,18 +1168,18 @@ const REGIONES_PE = [
 
 // Checklist legal CL vs PE
 const CHECKLIST_CL = [
-  { key: 'reglamento', titulo: 'Reglamento Interno de Orden, Higiene y Seguridad', sub: 'Obligatorio empresas ≥10 trabajadores — DS 594 / Código del Trabajo' },
-  { key: 'iper', titulo: 'Matriz IPER vigente', sub: 'Identificación de Peligros y Evaluación de Riesgos documentada' },
-  { key: 'cphs', titulo: 'CPHS activo con sesiones mensuales', sub: 'Comité Paritario obligatorio ≥25 trabajadores (Ley 16.744)' },
-  { key: 'doha', titulo: 'Capacitaciones DOHA al día', sub: 'Derecho a saber — registros firmados por cada trabajador' },
-  { key: 'karin', titulo: 'Protocolo Ley Karin implementado', sub: 'Acoso laboral y sexual — obligatorio desde agosto 2024' }
+  { key: 'reglamento', titulo: 'Reglamento Interno de Orden, Higiene y Seguridad', sub: 'Obligatorio empresas ≥10 trabajadores — DS 594 / Código del Trabajo', appliesIf: (n) => n >= 10, naMessage: 'No aplica: empresas con menos de 10 trabajadores no están obligadas a tener Reglamento Interno formal' },
+  { key: 'iper', titulo: 'Matriz IPER vigente', sub: 'Identificación de Peligros y Evaluación de Riesgos documentada', appliesIf: () => true },
+  { key: 'cphs', titulo: 'CPHS activo con sesiones mensuales', sub: 'Comité Paritario obligatorio ≥25 trabajadores (Ley 16.744)', appliesIf: (n) => n >= 25, naMessage: 'No aplica: el CPHS es obligatorio solo desde 25 trabajadores. Tu empresa sigue aplicando Ley 16.744 en lo demás.' },
+  { key: 'doha', titulo: 'Capacitaciones DOHA al día', sub: 'Derecho a saber — registros firmados por cada trabajador', appliesIf: () => true },
+  { key: 'karin', titulo: 'Protocolo Ley Karin implementado', sub: 'Acoso laboral y sexual — obligatorio desde agosto 2024', appliesIf: () => true }
 ];
 const CHECKLIST_PE = [
-  { key: 'reglamento', titulo: 'Reglamento Interno de Seguridad y Salud en el Trabajo', sub: 'Obligatorio según Ley 29.783 — SST' },
-  { key: 'iperc', titulo: 'Matriz IPERC vigente', sub: 'Identificación de Peligros, Evaluación y Control de Riesgos' },
-  { key: 'csst', titulo: 'Comité de SST o Supervisor designado', sub: 'Comité si ≥20 trabajadores — Supervisor si menos' },
-  { key: 'programa', titulo: 'Programa Anual de SST', sub: 'Planificación documentada y registro de avance' },
-  { key: 'hostigamiento', titulo: 'Protocolo contra Hostigamiento Sexual', sub: 'Ley 27.942 — procedimiento de atención y sanción' }
+  { key: 'reglamento', titulo: 'Reglamento Interno de Seguridad y Salud en el Trabajo', sub: 'Obligatorio empresas con 20+ trabajadores — Ley 29.783 · SST', appliesIf: (n) => n >= 20, naMessage: 'No aplica: empresas con menos de 20 trabajadores no están obligadas a este reglamento formal' },
+  { key: 'iperc', titulo: 'Matriz IPERC vigente', sub: 'Identificación de Peligros, Evaluación y Control de Riesgos', appliesIf: () => true },
+  { key: 'csst', titulo: 'Comité de SST o Supervisor designado', sub: 'Comité si ≥20 trabajadores — Supervisor si menos', appliesIf: () => true },
+  { key: 'programa', titulo: 'Programa Anual de SST', sub: 'Planificación documentada y registro de avance', appliesIf: () => true },
+  { key: 'hostigamiento', titulo: 'Protocolo contra Hostigamiento Sexual', sub: 'Ley 27.942 — procedimiento de atención y sanción', appliesIf: () => true }
 ];
 
 // ============================================================
