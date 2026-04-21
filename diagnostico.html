@@ -1661,7 +1661,7 @@ function computeMetrics() {
   // Impacto económico estimado — presentado como rango (factor 0.4% a 0.6%)
   const nTrab = formData.trabajadores;
   const rentaBruta = formData.renta;
-  const planillaAnual = nTrab * rentaBruta * 12 * 1.08;
+ const planillaAnual = nTrab * rentaBruta * 12;
   const excesoTasa = Math.max(0, tasa - promRubro);
   const impactoMin = Math.round(planillaAnual * (excesoTasa * 0.004));
   const impactoMax = Math.round(planillaAnual * (excesoTasa * 0.006));
