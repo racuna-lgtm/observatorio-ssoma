@@ -1658,21 +1658,11 @@ function computeMetrics() {
     }
   });
 
-  // Impacto económico estimado — presentado como rango (factor 0.4% a 0.6%)
-  const nTrab = formData.trabajadores;
-  const rentaBruta = formData.renta;
- const planillaAnual = nTrab * rentaBruta * 12;
-  const excesoTasa = Math.max(0, tasa - promRubro);
-  const impactoMin = Math.round(planillaAnual * (excesoTasa * 0.004));
-  const impactoMax = Math.round(planillaAnual * (excesoTasa * 0.006));
-  const impactoEstimado = Math.round(planillaAnual * (excesoTasa * 0.005));
-
 return {
     promRubro, tasa, z, percentilPeor, percentilMejor,
     brechaAbsPp, brechaRelPct, cumplimientoPct, cumplimientoTransPct, cumplimientoSectPct,
     gaps, gapsSectoriales, checked: checkedAll, total: totalAll,
- checkedTrans, totalTrans, checkedSect, totalSect, naTotal,
-    impactoEstimado, impactoMin, impactoMax, nTrab, planillaAnual, excesoTasa, rentaBruta
+ checkedTrans, totalTrans, checkedSect, totalSect, naTotal
   };
 }
 
@@ -1865,37 +1855,6 @@ function renderReport() {
           </div>
         </div>
       </div>
-
-      <!-- V. Impacto económico -->
-      ${m.excesoTasa > 0 ? `
-      <div class="report-section">
-        <div class="report-inner">
-          <div class="report-section-num">V · Impacto económico estimado</div>
-          <h2 class="report-section-title">Cuánto te <em>cuesta</em> hoy tu brecha.</h2>
-          <div class="economic-impact">
-            <div class="impact-label">Estimación conservadora de sobrecosto anual</div>
-            <div class="impact-number impact-range">
-              <span class="impact-range-val">${formData.pais === 'PE' ? 'S/.' : '$'}${m.impactoMin.toLocaleString('es-CL')}</span>
-              <span class="impact-range-sep">—</span>
-              <span class="impact-range-val">${formData.pais === 'PE' ? 'S/.' : '$'}${m.impactoMax.toLocaleString('es-CL')}</span>
-              <span class="unit"> ${formData.pais === 'PE' ? 'PEN' : 'CLP'}/año</span>
-            </div>
-            <div class="impact-narrative">
-              Si llevas tu tasa del <strong>${m.tasa.toFixed(1)}%</strong> al promedio del rubro <strong>(${m.promRubro.toFixed(1)}%)</strong>, el ahorro estimado en cotización adicional ${formData.pais === 'PE' ? 'SCTR' : 'SUSESO'} se ubica en ese rango, sobre una planilla de <strong>${m.nTrab.toLocaleString('es-CL')} ${m.nTrab === 1 ? 'trabajador' : 'trabajadores'}</strong> con renta bruta promedio de ${formData.pais === 'PE' ? 'S/.' : '$'}${m.rentaBruta.toLocaleString('es-CL')}.
-            </div>
-            <div class="impact-disclaimer">
-              <strong>Este número es un punto de partida, no un veredicto.</strong> Es una estimación conservadora que no incluye días perdidos, indemnizaciones eventuales ni pérdidas de productividad asociadas a accidentes. La cifra real depende de tu tasa de siniestralidad específica y del decreto SUSESO de cotización adicional que te aplique.
-            </div>
-            <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--hairline); font-family: var(--mono); font-size: 11px; color: var(--ink-muted); line-height: 1.6;">
-              <strong style="color: var(--ink-soft); font-family: var(--ui); font-size: 12px; letter-spacing: 0.08em;">CÓMO SE CALCULA</strong><br>
-              Planilla anual estimada: ${m.nTrab.toLocaleString('es-CL')} × ${formData.pais === 'PE' ? 'S/.' : '$'}${m.rentaBruta.toLocaleString('es-CL')} × 12 meses × 1,08 (gratificaciones) = ${formData.pais === 'PE' ? 'S/.' : '$'}${Math.round(m.planillaAnual).toLocaleString('es-CL')}<br>
-              Exceso de tasa sobre promedio sectorial: ${m.excesoTasa.toFixed(2)} puntos porcentuales<br>
-              Rango aplicado: 0,4% a 0,6% de la planilla por cada punto de exceso (base DS 67 con variación esperada)
-            </div>
-          </div>
-        </div>
-      </div>
-      ` : ''}
 
       <!-- CTA final (adaptado según perfil) -->
       <div class="cta-final">
@@ -2131,17 +2090,9 @@ function renderComplianceUI(m) {
 
 // ========== GENERADORES DE TEXTO (reglas — Claude API vendrá en Entrega 2B) ==========
 
-// Formatea un monto grande en millones o miles para legibilidad
-function formatMM(monto) {
-  if (monto >= 1000000) return (monto / 1000000).toFixed(1) + ' millones';
-  if (monto >= 1000) return (monto / 1000).toFixed(0) + ' mil';
-  return monto.toLocaleString('es-CL');
-}
-
 function generateExecutiveNarrative(m, form, riesgos) {
   const posText = m.z < -0.67 ? 'sobresale en' : (m.z > 0.67 ? 'queda rezagada en' : 'se ubica cerca del promedio en');
   const cumplimientoText = m.cumplimientoPct >= 80 ? 'sólido' : (m.cumplimientoPct >= 40 ? 'parcial' : 'preocupantemente bajo');
-  const impactoPhrase = m.excesoTasa > 0 ? ` Tu exceso de accidentabilidad está costándote estimativamente <strong>${formatMM(m.impactoEstimado)}</strong> anuales en cotización adicional.` : '';
 
   // Terminología honesta: puntos porcentuales absolutos como cifra principal
   const absPp = Math.abs(m.brechaAbsPp).toFixed(1);
@@ -2156,7 +2107,7 @@ function generateExecutiveNarrative(m, form, riesgos) {
   return `
     <p><strong>${form.empresa}</strong> ${posText} comparación con el promedio del rubro ${form.rubro.toLowerCase()} ${form.pais === 'PE' ? 'peruano' : 'chileno'}.
     Con una tasa de accidentabilidad de <strong>${m.tasa.toFixed(1)}%</strong> contra un promedio sectorial de <strong>${m.promRubro.toFixed(1)}%</strong>,
-    estás <strong>${absPp} puntos porcentuales ${direccionFrase}</strong> la media del sector.${impactoPhrase}</p>
+    estás <strong>${absPp} puntos porcentuales ${direccionFrase}</strong> la media del sector.</p>
     ${gapParrafo}
     <p>Los tres riesgos que más pesan en tu rubro son ${riesgos.slice(0, 2).map(r => r.split(' (')[0].toLowerCase()).join(' y ')}. Cualquier programa preventivo debería empezar por ahí.</p>
   `;
@@ -2241,10 +2192,8 @@ function downloadPDF() {
 
   let pageNum = 0;
   // Base: portada + resumen + cumplimiento + riesgos + recomendaciones = 5
-  // + impacto económico si excesoTasa > 0
   // + CTA final (siempre)
   let totalPages = 5;
-  if (m.excesoTasa > 0) totalPages++;
   totalPages++; // CTA final
 
   // Helper: dibujar fondo + footer + página N
@@ -2562,93 +2511,6 @@ function downloadPDF() {
 
     cy += cardH + 16;
   });
-
-  // =====================================================================
-  // PÁGINA 6 — IMPACTO ECONÓMICO (solo si hay exceso)
-  // =====================================================================
-  if (m.excesoTasa > 0) {
-    doc.addPage();
-    pageNum++;
-    paintPage();
-
-    cy = sectionHeader('V · Impacto económico estimado', 'Cuánto te cuesta hoy tu brecha.', 60);
-    cy += 32;
-
-    // Caja grande con el número
-    doc.setFillColor(...BG_SOFT);
-    doc.rect(40, cy, pageW - 80, 180, 'F');
-    doc.setFillColor(...ACCENT);
-    doc.rect(40, cy, pageW - 80, 2, 'F');
-
-    doc.setTextColor(...INK_MUTED);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('ESTIMACIÓN CONSERVADORA DE SOBRECOSTO ANUAL', 60, cy + 26);
-
-    doc.setTextColor(...ACCENT);
-    doc.setFontSize(34);
-    doc.setFont('helvetica', 'bold');
-    const rangoTxt = `${moneda}${m.impactoMin.toLocaleString('es-CL')} — ${moneda}${m.impactoMax.toLocaleString('es-CL')}`;
-    doc.text(rangoTxt, 60, cy + 72);
-
-    doc.setTextColor(...INK_MUTED);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.text(monedaCode + ' al año · rango estimado', 60, cy + 94);
-
-    // Narrativa
-    doc.setTextColor(...INK_SOFT);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    const narrativa = `Si llevas tu tasa del ${m.tasa.toFixed(1)}% al promedio del rubro (${m.promRubro.toFixed(1)}%), el ahorro estimado en cotización adicional ${formData.pais === 'PE' ? 'SCTR' : 'SUSESO'} se ubica en ese rango, sobre una planilla de ${m.nTrab.toLocaleString('es-CL')} ${m.nTrab === 1 ? 'trabajador' : 'trabajadores'} con renta bruta promedio de ${moneda}${m.rentaBruta.toLocaleString('es-CL')}.`;
-    const narrLines = doc.splitTextToSize(narrativa, pageW - 120);
-    doc.text(narrLines, 60, cy + 118);
-
-    cy += 200;
-
-    // Disclaimer empático
-    doc.setFillColor(...BG_SOFT);
-    doc.rect(40, cy, pageW - 80, 68, 'F');
-    doc.setFillColor(...ACCENT);
-    doc.rect(40, cy, 2, 68, 'F');
-    doc.setTextColor(...INK);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Este número es un punto de partida, no un veredicto.', 56, cy + 18);
-    doc.setTextColor(...INK_SOFT);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    const discText = 'Es una estimación conservadora que no incluye días perdidos, indemnizaciones eventuales ni pérdidas de productividad. La cifra real depende de tu tasa de siniestralidad específica y del decreto SUSESO de cotización adicional que te aplique.';
-    const discLines = doc.splitTextToSize(discText, pageW - 120);
-    doc.text(discLines, 56, cy + 34);
-
-    cy += 88;
-
-    // Fórmula de cálculo
-    doc.setDrawColor(...HAIRLINE);
-    doc.setLineWidth(0.5);
-    doc.line(40, cy, pageW - 40, cy);
-    cy += 20;
-
-    doc.setTextColor(...ACCENT);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text('CÓMO SE CALCULA', 40, cy);
-    cy += 16;
-
-    doc.setTextColor(...INK_SOFT);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    const formulaTxt = [
-      `Planilla anual: ${m.nTrab.toLocaleString('es-CL')} × ${moneda}${m.rentaBruta.toLocaleString('es-CL')} × 12 × 1,08 = ${moneda}${Math.round(m.planillaAnual).toLocaleString('es-CL')}`,
-      `Exceso de tasa sobre promedio sectorial: ${m.excesoTasa.toFixed(2)} puntos porcentuales`,
-      `Rango aplicado: 0,4% a 0,6% de la planilla por cada punto de exceso (base DS 67 con variación esperada)`
-    ];
-    formulaTxt.forEach(line => {
-      doc.text(line, 40, cy);
-      cy += 13;
-    });
-  }
 
   // =====================================================================
   // PÁGINA FINAL — CTA
