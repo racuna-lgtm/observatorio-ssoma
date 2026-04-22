@@ -1449,6 +1449,190 @@ function formatoCLP(valor) {
   return '$' + Math.round(valor).toLocaleString('es-CL');
 }
 
+function mostrarFormSiniestralidad() {
+  document.getElementById('form-siniestralidad').style.display = 'block';
+}
+
+function usarProxyRubro() {
+  const rubro = formData.rubro;
+  const proxy = getSiniestralidadProxyRubro(rubro) ||
+                getSiniestralidadProxyRubro('Promedio Nacional');
+  const input = document.getElementById('input-siniestralidad');
+  input.value = proxy.toFixed(1);
+  input.dataset.usaProxy = 'true';
+}
+
+function calcularImpacto() {
+  const input = document.getElementById('input-siniestralidad');
+  const sinUsuario = parseFloat(input.value);
+
+  if (isNaN(sinUsuario) || sinUsuario < 0) {
+    alert('Ingresa una tasa de siniestralidad válida (mayor o igual a 0).');
+    return;
+  }
+
+  const rubro = formData.rubro;
+  const sinRubro = getSiniestralidadProxyRubro(rubro) ||
+                   getSiniestralidadProxyRubro('Promedio Nacional');
+
+  const cotUsuario = getCotizacionAdicional(sinUsuario);
+  const cotRubro = getCotizacionAdicional(sinRubro);
+
+  // OJO: los nombres reales de formData son trabajadores y renta
+  // (no nTrabajadores / rentaBruta)
+  const planillaAnual = formData.trabajadores * formData.renta * 12;
+
+  const costoUsuario = planillaAnual * (cotUsuario / 100);
+  const costoRubro = planillaAnual * (cotRubro / 100);
+
+  const ahorroVsRubro = costoUsuario - costoRubro;
+  const ahorroVsMinimo = costoUsuario;
+
+  const escalonUsuario = getEscalonDS67(sinUsuario);
+  const escalonRubro = getEscalonDS67(sinRubro);
+
+  renderResultadoImpacto({
+    sinUsuario, sinRubro, cotUsuario, cotRubro,
+    costoUsuario, costoRubro,
+    ahorroVsRubro, ahorroVsMinimo,
+    planillaAnual, rubro,
+    escalonUsuario, escalonRubro,
+    usaProxy: input.dataset.usaProxy === 'true'
+  });
+}
+
+function renderResultadoImpacto(d) {
+  const cont = document.getElementById('resultado-impacto');
+
+  let escalonesHtml = '';
+  for (let i = d.escalonUsuario - 1; i >= 0; i--) {
+    const row = TABLA_DS67[i];
+    const costoEscalon = d.planillaAnual * (row.cotizacion / 100);
+    const ahorroEscalon = d.costoUsuario - costoEscalon;
+    const esEscalonRubro = i === d.escalonRubro;
+    const icono = i === 0 ? '🟢' : (esEscalonRubro ? '🟡' : '🟠');
+    escalonesHtml += `
+      <tr class="${esEscalonRubro ? 'fila-rubro-escalon' : ''}">
+        <td>${icono} Siniestralidad ${row.min}–${row.max === 99999 ? '+' : row.max}
+            ${esEscalonRubro ? '<br><em>(promedio estimado ' + d.rubro + ')</em>' : ''}</td>
+        <td>${row.cotizacion.toFixed(2)}%</td>
+        <td>${formatoCLP(costoEscalon)}</td>
+        <td><strong>${formatoCLP(ahorroEscalon)}</strong></td>
+      </tr>
+    `;
+  }
+
+  cont.innerHTML = `
+    <h3>Tu cotización adicional actual vs. el rubro</h3>
+
+    <table class="tabla-principal-impacto">
+      <thead>
+        <tr>
+          <th>Escenario</th>
+          <th>Siniestralidad</th>
+          <th>Cotización adicional</th>
+          <th>Costo anual</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="fila-usuario">
+          <td>🔴 <strong>Tu empresa hoy</strong></td>
+          <td>${d.sinUsuario.toFixed(1)}</td>
+          <td>${d.cotUsuario.toFixed(2)}%</td>
+          <td>${formatoCLP(d.costoUsuario)}</td>
+        </tr>
+        <tr class="fila-rubro">
+          <td>🟡 <strong>Promedio estimado de ${d.rubro}</strong></td>
+          <td>${d.sinRubro.toFixed(1)}</td>
+          <td>${d.cotRubro.toFixed(2)}%</td>
+          <td>${formatoCLP(d.costoRubro)}</td>
+        </tr>
+        <tr class="fila-aspiracional">
+          <td>🟢 <strong>Meta aspiracional (cotización 0%)</strong></td>
+          <td>0–32</td>
+          <td>0,00%</td>
+          <td>${formatoCLP(0)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="lectura-principal">
+      <p class="diferencia">
+        Tu empresa paga <strong>${formatoCLP(d.ahorroVsRubro)}</strong>
+        más al año que una empresa promedio de tu rubro en cotización
+        adicional.
+      </p>
+      <p class="diferencia-aspiracional">
+        Llegando a la meta aspiracional, el ahorro total sería de
+        <strong>${formatoCLP(d.ahorroVsMinimo)}</strong> anuales.
+      </p>
+    </div>
+
+    <details class="camino-escalonado">
+      <summary>Ver todos los escalones del DS 67 desde tu situación actual →</summary>
+      <table class="tabla-escalones">
+        <thead>
+          <tr>
+            <th>Escalón a bajar</th>
+            <th>Cotización</th>
+            <th>Costo anual</th>
+            <th>Ahorro acumulado</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${escalonesHtml}
+        </tbody>
+      </table>
+    </details>
+
+    <div class="disclaimer-ie">
+      <h4>Nota metodológica</h4>
+      <p>
+        No existe un dato oficial de siniestralidad promedio por rubro
+        publicado por SUSESO. La cifra de "promedio de ${d.rubro}"
+        que aparece arriba es una <strong>estimación</strong> construida
+        a partir de datos SUSESO 2024 (tasa de accidentabilidad y
+        días perdidos promedio del rubro) aplicando la fórmula oficial
+        de siniestralidad temporal. Te damos una referencia comparativa,
+        no un cálculo legal.
+      </p>
+      <p>
+        Tu cotización real depende del cálculo completo de siniestralidad
+        total de tu empresa (componente temporal + invalideces y muertes)
+        que hace tu Mutual o el ISL cada 2 años.
+      </p>
+      ${d.usaProxy ? `
+        <p class="warning-proxy">
+          <strong>Ojo:</strong> usaste la estimación sectorial también
+          para tu empresa. Eso significa que los números son doblemente
+          estimados. Para un análisis preciso, ingresa la siniestralidad
+          real de tu carta Mutual/ISL.
+        </p>
+      ` : ''}
+    </div>
+
+    <div class="nota-editorial">
+      <p>
+        Bajar al promedio de tu rubro en los próximos 2 años es una meta
+        realista con buena gestión preventiva. Llegar a la cotización
+        mínima (0%) requiere excelencia operacional sostenida durante
+        años — pocas empresas lo logran. El valor de ver el camino
+        completo no es prometerte el ideal, es mostrarte el terreno
+        para que definas tu propia ambición.
+      </p>
+      <p class="fuente">
+        Fuentes: DS 67/1999 Ministerio del Trabajo y Previsión Social
+        (tabla de cotización adicional por siniestralidad efectiva).
+        Datos sectoriales: SUSESO, Informe Anual de Seguridad y Salud
+        en el Trabajo 2024.
+      </p>
+    </div>
+  `;
+
+  cont.style.display = 'block';
+  cont.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 // Estado
 let formData = {};
 let currentStep = 1;
