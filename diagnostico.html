@@ -2164,6 +2164,13 @@ function renderReport() {
 
   // Render compliance list + chart
   renderComplianceUI(m);
+
+  // Activar sección de impacto económico solo si se cumplen las condiciones:
+  // 1. Usuario es de Chile (el DS 67 es chileno, Perú tiene otro sistema)
+  // 2. Tasa del usuario está sobre el promedio del rubro
+  if (formData.pais === 'CL' && m.tasa > m.promRubro) {
+    document.getElementById('impacto-economico').style.display = 'block';
+  }
 }
 
 function renderPerfilCTA(perfil, form) {
