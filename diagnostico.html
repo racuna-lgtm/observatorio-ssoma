@@ -1872,6 +1872,48 @@ function renderReport() {
         </div>
       </div>
 
+      <!-- Impacto económico (Chile, condicional — se activa en renderReport si pais=CL y tasa > promRubro) -->
+      <section class="impacto-economico" id="impacto-economico" style="display:none;">
+        <div class="ie-header">
+          <h2>¿Quieres saber cuánto podría estarte costando este exceso?</h2>
+          <p class="ie-intro">
+            Tu tasa de accidentabilidad está sobre el promedio de tu rubro.
+            En Chile, eso probablemente se traduce en una cotización adicional
+            más alta ante tu Mutual o el ISL según el DS 67/1999.
+          </p>
+          <p class="ie-help">
+            Para calcularlo necesitamos tu <strong>tasa de siniestralidad
+            total</strong>, que aparece en tu carta de cotización (ACHS,
+            Mutual CCHC, IST o ISL). Busca "Evaluación de siniestralidad"
+            o "Proceso DS 67". Es un número entre 0 y 981+.
+          </p>
+          <button type="button" class="btn-ie-primary"
+                  onclick="mostrarFormSiniestralidad()">
+            Calcular mi impacto económico →
+          </button>
+        </div>
+
+        <div id="form-siniestralidad" class="ie-form" style="display:none;">
+          <label for="input-siniestralidad">
+            Tu tasa de siniestralidad total (de tu carta Mutual/ISL)
+          </label>
+          <input type="number" id="input-siniestralidad"
+                 min="0" max="1500" step="0.1"
+                 placeholder="Ej: 120">
+          <p class="ie-hint">
+            ¿No tienes la carta a mano?
+            <button type="button" class="btn-link" onclick="usarProxyRubro()">
+              Usa la estimación promedio de tu rubro →
+            </button>
+          </p>
+          <button type="button" class="btn-ie-primary" onclick="calcularImpacto()">
+            Ver mi análisis →
+          </button>
+        </div>
+
+        <div id="resultado-impacto" class="ie-resultado" style="display:none;"></div>
+      </section>
+
       <!-- II. Cumplimiento legal -->
       <div class="report-section">
         <div class="report-inner">
