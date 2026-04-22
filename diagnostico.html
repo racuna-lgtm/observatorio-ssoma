@@ -1377,6 +1377,78 @@ const SUBRUBROS = {
   ]
 };
 
+// ═══════════════════════════════════════════════════════════
+// IMPACTO ECONÓMICO — Tabla DS 67 y datos SUSESO 2024
+// ═══════════════════════════════════════════════════════════
+
+// Tabla oficial DS 67/1999 — Cotización Adicional por Siniestralidad
+const TABLA_DS67 = [
+  { min: 0,   max: 32,    cotizacion: 0.00 },
+  { min: 33,  max: 64,    cotizacion: 0.34 },
+  { min: 65,  max: 96,    cotizacion: 0.68 },
+  { min: 97,  max: 128,   cotizacion: 1.02 },
+  { min: 129, max: 160,   cotizacion: 1.36 },
+  { min: 161, max: 192,   cotizacion: 1.70 },
+  { min: 193, max: 224,   cotizacion: 2.04 },
+  { min: 225, max: 272,   cotizacion: 2.38 },
+  { min: 273, max: 320,   cotizacion: 2.72 },
+  { min: 321, max: 368,   cotizacion: 3.06 },
+  { min: 369, max: 416,   cotizacion: 3.40 },
+  { min: 417, max: 464,   cotizacion: 3.74 },
+  { min: 465, max: 512,   cotizacion: 4.08 },
+  { min: 513, max: 560,   cotizacion: 4.42 },
+  { min: 561, max: 630,   cotizacion: 4.76 },
+  { min: 631, max: 700,   cotizacion: 5.10 },
+  { min: 701, max: 770,   cotizacion: 5.44 },
+  { min: 771, max: 840,   cotizacion: 5.78 },
+  { min: 841, max: 910,   cotizacion: 6.12 },
+  { min: 911, max: 980,   cotizacion: 6.46 },
+  { min: 981, max: 99999, cotizacion: 6.80 }
+];
+
+// Datos SUSESO 2024 por actividad económica
+// IMPORTANTE: las claves usan los nombres EXACTOS del formulario (opción A)
+// no los nombres canónicos SUSESO. Fuente: Informe Anual SST SUSESO 2024 + BCN 2025.
+const DATOS_SUSESO_2024 = {
+  'Industria Manufacturera':  { tasa: 3.5, diasPerdidos: 20.5 },
+  'Agricultura y pesca':      { tasa: 3.3, diasPerdidos: 21.2 },
+  'Transporte y com.':        { tasa: 3.1, diasPerdidos: 23.9 },
+  'Comercio':                 { tasa: 2.8, diasPerdidos: 15.7 },
+  'Construcción':             { tasa: 2.8, diasPerdidos: 21.6 },
+  'Servicios':                { tasa: 2.0, diasPerdidos: 16.4 },
+  'Electricidad/Gas/Agua':    { tasa: 1.1, diasPerdidos: 21.8 },
+  'Minería':                  { tasa: 0.9, diasPerdidos: 35.1 },
+  'Promedio Nacional':        { tasa: 2.5, diasPerdidos: 18.5 }
+};
+
+// Dado un valor de siniestralidad total, devuelve cotización adicional %
+function getCotizacionAdicional(siniestralidad) {
+  const row = TABLA_DS67.find(r =>
+    siniestralidad >= r.min && siniestralidad <= r.max
+  );
+  return row ? row.cotizacion : 6.80;
+}
+
+// Dado un valor de siniestralidad, devuelve índice del escalón (0 a 20)
+function getEscalonDS67(siniestralidad) {
+  return TABLA_DS67.findIndex(r =>
+    siniestralidad >= r.min && siniestralidad <= r.max
+  );
+}
+
+// Proxy sectorial: estimación de siniestralidad temporal del rubro
+// Fórmula: (accidentabilidad / 100) × días perdidos promedio × 100
+function getSiniestralidadProxyRubro(nombreRubro) {
+  const data = DATOS_SUSESO_2024[nombreRubro];
+  if (!data) return null;
+  return (data.tasa / 100) * data.diasPerdidos * 100;
+}
+
+// Formateo CLP
+function formatoCLP(valor) {
+  return '$' + Math.round(valor).toLocaleString('es-CL');
+}
+
 // Estado
 let formData = {};
 let currentStep = 1;
