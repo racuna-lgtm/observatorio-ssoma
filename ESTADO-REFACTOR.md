@@ -6,10 +6,11 @@
 - Fase 3 ✅: HTML del bloque condicional de impacto económico
 - Fase 4 ✅: lógica de cálculo y renderizado (mostrarFormSiniestralidad, usarProxyRubro, calcularImpacto, renderResultadoImpacto)
 - Fase 5 ✅: activación condicional del bloque (if pais CL && tasa > promRubro)
+- Fase 6 ✅: CSS del bloque en estética Medianoche, scoped bajo `.impacto-economico`
+- Fase 7 ✅: validación funcional end-to-end (6 casos, pasó al primer intento sin fixes)
 
 ## Fases pendientes
-- Fase 6: CSS (estética Medianoche adaptada a tokens reales del archivo)
-- Fase 7: validación funcional + commit final + push
+— ninguna, refactor completo.
 
 ## Decisiones tomadas en sesión previa
 
@@ -55,7 +56,7 @@ Los datos SUSESO se escriben con los nombres EXACTOS del formulario actual (no l
 - 84db157 — Fase 3
 - a20d96f — Fase 4
 - 592d6fb — Fase 5
-- (pendiente) — Update de ESTADO-REFACTOR.md
+- 6294d58 — Update de ESTADO-REFACTOR.md
 
 ### Exploración previa
 - `renderReport` es el nombre real de la función que renderiza el reporte completo (sin parámetros, `function renderReport()`).
@@ -88,7 +89,89 @@ Para usuarios de Perú con tasa alta, el resto del reporte (resumen ejecutivo, c
 
 **Pendiente estratégico (fuera del scope actual):** evaluar si más adelante se construye un bloque económico equivalente para Perú basado en SCTR (Seguro Complementario de Trabajo de Riesgo, regulado por SBS/SUNAFIL, con primas por nivel de riesgo I-V). Sería una fase nueva a futuro, no parte de este refactor. Decisión sujeta a priorización de producto.
 
+## Decisiones sesión 3
+
+### Tokens reales del sistema Medianoche confirmados
+
+| Familia | Token | Valor |
+|---|---|---|
+| Texto | `--ink` | `#EEE9DE` (marfil cálido, texto principal) |
+| | `--ink-soft` | `#D4CFC4` |
+| | `--ink-muted` | `#8E8B81` |
+| | `--ink-faint` | `#5C5A52` |
+| Fondos | `--paper` | `#0F1419` (fondo oscuro profundo) |
+| | `--paper-soft` | `#1A1F26` |
+| | `--paper-warm` | `#141820` |
+| | `--cream` | `#252A32` |
+| Hairlines | `--hairline` | `#2D3340` |
+| | `--hairline-soft` | `#20252E` |
+| Acentos | `--accent` | `#D4B98F` (dorado) |
+| | `--accent-deep` | `#B89B6F` |
+| | `--accent-soft` | `#2C2518` |
+| Semánticos | `--critical` | `#C06846` |
+| | `--critical-soft` | `#3A1F19` |
+| | `--positive` | `#5F8060` |
+| Escala riesgo | `--risk-1` | `#5F8060` |
+| | `--risk-2` | `#8E9B5E` |
+| | `--risk-3` | `#C9B353` |
+| | `--risk-4` | `#D49447` |
+| | `--risk-5` | `#C06846` |
+| | `--risk-6` | `#9B3828` |
+| Tipografía | `--display` | `'Fraunces', serif` |
+| | `--editorial` | `'Newsreader', Georgia, serif` |
+| | `--ui` | `'IBM Plex Sans', system-ui, sans-serif` |
+| | `--mono` | `'IBM Plex Mono', monospace` |
+
+Nota: `--gold` NO existe como token independiente — el dorado del sistema es `--accent`. Se eliminó la mención a `--gold` del plan original al confirmar esto en la exploración del Paso 1.
+
+### Tokens semánticos reutilizados en vez de declarar locales
+Decisión tomada al descubrir en el Paso 1 que el sistema ya tenía tokens semánticos adecuados. Se evitó contaminar el bloque con tokens locales redundantes (los `--ie-danger/warning/success` que originalmente proponía el plan).
+
+- `.fila-usuario` → `--critical` en `border-left`
+- `.fila-rubro` → `--risk-3` en `border-left`
+- `.fila-aspiracional` → `--positive` en `border-left`
+- `.warning-proxy` → `--risk-3` en `border-left`
+- Fondo tenue de `.fila-rubro-escalon` → `rgba(201, 179, 83, 0.03)` (componentes RGB de `--risk-3` con alpha bajo, para marcar sutilmente el punto de referencia)
+
+### Decisión sobre emojis 🔴🟡🟢🟠
+Atenuación tipográfica con `filter: grayscale(0.3)` y `opacity: 0.95` sobre el `<td>:first-child` de ambas tablas (principal y escalones).
+
+**Limitación conocida:** el `filter` se hereda al `<strong>` interno de la celda y afecta marginalmente al texto del escenario. Dado que `--ink` (#EEE9DE) es casi-neutro, el impacto visual sobre el texto es imperceptible en uso real; validado en Fase 7.
+
+**Semántica fuerte:** queda anclada en el `border-left: 3px solid` de cada fila, siguiendo el patrón establecido por `.summary-stat` y `.rec-card` en el resto del reporte. El color del borde comunica la categoría, no el emoji.
+
+**Upgrade futuro (Fase 8+):** círculos CSS perfectos requerirían wrapping HTML de los emojis en `<span class="ie-dot">`, lo cual queda fuera del scope de Fase 6 (CSS puro). Registrado como mejora potencial pendiente de priorización.
+
+### Rol del usuario (operativa / mandante / contratista)
+Decisión de diseño validada en Fase 7 con Casos E y F: el rol NO modula el bloque económico en esta iteración. El cálculo DS 67 aplica uniformemente a los 3 roles, porque todos pagan cotización adicional por su propia planilla.
+
+Las diferencias narrativas por rol son relevantes pero fuera del scope de este refactor:
+- **Mandante:** responsabilidad solidaria Art. 66 bis Ley 16.744 + DS 76 sobre accidentes de contratistas.
+- **Contratista:** impacto reputacional/contractual del nivel de cotización en procesos de licitación.
+
+Registrado como mejora futura Fase 8+ pendiente de priorización.
+
+### Ajustes aplicados durante Fase 7
+Ninguno. Fase 7 pasó sin fixes. Los 6 casos (A camino principal, B proxy, C guard Perú, D guard tasa baja, E mandante, F contratista) validaron OK al primer intento.
+
+### Commits de la sesión 3
+- 1fed677 — Fase 6 (CSS Medianoche)
+- b829d3e — Fase 7 (validación end-to-end, commit marker sin cambios de código)
+- (pendiente) — Cierre de refactor + update de ESTADO-REFACTOR.md
+
+## Pendientes de producto fuera del refactor DS 67
+
+### Export PDF del reporte
+El export PDF va por una ruta distinta a `renderReport()` — la función `downloadPDF()` redibuja el reporte completo con jsPDF desde cero en vez de rasterizar el DOM, y no incluye el bloque de impacto económico. Queda como issue para próxima iteración. Decisión pendiente de producto: ¿se agrega una sección al PDF equivalente al bloque HTML, se ofrece descarga separada, o se deja el impacto económico solo como vista web?
+
+### Datos de contacto del formulario (nombre, cargo, email, teléfono)
+Naty levantó durante Fase 7 la duda sobre qué pasa con esos datos cuando un usuario completa el diagnóstico. No se investigó en esta sesión.
+
+Pendientes paralelos:
+1. **Técnico:** rastrear si se envían a algún endpoint, se guardan localmente, o se pierden al cerrar el navegador.
+2. **Producto:** definir qué hacer con ellos, considerando la Ley 21.719 chilena de protección de datos personales (consentimiento explícito, finalidad declarada, derechos ARCO, etc.).
+
+Conversación dedicada de producto pendiente antes de cualquier implementación.
+
 ## Cómo retomar en próxima sesión
-1. Abrir Claude Code desde C:\Proyectos\observatorio-ssoma
-2. Pedir a Claude: "Lee ESTADO-REFACTOR.md y retomamos desde Fase 6"
-3. Fase 6 es la estética (CSS Medianoche con tokens `--paper` y `--display` + los demás a confirmar). Fase 7 es validación funcional + push final.
+Refactor DS 67 cerrado. Para trabajo futuro sobre el bloque de impacto económico o temas relacionados, ver la sección "Pendientes de producto fuera del refactor DS 67" más arriba.
